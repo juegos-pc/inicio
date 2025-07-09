@@ -109,12 +109,10 @@ let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
       }
     });
 
-    // Delegar el clic en los iconos corazón
     document.querySelectorAll(".heart i").forEach((heartIcon) => {
       heartIcon.addEventListener("click", toggleFavorito);
     });
 
-    // Modo noche / día
     function toggleModo() {
       document.body.classList.toggle("light");
       const modoActual = document.body.classList.contains("light") ? "light" : "dark";
@@ -129,7 +127,6 @@ let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
       btn.textContent = modoActual === "light" ? "☀️" : "🌙";
     }
 
-    // Función para ordenar juegos alfabéticamente por el texto del título visible (.title-overlay)
     function ordenarJuegosAlfabeticamente() {
       const contenedor = document.getElementById("gameList");
       const juegos = Array.from(contenedor.querySelectorAll(".game"));
@@ -142,6 +139,14 @@ let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
 
       contenedor.innerHTML = "";
       juegos.forEach(juego => contenedor.appendChild(juego));
+    }
+
+    function abrirModalCorreo() {
+      document.getElementById("modalCorreo").style.display = "block";
+    }
+
+    function cerrarModalCorreo() {
+      document.getElementById("modalCorreo").style.display = "none";
     }
 
     window.addEventListener("DOMContentLoaded", () => {

@@ -1,219 +1,311 @@
 * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      transition: background 0.3s, color 0.3s;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  transition: background 0.3s, color 0.3s;
+}
 
-    body.light {
-      background: #fefae0;
-      color: #333;
-    }
+body.light {
+  background: #fefae0;
+  color: #333;
+}
 
-    /* Barra lateral a la izquierda */
-    #menuClosed {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 60px;
-      height: 100vh;
-      background: #222;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1rem 0;
-      cursor: default;
-      z-index: 1100;
-    }
+/* Barra lateral a la izquierda */
+#menuClosed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100vh;
+  background: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  z-index: 1100;
+}
 
-    #menuClosed button {
-      margin: 1rem 0;
-      font-size: 24px;
-      user-select: none;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
+#menuClosed .menu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    #menuClosed button:hover {
-      color: #ff0;
-    }
+#menuClosed button {
+  margin: 1rem 0;
+  font-size: 24px;
+  user-select: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s;
+}
 
-    #menuClosed:hover {
-      background: #333;
-    }
+#menuClosed button:hover {
+  color: #ff0;
+}
 
-    /* Botón corazón menú activo en rojo */
-    #menuClosed button.activo i.fa-heart {
-      color: red;
-    }
+#menuClosed a {
+  margin-bottom: 1rem;
+  color: white;
+  font-size: 28px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
 
-    /* Buscador expandido a la izquierda */
-    #buscadorExpandido {
-      position: fixed;
-      top: 10px;
-      left: 70px;
-      background: #222;
-      padding: 5px 10px;
-      border-radius: 5px;
-      display: none;
-      z-index: 1200;
-    }
+#menuClosed a:hover {
+  color: #ff0;
+}
 
-    body.light #buscadorExpandido {
-      background: #e9e4c7;
-      color: #333;
-    }
+/* Botón corazón menú activo en rojo */
+#menuClosed button.activo i.fa-heart {
+  color: red;
+}
 
-    #buscadorExpandido input {
-      width: 200px;
-      padding: 5px 8px;
-      border-radius: 5px;
-      border: none;
-      font-size: 16px;
-    }
+/* Buscador expandido a la izquierda */
+#buscadorExpandido {
+  position: fixed;
+  top: 10px;
+  left: 70px;
+  background: #222;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: none;
+  z-index: 1200;
+}
 
-    /* Lista de juegos */
-    .game-list {
-      margin-left: 60px;
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.5rem;
-      justify-content: center;
-      justify-items: center;
-    }
+body.light #buscadorExpandido {
+  background: #e9e4c7;
+  color: #333;
+}
 
-    .game {
-      position: relative;
-      width: 200px;
-      text-decoration: none;
-      color: inherit;
-      background: #222;
-      border-radius: 10px;
-      overflow: hidden;
-      transition: background 0.3s;
-      cursor: pointer;
-    }
+#buscadorExpandido input {
+  width: 200px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+}
 
-    body.light .game {
-      background: #e9e4c7;
-      color: #333;
-    }
+/* Lista de juegos */
+.game-list {
+  margin-left: 60px;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  justify-content: center;
+  justify-items: center;
+}
 
-    .game img {
-      width: 200px;
-      height: 270px;
-      object-fit: cover;
-      display: block;
-      transition: filter 0.3s ease;
-      border-radius: 10px;
-    }
+.game {
+  position: relative;
+  width: 200px;
+  text-decoration: none;
+  color: inherit;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: background 0.3s;
+  cursor: pointer;
+}
 
-    /* Corazón arriba a la derecha */
-    .heart {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 10;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 4px;
-      border-radius: 50%;
-      transition: background 0.3s;
-    }
+body.light .game {
+  background: #e9e4c7;
+  color: #333;
+}
 
-    .heart i {
-      font-size: 28px;
-      cursor: pointer;
-      transition: color 0.3s, transform 0.2s;
-      color: white;
-      pointer-events: auto;
-      user-select: none;
-    }
+.game img {
+  width: 200px;
+  height: 270px;
+  object-fit: cover;
+  display: block;
+  transition: filter 0.3s ease;
+  border-radius: 10px;
+}
 
-    body.light .heart i {
-      color: #444;
-    }
+/* Corazón arriba a la derecha */
+.heart {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
 
-    .heart i:hover {
-      transform: scale(1.2);
-    }
+.heart i {
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+  color: white;
+  pointer-events: auto;
+  user-select: none;
+}
 
-    .heart i.fav {
-      color: red !important;
-    }
+body.light .heart i {
+  color: #444;
+}
 
-    /* Nombre del juego al centro y oculto, adaptado */
-    .game .title-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 90%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      user-select: none;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      text-shadow: 0 0 5px black;
-      transition: opacity 0.3s ease;
-      z-index: 9;
-    }
+.heart i:hover {
+  transform: scale(1.2);
+}
 
-    body.light .game .title-overlay {
-      color: #333;
-      text-shadow: 0 0 5px #eee;
-    }
+.heart i.fav {
+  color: red !important;
+}
 
-    /* Hover efecto difuminar y mostrar texto */
-    .game:hover img {
-      filter: brightness(0.5) blur(2px);
-    }
+/* Nombre del juego al centro y oculto, adaptado */
+.game .title-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-shadow: 0 0 5px black;
+  transition: opacity 0.3s ease;
+  z-index: 9;
+}
 
-    .game:hover .title-overlay {
-      opacity: 1;
-    }
+body.light .game .title-overlay {
+  color: #333;
+  text-shadow: 0 0 5px #eee;
+}
 
-    /* Botón subir a la derecha */
-    #btnSubir {
-      position: fixed;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #444;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      color: white;
-      cursor: pointer;
-      z-index: 1100;
-      transition: background 0.3s;
-    }
+/* Hover efecto difuminar y mostrar texto */
+.game:hover img {
+  filter: brightness(0.5) blur(2px);
+}
 
-    #btnSubir:hover {
-      background: #666;
-    }
+.game:hover .title-overlay {
+  opacity: 1;
+}
 
-    body.light #btnSubir {
-      background: #aaa;
-      color: #333;
-    }
+/* Botón subir a la derecha */
+#btnSubir {
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #444;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  z-index: 1100;
+  transition: background 0.3s;
+}
 
-    body.light #btnSubir:hover {
-      background: #888;
-    }
+#btnSubir:hover {
+  background: #666;
+}
+
+body.light #btnSubir {
+  background: #aaa;
+  color: #333;
+}
+
+body.light #btnSubir:hover {
+  background: #888;
+}
+
+/* Modal fondo */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: #222;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  color: #fff;
+  position: relative;
+}
+
+body.light .modal-content {
+  background-color: #e9e4c7;
+  color: #333;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  color: #fff;
+  cursor: pointer;
+}
+
+body.light .modal-content .close {
+  color: #333;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+}
+
+body.light .modal-content input,
+body.light .modal-content select,
+body.light .modal-content textarea {
+  background-color: #fff;
+  color: #333;
+}
+
+.modal-content button[type="submit"] {
+  background: #ff0;
+  color: #000;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content button[type="submit"]:hover {
+  background: #ffc107;
+}

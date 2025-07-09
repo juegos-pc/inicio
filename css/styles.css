@@ -1,0 +1,219 @@
+* {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light {
+      background: #fefae0;
+      color: #333;
+    }
+
+    /* Barra lateral a la izquierda */
+    #menuClosed {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 60px;
+      height: 100vh;
+      background: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0;
+      cursor: default;
+      z-index: 1100;
+    }
+
+    #menuClosed button {
+      margin: 1rem 0;
+      font-size: 24px;
+      user-select: none;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    #menuClosed button:hover {
+      color: #ff0;
+    }
+
+    #menuClosed:hover {
+      background: #333;
+    }
+
+    /* Botón corazón menú activo en rojo */
+    #menuClosed button.activo i.fa-heart {
+      color: red;
+    }
+
+    /* Buscador expandido a la izquierda */
+    #buscadorExpandido {
+      position: fixed;
+      top: 10px;
+      left: 70px;
+      background: #222;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1200;
+    }
+
+    body.light #buscadorExpandido {
+      background: #e9e4c7;
+      color: #333;
+    }
+
+    #buscadorExpandido input {
+      width: 200px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    /* Lista de juegos */
+    .game-list {
+      margin-left: 60px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      justify-content: center;
+      justify-items: center;
+    }
+
+    .game {
+      position: relative;
+      width: 200px;
+      text-decoration: none;
+      color: inherit;
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    body.light .game {
+      background: #e9e4c7;
+      color: #333;
+    }
+
+    .game img {
+      width: 200px;
+      height: 270px;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.3s ease;
+      border-radius: 10px;
+    }
+
+    /* Corazón arriba a la derecha */
+    .heart {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px;
+      border-radius: 50%;
+      transition: background 0.3s;
+    }
+
+    .heart i {
+      font-size: 28px;
+      cursor: pointer;
+      transition: color 0.3s, transform 0.2s;
+      color: white;
+      pointer-events: auto;
+      user-select: none;
+    }
+
+    body.light .heart i {
+      color: #444;
+    }
+
+    .heart i:hover {
+      transform: scale(1.2);
+    }
+
+    .heart i.fav {
+      color: red !important;
+    }
+
+    /* Nombre del juego al centro y oculto, adaptado */
+    .game .title-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 90%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      text-shadow: 0 0 5px black;
+      transition: opacity 0.3s ease;
+      z-index: 9;
+    }
+
+    body.light .game .title-overlay {
+      color: #333;
+      text-shadow: 0 0 5px #eee;
+    }
+
+    /* Hover efecto difuminar y mostrar texto */
+    .game:hover img {
+      filter: brightness(0.5) blur(2px);
+    }
+
+    .game:hover .title-overlay {
+      opacity: 1;
+    }
+
+    /* Botón subir a la derecha */
+    #btnSubir {
+      position: fixed;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #444;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      z-index: 1100;
+      transition: background 0.3s;
+    }
+
+    #btnSubir:hover {
+      background: #666;
+    }
+
+    body.light #btnSubir {
+      background: #aaa;
+      color: #333;
+    }
+
+    body.light #btnSubir:hover {
+      background: #888;
+    }

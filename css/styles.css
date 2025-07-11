@@ -50,7 +50,7 @@ body.light {
 }
 
 #menuClosed button:hover {
-  color: #ff0;
+  color: #ff0080;
 }
 
 #menuClosed a {
@@ -62,7 +62,7 @@ body.light {
 }
 
 #menuClosed a:hover {
-  color: #ff0;
+  color: #ff0080;
 }
 
 /* Botón corazón menú activo en rojo */

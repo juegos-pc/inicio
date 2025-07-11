@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donaciones</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #1e1e2f;
+      color: #f2f2f2;
+    }
+    .donation-container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .donation-container h2 {
+      color: #ffca28;
+      margin-bottom: 20px;
+      font-size: 2.3em;
+    }
+    .donation-container p.intro {
+      max-width: 800px;
+      margin: 0 auto 50px;
+      font-size: 1.15em;
+      color: #cccccc;
+      line-height: 1.6;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    .card {
+      background: #2d2d44;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      padding: 25px 20px;
+      width: 300px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #64b5f6;
+      font-size: 1.6em;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-size: 22px;
+      color: #66bb6a;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    .card p {
+      font-size: 15px;
+      color: #dddddd;
+      margin-bottom: 20px;
+    }
+    .mp-button {
+      display: inline-block;
+      width: 100%;
+    }
+    .mp-button iframe {
+      border-radius: 6px;
+    }
+    @media (max-width: 992px) {
+      .card {
+        width: 85%;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="donation-container">
+    <h2>La página se mantiene gracias a tus donaciones</h2>
+    <p class="intro">
+      Este proyecto sigue vivo gracias al apoyo de personas como vos. Tu donación nos permite cubrir los gastos de hosting, dominios y seguir subiendo nuestros propios links de descarga para que siempre tengas acceso al mejor contenido. 
+      <strong>¡Cada aporte suma muchísimo y nos ayuda a crecer!</strong>
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Donación Solidaria</h3>
+        <div class="price">$100</div>
+        <p>Ayudanos a mantener la página online y seguir compartiendo contenido de calidad.</p>
+        <div class="mp-button">
+          <script src="https://www.mercadopago.com.ar/integrations/v1/web-payment-checkout.js"
+            data-preference-id="1336179269-40ccace8-3765-4e57-b493-801cc103037e"
+            data-source="button">
+          </script>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>Donación Generosa</h3>
+        <div class="price">$500</div>
+        <p>Tu ayuda hace posible que sigamos creciendo y subiendo nuestros propios enlaces.</p>
+        <div class="mp-button">
+          <script src="https://www.mercadopago.com.ar/integrations/v1/web-payment-checkout.js"
+            data-preference-id="1336179269-f5c41c94-d486-4d19-82ad-be5d300db036"
+            data-source="button">
+          </script>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>Donación Especial</h3>
+        <div class="price">$1000</div>
+        <p>Gracias a vos podemos mantener el sitio activo y ofrecer descargas directas sin depender de otros.</p>
+        <div class="mp-button">
+          <script src="https://www.mercadopago.com.ar/integrations/v1/web-payment-checkout.js"
+            data-preference-id="1336179269-c7589494-26d8-4544-86f3-249e792582b4"
+            data-source="button">
+          </script>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+</body>
+</html>

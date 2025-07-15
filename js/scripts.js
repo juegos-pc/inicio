@@ -1,163 +1,153 @@
 let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
-    let mostrandoFavoritos = false;
+let mostrandoFavoritos = false;
+let filtroRequisito = null;
 
-    function toggleFavorito(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const game = e.target.closest(".game");
-      const titulo = game.title;
+function normalizar(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
-      const index = favoritos.indexOf(titulo);
-      if (index === -1) favoritos.push(titulo);
-      else favoritos.splice(index, 1);
+function toggleBuscador() {
+  const buscador = document.getElementById("buscadorExpandido");
+  buscador.style.display = buscador.style.display === "flex" ? "none" : "flex";
+  if (buscador.style.display === "flex") {
+    document.getElementById("searchInput").focus();
+  }
+}
 
-      localStorage.setItem("favoritos", JSON.stringify(favoritos));
-      actualizarFavoritos();
-      if (mostrandoFavoritos) mostrarFavoritos();
+document.getElementById("searchInput").addEventListener("input", () => {
+  aplicarFiltros();
+  ordenarJuegosAlfabeticamente(); // ordena después de filtrar
+});
+
+document.querySelectorAll(".filtro-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (filtroRequisito === btn.dataset.requisito) {
+      filtroRequisito = null;
+      btn.classList.remove("activo");
+    } else {
+      document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
+      filtroRequisito = btn.dataset.requisito;
+      btn.classList.add("activo");
     }
+    aplicarFiltros();
+    ordenarJuegosAlfabeticamente(); // ordena después de aplicar filtro requisito
+  });
+});
 
-    function actualizarFavoritos() {
-      document.querySelectorAll(".game").forEach((div) => {
-        const titulo = div.title;
-        const heartIcon = div.querySelector(".heart i");
+function aplicarFiltros() {
+  const texto = normalizar(document.getElementById("searchInput").value);
+  document.querySelectorAll(".game").forEach(game => {
+    const titulo = normalizar(game.title);
+    const req = normalizar(game.dataset.requisito || "");
+    let visible = (!texto || titulo.includes(texto)) &&
+      (!filtroRequisito || req === filtroRequisito);
+    game.style.display = visible ? "block" : "none";
+  });
+}
 
-        if (favoritos.includes(titulo)) {
-          heartIcon.classList.remove("fa-heart-circle-plus");
-          heartIcon.classList.add("fa-heart-circle-minus");
-          heartIcon.classList.add("fav");
-        } else {
-          heartIcon.classList.remove("fa-heart-circle-minus");
-          heartIcon.classList.add("fa-heart-circle-plus");
-          heartIcon.classList.remove("fav");
-          heartIcon.style.color = document.body.classList.contains("light") ? "#444" : "white";
-        }
-      });
+document.querySelectorAll(".heart i").forEach(icon => {
+  icon.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const game = e.target.closest(".game");
+    const titulo = game.title;
+    if (favoritos.includes(titulo)) {
+      favoritos = favoritos.filter(t => t !== titulo);
+    } else {
+      favoritos.push(titulo);
     }
+    localStorage.setItem("favoritos", JSON.stringify(favoritos));
+    actualizarFavoritos();
+    if (mostrandoFavoritos) mostrarFavoritos(); // refresca favoritos si está activo
+    ordenarJuegosAlfabeticamente();
+  });
+});
 
-    function toggleMostrarFavoritos() {
-      mostrandoFavoritos = !mostrandoFavoritos;
-      const btnFavoritos = document.querySelector('#menuClosed button[title="Favoritos"]');
-      if (mostrandoFavoritos) {
-        mostrarFavoritos();
-        btnFavoritos.classList.add('activo');
-      } else {
-        mostrarTodos();
-        btnFavoritos.classList.remove('activo');
-      }
+function actualizarFavoritos() {
+  document.querySelectorAll(".game").forEach(game => {
+    const icon = game.querySelector(".heart i");
+    if (favoritos.includes(game.title)) {
+      icon.classList.remove("fa-heart-circle-plus");
+      icon.classList.add("fa-heart-circle-minus");
+      icon.classList.add("fav");
+    } else {
+      icon.classList.add("fa-heart-circle-plus");
+      icon.classList.remove("fa-heart-circle-minus");
+      icon.classList.remove("fav");
     }
+  });
+}
 
-    function mostrarFavoritos() {
-      document.querySelectorAll(".game").forEach((j) => {
-        const titulo = j.title;
-        j.style.display = favoritos.includes(titulo) ? "block" : "none";
-      });
-    }
+function toggleMostrarFavoritos() {
+  mostrandoFavoritos = !mostrandoFavoritos;
+  document.querySelector('#menuClosed button[title="Favoritos"]').classList.toggle("activo", mostrandoFavoritos);
+  mostrarFavoritos();
+  ordenarJuegosAlfabeticamente();
+}
 
-    function mostrarTodos() {
-      document.querySelectorAll(".game").forEach((j) => {
-        j.style.display = "block";
-      });
-    }
+function mostrarFavoritos() {
+  document.querySelectorAll(".game").forEach(game => {
+    game.style.display =
+      mostrandoFavoritos && !favoritos.includes(game.title) ? "none" : "block";
+  });
+}
 
-    function toggleBuscador() {
-      const buscador = document.getElementById("buscadorExpandido");
-      if (buscador.style.display === "flex") {
-        ocultarBuscador();
-      } else {
-        mostrarBuscador();
-      }
-    }
+function ordenarJuegosAlfabeticamente() {
+  const contenedor = document.getElementById("gameList");
+  if (!contenedor) return;
+  // Filtrar solo los juegos visibles para ordenarlos y reinsertarlos
+  const juegosVisibles = Array.from(contenedor.querySelectorAll(".game"))
+    .filter(game => game.style.display !== "none");
 
-    function mostrarBuscador() {
-      const buscador = document.getElementById("buscadorExpandido");
-      buscador.style.display = "flex";
-      document.getElementById("searchInput").focus();
-    }
+  juegosVisibles.sort((a, b) => {
+    const tituloA = normalizar(a.title);
+    const tituloB = normalizar(b.title);
+    return tituloA.localeCompare(tituloB);
+  });
 
-    function ocultarBuscador() {
-      const buscador = document.getElementById("buscadorExpandido");
-      buscador.style.display = "none";
-      document.getElementById("searchInput").value = "";
-      mostrarTodos();
-    }
+  juegosVisibles.forEach(juego => contenedor.appendChild(juego));
+}
 
-    function normalizar(str) {
-      return str
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .toLowerCase()
-        .trim();
-    }
+function toggleModo() {
+  document.body.classList.toggle("light");
+  const modoActual = document.body.classList.contains("light") ? "light" : "dark";
+  localStorage.setItem("modo", modoActual);
+  actualizarIconoModo();
+  actualizarFavoritos();
+}
 
-    document.getElementById("searchInput").addEventListener("input", () => {
-      const filtro = normalizar(document.getElementById("searchInput").value);
-      document.querySelectorAll(".game").forEach((j) => {
-        const title = normalizar(j.title);
-        j.style.display = title.includes(filtro) ? "block" : "none";
-      });
-    });
+function actualizarIconoModo() {
+  const btn = document.getElementById("btnModo");
+  btn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
+}
 
-    document.getElementById("searchInput").addEventListener("blur", () => {
-      ocultarBuscador();
-    });
+window.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("modo") === "light") {
+    document.body.classList.add("light");
+  }
+  actualizarIconoModo();
+  actualizarFavoritos();
+  aplicarFiltros();
+  mostrarFavoritos();
+  ordenarJuegosAlfabeticamente();
+});
 
-    document.getElementById("searchInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        ocultarBuscador();
-      }
-    });
+function abrirModalCorreo() {
+  document.getElementById("modalCorreo").style.display = "block";
+}
 
-    document.querySelectorAll(".heart i").forEach((heartIcon) => {
-      heartIcon.addEventListener("click", toggleFavorito);
-    });
+function cerrarModalCorreo() {
+  document.getElementById("modalCorreo").style.display = "none";
+}
 
-    function toggleModo() {
-      document.body.classList.toggle("light");
-      const modoActual = document.body.classList.contains("light") ? "light" : "dark";
-      localStorage.setItem("modo", modoActual);
-      actualizarIconoModo();
-      actualizarFavoritos();
-    }
-
-    function actualizarIconoModo() {
-      const btn = document.getElementById("btnModo");
-      const modoActual = document.body.classList.contains("light") ? "light" : "dark";
-      btn.textContent = modoActual === "light" ? "☀️" : "🌙";
-    }
-
-    function ordenarJuegosAlfabeticamente() {
-      const contenedor = document.getElementById("gameList");
-      const juegos = Array.from(contenedor.querySelectorAll(".game"));
-
-      juegos.sort((a, b) => {
-        const tituloA = a.querySelector(".title-overlay").textContent.toLowerCase();
-        const tituloB = b.querySelector(".title-overlay").textContent.toLowerCase();
-        return tituloA.localeCompare(tituloB);
-      });
-
-      contenedor.innerHTML = "";
-      juegos.forEach(juego => contenedor.appendChild(juego));
-    }
-
-    function abrirModalCorreo() {
-      document.getElementById("modalCorreo").style.display = "block";
-    }
-
-    function cerrarModalCorreo() {
-      document.getElementById("modalCorreo").style.display = "none";
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const modoGuardado = localStorage.getItem("modo");
-      if (modoGuardado === "light") {
-        document.body.classList.add("light");
-      } else {
-        document.body.classList.remove("light");
-      }
-      actualizarIconoModo();
-      actualizarFavoritos();
-      ordenarJuegosAlfabeticamente();
-      mostrarTodos();
-    });
+window.addEventListener("click", function (event) {
+  const modal = document.getElementById("modalCorreo");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+});

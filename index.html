@@ -2,306 +2,337 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zona Gamer</title>
-    <link rel="stylesheet" href="css/styles.css" />
-    <link rel="icon" type="image/x-icon" href="img/zona gamer.png">
-    <link rel="icon" type="image/x-icon" href="img/zona-gamer.ico">
-    <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zona Gamer</title>
+  <link rel="icon" type="image/x-icon" href="img/zona gamer.png" />
+  <link rel="icon" type="image/x-icon" href="img/zona-gamer.ico" />
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
+  <style></style>
 </head>
 
 <body>
+  <!-- Buscador + filtros -->
+  <div id="buscadorExpandido">
+    <input type="text" id="searchInput" placeholder="Buscar juego..." />
+    <button class="filtro-btn" data-requisito="bajos">Bajos</button>
+    <button class="filtro-btn" data-requisito="medios">Medios</button>
+    <button class="filtro-btn" data-requisito="altos">Altos</button>
+  </div>
 
-    <!-- Buscador -->
-    <div id="buscadorExpandido">
-        <input type="text" id="searchInput" placeholder="Buscar juego..." />
+  <!-- MENÚ -->
+  <div id="menuClosed">
+    <div class="menu-buttons">
+      <button onclick="toggleMostrarFavoritos()" title="Favoritos">
+        <i class="fa-solid fa-heart"></i>
+      </button>
+      <button id="btnLupa" onclick="toggleBuscador()" title="Buscar 🔍">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+      <button onclick="abrirModalCorreo()" title="Correo">
+        <i class="fa-solid fa-envelope"></i>
+      </button>
+      <button id="btnModo" onclick="toggleModo()" title="Modo Noche/Día">
+        🌙
+      </button>
     </div>
+    <a target="_blank" href="html/donaciones.html" title="Donar" style="margin-top: 200px"><i
+        class="fa-solid fa-hand-holding-dollar"></i></a>
+    <a target="_blank"
+      href="https://www.instagram.com/pcjuegoss2025?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+      title="Instagram">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+  </div>
 
-    <!-- MENU -->
-    <div id="menuClosed" title="Menú">
-        <div class="menu-buttons">
-            <button onclick="toggleMostrarFavoritos()" title="Favoritos"><i class="fa-solid fa-heart"></i></button>
-            <button id="btnLupa" onclick="toggleBuscador()" title="Buscar 🔍"><i
-                    class="fa-solid fa-magnifying-glass"></i></button>
-            <button onclick="abrirModalCorreo()" title="Correo"><i class="fa-solid fa-envelope"></i></button>
-            <button id="btnModo" onclick="toggleModo()" title="Modo Noche/Día">🌙</button>
-        </div>
+  <button id="btnSubir" title="Subir arriba" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
 
-        <a target="_blank" href="html/donaciones.html" title="Donar" style="margin-top: 200px;">
-            <i class="fa-solid fa-hand-holding-dollar"></i>
-        </a>
+  <main>
+    <div class="game-list" id="gameList">
+      <!-- EJEMPLO -->
+      <a href="html/only up.html" target="_blank" class="game" title="only up" data-requisito="medios">
+        <img src="https://areajugones.sport.es/wp-content/uploads/2023/07/only-up-2-1-392x588.jpg" alt="juego" />
+        <span class="title-overlay">only up</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
 
-        <a href="https://www.instagram.com/pcjuegoss2025?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-            target="_blank" title="Instagram">
-            <i class="fa-brands fa-instagram"></i>
-        </a>
+      <a target="_blank" href="html/lies of p.html" class="game" title="lies of p" data-requisito="medios">
+        <img
+          src="https://i.redd.it/what-should-i-buy-next-guys-dark-souls-3-or-lies-of-p-v0-2upamq2d39ue1.jpg?width=1024&format=pjpg&auto=webp&s=37c1f5caba435e3a81891816dc2123d08b940dc2"
+          alt="juego" />
+        <span class="title-overlay">lies of p</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/Five Nights at Freddys Secret of the Mimic.html" class="game"
+        title="Five Nights at Freddys Secret of the Mimic fnaf" data-requisito="medios">
+        <img
+          src="https://m.media-amazon.com/images/M/MV5BZjNjNWEyMDgtNmRjYS00MTNiLTljNGMtZDRhOWQ5YWYwZGQ1XkEyXkFqcGc@._V1_.jpg"
+          alt="juego" />
+        <span class="title-overlay">Five Nights at Freddys Secret of the Mimic</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/7 Days to Die.html" class="game" title="7 days to die" data-requisito="medios">
+        <img src="https://i.3djuegos.com/juegos/9950/7_days_to_die/fotos/ficha/7_days_to_die-5891682.webp"
+          alt="juego" />
+        <span class="title-overlay">7 days to die</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/need for speed shift 1.html" class="game" title="need for speed shft 1"
+        data-requisito="medios">
+        <img src="https://i.3djuegos.com/juegos/3704/need_for_speed_shif/fotos/ficha/need_for_speed_shif-1693830.jpg"
+          alt="juego" />
+        <span class="title-overlay">need for speed shft 1</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/need for speed shift 2.html" class="game" title="need for speed shift 2"
+        data-requisito="medios">
+        <img
+          src="https://m.media-amazon.com/images/M/MV5BNGRlZTk2MTEtYzg0Zi00YmRkLWIxODAtYTljMDM2MjE1MWZlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+          alt="juego" />
+        <span class="title-overlay">need for speed shift 2</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/the last of us part 1.html" class="game" title="the last of us part 1"
+        data-requisito="altos">
+        <img src="https://polaster.s3.eu-west-1.amazonaws.com/tlou_portada.jpeg" alt="juego" />
+        <span class="title-overlay">the last of us part 1</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/the last of us part 2.html" class="game" title="the last of us part 2"
+        data-requisito="altos">
+        <img src="https://pics.filmaffinity.com/The_Last_of_Us_Part_II-976142612-mmed.jpg" alt="juego" />
+        <span class="title-overlay">the last of us part 2</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/little nightmares 1.html" class="game" title="little nightmares 1"
+        data-requisito="medios">
+        <img src="https://image.api.playstation.com/cdn/UP0700/CUSA05929_00/BCXhBnr9X5jjilzuc5tyv7GOcBukog6V.png"
+          alt="juego" />
+        <span class="title-overlay">little nightmares 1</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/little nightmares 2.html" class="game" title="little nightmares 2"
+        data-requisito="medios">
+        <img src="https://image.api.playstation.com/vulcan/ap/rnd/202011/1819/m7gCTrMRQBTPHi87Mi3leVVY.jpg"
+          alt="juego" />
+        <span class="title-overlay">little nightmares 2</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/resident evil 2 remake edition deluxe.html" class="game"
+        title="resident evil 2 remake edition deluxe" data-requisito="altos">
+        <img src="https://image.api.playstation.com/vulcan/ap/rnd/202206/0608/Oxr3X0TU9BRhpgweQoq5AGgy.png"
+          alt="juego" />
+        <span class="title-overlay">resident evil 2 remake edition deluxe</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/Resident Evil 4 Ultimate HD Edition.html" class="game"
+        title="Resident Evil 4 Ultimate HD Edition" data-requisito="medios">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSCcU-8orNyq32B3JcPf7a6iu4GXbmR1mRpA&s"
+          alt="juego" />
+        <span class="title-overlay">Resident Evil 4 Ultimate HD Edition</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/RESIDENT EVI1L 7 BIOHAZARD GOLD EDITION.html" class="game"
+        title="resident evil 7 biohazard gold edition" data-requisito="altos">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8_Vru3nJnooySlwlRTpujd56EV8MJEN6R2A&s"
+          alt="juego" />
+        <span class="title-overlay">resident evil 7 biohazard gold edition</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/overcooked 1.html" class="game" title="overcooked 1" data-requisito="bajos">
+        <img src="https://image.api.playstation.com/cdn/UP4064/CUSA05724_00/tCIJdrp1aL1apHv3X1zUFiUJ8venl4B2.png"
+          alt="juego" />
+        <span class="title-overlay">overcooked 1</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/overcooked 2.html" class="game" title="overcooked 2" data-requisito="medios">
+        <img
+          src="https://image.api.playstation.com/vulcan/img/cfn/11307bEskTfSij9cY91PAbL4Asz425G35YGllLqiSPUd_T9kLPLphROTklNtob4UUQntuct-mfXYD75s0WORnivvopUm8mIv.png"
+          alt="juego" />
+        <span class="title-overlay">overcooked 2</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/Metro Last Light Complete Edition.html" class="game"
+        title="Metro Last Light Complete Edition" data-requisito="medios">
+        <img src="https://cdn.mobygames.com/1c826b16-abfe-11ed-a631-02420a000135.webp" alt="juego" />
+        <span class="title-overlay">Metro Last Light Complete Edition</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/Tomb Raider Definitive Edition.html" class="game"
+        title="Tomb Raider Definitive Edition" data-requisito="medios">
+        <img src="https://www.trsaga.com/tr11_shadow/tr11-caratulas/Shadow_PC.jpg" alt="juego" />
+        <span class="title-overlay">Tomb Raider Definitive Edition</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/Mortal Kombat Komplete Edition.html" class="game"
+        title="Mortal Kombat Komplete Edition" data-requisito="medios">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSC5ggmUBQtG4oE9X3jhLKuJRxJ0MuBHbeY6A&s"
+          alt="juego" />
+        <span class="title-overlay">Mortal Kombat Komplete Edition</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/peak.html" class="game" title="peak" data-requisito="medios">
+        <img
+          src="https://i.namu.wiki/i/aZCj2Z7asO7ql-mgj1Ym5tA9YT_xN2jQh16EUf2syBMQFEtB9Ei9ikHa6Vv34k0-GS8e1DbIOh7LK65w5rYoHA.webp"
+          alt="juego" />
+        <span class="title-overlay">peak</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/rain world.html" class="game" title="rain world" data-requisito="bajos">
+        <img src="https://i.3djuegos.com/juegos/10912/rain_world/fotos/ficha/rain_world-4747540.jpg" alt="juego" />
+        <span class="title-overlay">rain world</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/LEGO HARRY POTTER COLLECTION.html" class="game" title="LEGO HARRY POTTER COLLECTION"
+        data-requisito="bajos">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO4WQpb9Ikl4etlEz-lrSsxF8-hn1xhngCVQ&s|"
+          alt="juego" />
+        <span class="title-overlay">LEGO HARRY POTTER COLLECTION</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/BREAD & FRED.html" class="game" title="BREAD & FRED" data-requisito="bajos">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ILkTm2-ksPeyoo8Bps0y9ioUGAZPQr_dTQ&s"
+          alt="juego" />
+        <span class="title-overlay">BREAD & FRED</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/MOVE OR DIE.html" class="game" title="Move or die" data-requisito="medios">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCqJTvb1EOTh01ZBgb4H450m6RnCySCxSx0Q&s"
+          alt="juego" />
+        <span class="title-overlay">Move or die</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/INJUSTICE 2 LEGENDARY EDITION.html" class="game"
+        title="injustie 2 legendary edition" data-requisito="altos">
+        <img
+          src="https://next-media.elkjop.com/image/dv_web_D180001002413952/35261/injustice-2-legendary-edition-pc-windows.jpg?w=1200&q=75"
+          alt="juego" />
+        <span class="title-overlay">injustie 2 legendary edition</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/MORTAL KOMBAT 11 PREMIUM EDITION.html" class="game" title="Mortal kombat 11"
+        data-requisito="altos">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGYsSoANEpaQhog9T3XP6DaTvIpZANWedX-w&s"
+          alt="juego" />
+        <span class="title-overlay">Mortal kombat 11</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/R.E.P.O.html" class="game" title="R.E.P.O repo" data-requisito="medios">
+        <img src="https://i.3djuegos.com/juegos/20239/repo/fotos/ficha/repo-5947561.webp" alt="juego" />
+        <span class="title-overlay">R.E.P.O</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/blur.html" class="game" title="Blur" data-requisito="bajos">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Blur_%28video_game%29.jpg/250px-Blur_%28video_game%29.jpg"
+          alt="juego" />
+        <span class="title-overlay">Blur</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/resident evil 3 remake.html" class="game" title="resident evil 3 remake"
+        data-requisito="altos">
+        <img src="https://image.api.playstation.com/vulcan/ap/rnd/202206/0206/WmriZBRlSeXWEEDLJOWW7MdW.png"
+          alt="juego" />
+        <span class="title-overlay">resident evil 3 remake</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/resident evil 8 village.html" class="game" title="resident evil 8 village"
+        data-requisito="altos">
+        <img src="https://image.api.playstation.com/vulcan/ap/rnd/202101/0812/FkzwjnJknkrFlozkTdeQBMub.png"
+          alt="juego" />
+        <span class="title-overlay">resident evil 8 village</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      <a target="_blank" href="html/resident evil 4 remake.html" class="game" title="resident evil 4 remake"
+        data-requisito="altos">
+        <img src="https://sm.ign.com/ign_es/cover/r/resident-e/resident-evil-4-remake_z3ku.jpg" alt="juego" />
+        <span class="title-overlay">resident evil 4 remake</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+
+
+
+
+
+
+
+      <!--
+
+      <a href="htm" target="_blank" class="game" title="NOMBRE" data-requisito="bajos-medios-altos">
+        <img src="PORTADA" alt="juego" />
+        <span class="title-overlay">NOMBRE</span>
+        <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
+      </a>
+
+      -->
+
     </div>
+  </main>
 
-    <button id="btnSubir" title="Subir arriba" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i
-            class="fa-solid fa-arrow-up"></i></button>
+  <!-- Modal de Correo -->
+  <div id="modalCorreo" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalCorreo()">&times;</span>
+      <h2>Contacto Zona Gamer</h2>
+      <form id="formCorreo" action="https://formsubmit.co/pcjuegoss2025@gmail.com" method="POST">
+        <input type="hidden" name="_next" value="https://juegos-pc.github.io/inicio/" />
+        <input type="hidden" name="_captcha" value="false" />
 
-    <main>
-        <div class="game-list" id="gameList">
+        <label for="nombreJuego"></label>
+        <input type="text" id="nombreJuego" name="nombre" placeholder="Nombre de juego" required />
 
-            <!-- JUEGOS -->
-            <a target="_blank" href="html/only up.html" class="game" title="only up">
-                <img src="https://areajugones.sport.es/wp-content/uploads/2023/07/only-up-2-1-392x588.jpg"
-                    alt="juego" />
-                <span class="title-overlay">only up</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
+        <label for="email"></label>
+        <input type="email" id="email" name="email" placeholder="Tu correo" required pattern=".+@gmail\.com" />
 
-            <a target="_blank" href="html/lies of p.html" class="game" title="lies of p">
-                <img src="https://i.redd.it/what-should-i-buy-next-guys-dark-souls-3-or-lies-of-p-v0-2upamq2d39ue1.jpg?width=1024&format=pjpg&auto=webp&s=37c1f5caba435e3a81891816dc2123d08b940dc2"
-                    alt="juego" />
-                <span class="title-overlay">lies of p</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
+        <label for="razon">Razón:</label>
+        <select id="razon" name="razon" required>
+          <option value="">--Seleccionar--</option>
+          <option value="Juego dañado">Juego dañado</option>
+          <option value="Link caído">Link caído</option>
+          <option value="Pedir juego">Pedir juego</option>
+          <option value="Arreglos a la pagina">Arreglos a la pagina</option>
+        </select>
 
-            <a target="_blank" href="html/Five Nights at Freddys Secret of the Mimic.html" class="game"
-                title="Five Nights at Freddys Secret of the Mimic fnaf">
-                <img src="https://m.media-amazon.com/images/M/MV5BZjNjNWEyMDgtNmRjYS00MTNiLTljNGMtZDRhOWQ5YWYwZGQ1XkEyXkFqcGc@._V1_.jpg"
-                    alt="juego" />
-                <span class="title-overlay">Five Nights at Freddys Secret of the Mimic</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
+        <label for="mensaje">Mensaje:</label>
+        <textarea id="mensaje" name="mensaje" placeholder="Escribe el motivo o nombre del juego" rows="4"></textarea>
 
-            <a target="_blank" href="html/7 Days to Die.html" class="game" title="7 days to die">
-                <img src="https://i.3djuegos.com/juegos/9950/7_days_to_die/fotos/ficha/7_days_to_die-5891682.webp"
-                    alt="juego" />
-                <span class="title-overlay">7 days to die</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/need for speed shift 1.html" class="game" title="need for speed shft 1">
-                <img src="https://i.3djuegos.com/juegos/3704/need_for_speed_shif/fotos/ficha/need_for_speed_shif-1693830.jpg"
-                    alt="juego" />
-                <span class="title-overlay">need for speed shft 1</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/need for speed shift 2.html" class="game" title="need for speed shift 2">
-                <img src="https://m.media-amazon.com/images/M/MV5BNGRlZTk2MTEtYzg0Zi00YmRkLWIxODAtYTljMDM2MjE1MWZlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
-                    alt="juego" />
-                <span class="title-overlay">need for speed shift 2</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/the last of us part 1.html" class="game" title="the last of us part 1">
-                <img src="https://polaster.s3.eu-west-1.amazonaws.com/tlou_portada.jpeg" alt="juego" />
-                <span class="title-overlay">the last of us part 1</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/the last of us part 2.html" class="game" title="the last of us part 2">
-                <img src="https://pics.filmaffinity.com/The_Last_of_Us_Part_II-976142612-mmed.jpg" alt="juego" />
-                <span class="title-overlay">the last of us part 2</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/little nightmares 1.html" class="game" title="little nightmares 1">
-                <img src="https://image.api.playstation.com/cdn/UP0700/CUSA05929_00/BCXhBnr9X5jjilzuc5tyv7GOcBukog6V.png"
-                    alt="juego" />
-                <span class="title-overlay">little nightmares 1</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/little nightmares 2.html" class="game" title="little nightmares 2">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202011/1819/m7gCTrMRQBTPHi87Mi3leVVY.jpg"
-                    alt="juego" />
-                <span class="title-overlay">little nightmares 2</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/resident evil 2 remake edition deluxe.html" class="game"
-                title="resident evil 2 remake edition deluxe">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202206/0608/Oxr3X0TU9BRhpgweQoq5AGgy.png"
-                    alt="juego" />
-                <span class="title-overlay">resident evil 2 remake edition deluxe</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/Resident Evil 4 Ultimate HD Edition.html" class="game"
-                title="Resident Evil 4 Ultimate HD Edition">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSCcU-8orNyq32B3JcPf7a6iu4GXbmR1mRpA&s"
-                    alt="juego" />
-                <span class="title-overlay">Resident Evil 4 Ultimate HD Edition</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/RESIDENT EVI1L 7 BIOHAZARD GOLD EDITION.html" class="game" title="resident evil 7 biohazard gold edition">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8_Vru3nJnooySlwlRTpujd56EV8MJEN6R2A&s"
-                    alt="juego" />
-                <span class="title-overlay">resident evil 7 biohazard gold edition</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/overcooked 1.html" class="game" title="overcooked 1">
-                <img src="https://image.api.playstation.com/cdn/UP4064/CUSA05724_00/tCIJdrp1aL1apHv3X1zUFiUJ8venl4B2.png"
-                    alt="juego" />
-                <span class="title-overlay">overcooked 1</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/overcooked 2.html" class="game" title="overcooked 2">
-                <img src="https://image.api.playstation.com/vulcan/img/cfn/11307bEskTfSij9cY91PAbL4Asz425G35YGllLqiSPUd_T9kLPLphROTklNtob4UUQntuct-mfXYD75s0WORnivvopUm8mIv.png"
-                    alt="juego" />
-                <span class="title-overlay">overcooked 2</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/Metro Last Light Complete Edition.html" class="game"
-                title="Metro Last Light Complete Edition">
-                <img src="https://cdn.mobygames.com/1c826b16-abfe-11ed-a631-02420a000135.webp" alt="juego" />
-                <span class="title-overlay">Metro Last Light Complete Edition</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/Tomb Raider Definitive Edition.html" class="game"
-                title="Tomb Raider Definitive Edition">
-                <img src="https://www.trsaga.com/tr11_shadow/tr11-caratulas/Shadow_PC.jpg" alt="juego" />
-                <span class="title-overlay">Tomb Raider Definitive Edition</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/Mortal Kombat Komplete Edition.html" class="game"
-                title="Mortal Kombat Komplete Edition">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSC5ggmUBQtG4oE9X3jhLKuJRxJ0MuBHbeY6A&s"
-                    alt="juego" />
-                <span class="title-overlay">Mortal Kombat Komplete Edition</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/peak.html" class="game" title="peak">
-                <img src="https://i.namu.wiki/i/aZCj2Z7asO7ql-mgj1Ym5tA9YT_xN2jQh16EUf2syBMQFEtB9Ei9ikHa6Vv34k0-GS8e1DbIOh7LK65w5rYoHA.webp"
-                    alt="juego" />
-                <span class="title-overlay">peak</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/rain world.html" class="game" title="rain world">
-                <img src="https://i.3djuegos.com/juegos/10912/rain_world/fotos/ficha/rain_world-4747540.jpg"
-                    alt="juego" />
-                <span class="title-overlay">rain world</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/LEGO HARRY POTTER COLLECTION.html" class="game"
-                title="LEGO HARRY POTTER COLLECTION">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO4WQpb9Ikl4etlEz-lrSsxF8-hn1xhngCVQ&s|"
-                    alt="juego" />
-                <span class="title-overlay">LEGO HARRY POTTER COLLECTION</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/BREAD & FRED.html" class="game" title="BREAD & FRED">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-ILkTm2-ksPeyoo8Bps0y9ioUGAZPQr_dTQ&s"
-                    alt="juego" />
-                <span class="title-overlay">BREAD & FRED</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/MOVE OR DIE.html" class="game" title="Move or die">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCqJTvb1EOTh01ZBgb4H450m6RnCySCxSx0Q&s"
-                    alt="juego" />
-                <span class="title-overlay">Move or die</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/INJUSTICE 2 LEGENDARY EDITION.html" class="game"
-                title="injustie 2 legendary edition">
-                <img src="https://next-media.elkjop.com/image/dv_web_D180001002413952/35261/injustice-2-legendary-edition-pc-windows.jpg?w=1200&q=75"
-                    alt="juego" />
-                <span class="title-overlay">injustie 2 legendary edition</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/MORTAL KOMBAT 11 PREMIUM EDITION.html" class="game" title="Mortal kombat 11">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGYsSoANEpaQhog9T3XP6DaTvIpZANWedX-w&s"
-                    alt="juego" />
-                <span class="title-overlay">Mortal kombat 11</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/R.E.P.O.html" class="game" title="R.E.P.O">
-                <img src="https://i.3djuegos.com/juegos/20239/repo/fotos/ficha/repo-5947561.webp" alt="juego" />
-                <span class="title-overlay">R.E.P.O</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/blur.html" class="game" title="Blur">
-                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Blur_%28video_game%29.jpg/250px-Blur_%28video_game%29.jpg"
-                    alt="juego" />
-                <span class="title-overlay">Blur</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/resident evil 3 remake.html" class="game" title="resident evil 3 remake">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202206/0206/WmriZBRlSeXWEEDLJOWW7MdW.png" alt="juego" />
-                <span class="title-overlay">resident evil 3 remake</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/resident evil 8 village.html" class="game" title="resident evil 8 village">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202101/0812/FkzwjnJknkrFlozkTdeQBMub.png" alt="juego" />
-                <span class="title-overlay">resident evil 8 village</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-            <a target="_blank" href="html/resident evil 4 remake.html" class="game" title="resident evil 4 remake">
-                <img src="https://sm.ign.com/ign_es/cover/r/resident-e/resident-evil-4-remake_z3ku.jpg" alt="juego" />
-                <span class="title-overlay">resident evil 4 remake</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
-
-<!--
-
-<a target="_blank" href="htm" class="game" title="NOMBRE">
-                <img src="PORTADA" alt="juego" />
-                <span class="title-overlay">NOMBRE</span>
-                <span class="heart"><i class="fa-solid fa-heart-circle-plus"></i></span>
-            </a>
-
--->
-
-
-        </div>
-    </main>
-
-    <!-- Modal de correo -->
-    <div id="modalCorreo" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="cerrarModalCorreo()">&times;</span>
-            <h2>Contacto Zona Gamer</h2>
-            <form id="formCorreo" action="https://formsubmit.co/pcjuegoss2025@gmail.com" method="POST">
-                <input type="hidden" name="_next" value="https://juegos-pc.github.io/inicio/">
-                <input type="hidden" name="_captcha" value="false">
-
-                <label for="nombreJuego"></label>
-                <input type="text" id="nombreJuego" name="nombre" placeholder="Nombre de juego" required>
-
-                <label for="email"></label>
-                <input type="email" id="email" name="email" placeholder="Tu correo" required pattern=".+@gmail\.com">
-
-                <label for="razon">Razón:</label>
-                <select id="razon" name="razon" required>
-                    <option value="">--Seleccionar--</option>
-                    <option value="Juego dañado">Juego dañado</option>
-                    <option value="Link caído">Link caído</option>
-                    <option value="Pedir juego">Pedir juego</option>
-                </select>
-
-                <label for="mensaje">Mensaje:</label>
-                <textarea id="mensaje" name="mensaje" placeholder="Escribe el motivo (opcional)" rows="4"></textarea>
-
-                <button type="submit">Enviar</button>
-            </form>
-        </div>
+        <button type="submit">Enviar</button>
+      </form>
     </div>
-
-    <script src="js/scripts.js"></script>
+  </div>
+  <script src="js/scripts.js"></script>
 </body>
 
 </html>

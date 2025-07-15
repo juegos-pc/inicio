@@ -70,7 +70,7 @@ body.light {
   color: red;
 }
 
-/* Buscador expandido a la izquierda */
+/* Buscador expandido */
 #buscadorExpandido {
   position: fixed;
   top: 10px;
@@ -80,6 +80,8 @@ body.light {
   border-radius: 5px;
   display: none;
   z-index: 1200;
+  align-items: center;
+  gap: 8px;
 }
 
 body.light #buscadorExpandido {
@@ -93,6 +95,31 @@ body.light #buscadorExpandido {
   border-radius: 5px;
   border: none;
   font-size: 16px;
+}
+
+.filtro-btn {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.filtro-btn.activo {
+  background: #ff0080;
+}
+
+body.light .filtro-btn {
+  background: #aaa;
+  color: #333;
+}
+
+body.light .filtro-btn.activo {
+  background: #ff0080;
+  color: #fff;
 }
 
 /* Lista de juegos */

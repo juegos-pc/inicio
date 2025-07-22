@@ -1,40 +1,69 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: #fff;
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121214;
+    color: #c0c0c0;
     margin: 0;
     padding: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   .container {
     max-width: 800px;
     margin: 0 auto;
+    background: #1a1a1f;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    padding: 30px 40px;
   }
+
   .top-section {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: 30px;
+    margin-bottom: 40px;
+    align-items: center;
   }
+
   .portada {
     flex: 0 0 300px;
     max-width: 170px;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
+    box-shadow: 0 5px 12px rgba(50, 50, 50, 0.8);
+    transition: transform 0.25s ease;
   }
+
+  .portada:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 22px rgba(70, 70, 70, 0.9);
+  }
+
   .info {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 10px;
+    gap: 14px;
   }
+
   .info h1 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #bbbbbb;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
   }
+
   .info p {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    color: #aaa;
+    line-height: 1.5;
+  }
+
+  .info strong {
+    color: #ddd;
   }
 
   /* Links expandibles */
@@ -42,43 +71,133 @@ body {
     max-width: 800px;
     margin: 0 auto 40px auto;
   }
+
   .links h3 {
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #d0d0d0;
+    border-bottom: 2px solid #444;
+    padding-bottom: 6px;
   }
-  .links .link-group {
-    margin-bottom: 15px;
+
+  .link-group {
+    margin-bottom: 22px;
   }
-  .links .link-group > button {
-    background: #222;
+
+  .link-group>button {
+    background: #292a30;
     border: none;
-    color: #0af;
-    padding: 10px;
+    color: #ccc;
+    padding: 14px 20px;
     width: 100%;
     text-align: left;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 3px 10px rgba(30, 30, 30, 0.6);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
   }
-  .links .link-group > button:hover {
-    background: #444;
+
+  .link-group>button:hover,
+  .link-group>button:focus-visible {
+    background: #44444c;
+    color: #eee;
+    box-shadow: 0 6px 20px rgba(70, 70, 70, 0.9);
+    outline: none;
   }
-  .links .link-list {
-    display: none;
-    margin-top: 8px;
-    padding-left: 15px;
+
+  /* Flecha con rotación */
+  .link-group>button::after {
+    content: "▼";
+    display: inline-block;
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+    font-size: 1rem;
+    color: #ccc;
   }
-  .links .link-list a {
+
+  .link-group>button.open::after {
+    transform: rotate(180deg);
+    color: #eee;
+  }
+
+  .link-list {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    margin-top: 0;
+    padding-left: 20px;
+    border-left: 3px solid #444;
+  }
+
+  .link-list.open {
+    max-height: 1000px;
+    opacity: 1;
+    margin-top: 14px;
+  }
+
+  .link-list a {
     display: block;
-    background: #222;
-    padding: 8px;
-    margin: 6px 0;
-    color: #0af;
+    background: #32333a;
+    padding: 12px 18px;
+    margin: 10px 0;
+    color: #ccc;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 10px;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgba(50, 50, 50, 0.7);
+    transition: background-color 0.3s ease, color 0.3s ease;
     word-break: break-word;
+    cursor: pointer;
   }
-  .links .link-list a:hover {
-    background: #444;
+
+  .link-list a:hover,
+  .link-list a:focus-visible {
+    background: #4a4a53;
+    color: #eee;
+    box-shadow: 0 5px 18px rgba(70, 70, 70, 0.9);
+    outline: none;
+  }
+
+  /* Contraseñas */
+  .links .link-group p {
+    background: #32333a;
+    padding: 14px 22px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(50, 50, 50, 0.7);
+    font-weight: 700;
+    color: #ddd;
+    user-select: all;
+    margin: 0;
+    transition: box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+
+  .links .link-group p:hover,
+  .links .link-group p:focus-visible {
+    box-shadow: 0 5px 18px rgba(70, 70, 70, 0.9);
+    outline: none;
+  }
+
+  /* Estilo para <p> que esté justo antes de la sección CONTRASEÑAS */
+  .links>p {
+    background: #2d2e33;
+    padding: 16px 24px;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px rgba(40, 40, 40, 0.8);
+    color: #aaa;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 18px;
+    line-height: 1.5;
+    user-select: text;
   }
 
   /* Responsive */
@@ -87,8 +206,22 @@ body {
       flex-direction: column;
       align-items: center;
     }
+
     .info {
       text-align: center;
       align-items: center;
+    }
+
+    .link-group>button {
+      font-size: 1rem;
+    }
+
+    .info h1 {
+      font-size: 2.2rem;
+    }
+
+    .links>p {
+      font-size: 1rem;
+      padding: 14px 18px;
     }
   }

@@ -336,3 +336,59 @@ body.light .modal-content textarea {
 .modal-content button[type="submit"]:hover {
   background: #ffc107;
 }
+
+/*PUSH DONACION*/
+.push-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-left: 4px solid #00d084;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  max-width: 360px;
+  z-index: 9999;
+  animation: fadeIn 0.4s ease-out;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.push-notification .text {
+  flex-grow: 1;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.4;
+  text-decoration: none;
+  color: inherit;
+}
+
+.push-notification .close-btn {
+  margin-left: 15px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.push-notification .close-btn:hover {
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -24,13 +24,15 @@ document.getElementById("searchInput").addEventListener("input", () => {
   ordenarJuegosAlfabeticamente(); // ordena después de filtrar
 });
 
-document.querySelectorAll(".filtro-btn").forEach(btn => {
+document.querySelectorAll(".filtro-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (filtroRequisito === btn.dataset.requisito) {
       filtroRequisito = null;
       btn.classList.remove("activo");
     } else {
-      document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
+      document
+        .querySelectorAll(".filtro-btn")
+        .forEach((b) => b.classList.remove("activo"));
       filtroRequisito = btn.dataset.requisito;
       btn.classList.add("activo");
     }
@@ -41,23 +43,24 @@ document.querySelectorAll(".filtro-btn").forEach(btn => {
 
 function aplicarFiltros() {
   const texto = normalizar(document.getElementById("searchInput").value);
-  document.querySelectorAll(".game").forEach(game => {
+  document.querySelectorAll(".game").forEach((game) => {
     const titulo = normalizar(game.title);
     const req = normalizar(game.dataset.requisito || "");
-    let visible = (!texto || titulo.includes(texto)) &&
+    let visible =
+      (!texto || titulo.includes(texto)) &&
       (!filtroRequisito || req === filtroRequisito);
     game.style.display = visible ? "block" : "none";
   });
 }
 
-document.querySelectorAll(".heart i").forEach(icon => {
+document.querySelectorAll(".heart i").forEach((icon) => {
   icon.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
     const game = e.target.closest(".game");
     const titulo = game.title;
     if (favoritos.includes(titulo)) {
-      favoritos = favoritos.filter(t => t !== titulo);
+      favoritos = favoritos.filter((t) => t !== titulo);
     } else {
       favoritos.push(titulo);
     }
@@ -69,7 +72,7 @@ document.querySelectorAll(".heart i").forEach(icon => {
 });
 
 function actualizarFavoritos() {
-  document.querySelectorAll(".game").forEach(game => {
+  document.querySelectorAll(".game").forEach((game) => {
     const icon = game.querySelector(".heart i");
     if (favoritos.includes(game.title)) {
       icon.classList.remove("fa-heart-circle-plus");
@@ -85,13 +88,15 @@ function actualizarFavoritos() {
 
 function toggleMostrarFavoritos() {
   mostrandoFavoritos = !mostrandoFavoritos;
-  document.querySelector('#menuClosed button[title="Favoritos"]').classList.toggle("activo", mostrandoFavoritos);
+  document
+    .querySelector('#menuClosed button[title="Favoritos"]')
+    .classList.toggle("activo", mostrandoFavoritos);
   mostrarFavoritos();
   ordenarJuegosAlfabeticamente();
 }
 
 function mostrarFavoritos() {
-  document.querySelectorAll(".game").forEach(game => {
+  document.querySelectorAll(".game").forEach((game) => {
     game.style.display =
       mostrandoFavoritos && !favoritos.includes(game.title) ? "none" : "block";
   });
@@ -101,8 +106,9 @@ function ordenarJuegosAlfabeticamente() {
   const contenedor = document.getElementById("gameList");
   if (!contenedor) return;
   // Filtrar solo los juegos visibles para ordenarlos y reinsertarlos
-  const juegosVisibles = Array.from(contenedor.querySelectorAll(".game"))
-    .filter(game => game.style.display !== "none");
+  const juegosVisibles = Array.from(
+    contenedor.querySelectorAll(".game")
+  ).filter((game) => game.style.display !== "none");
 
   juegosVisibles.sort((a, b) => {
     const tituloA = normalizar(a.title);
@@ -110,12 +116,14 @@ function ordenarJuegosAlfabeticamente() {
     return tituloA.localeCompare(tituloB);
   });
 
-  juegosVisibles.forEach(juego => contenedor.appendChild(juego));
+  juegosVisibles.forEach((juego) => contenedor.appendChild(juego));
 }
 
 function toggleModo() {
   document.body.classList.toggle("light");
-  const modoActual = document.body.classList.contains("light") ? "light" : "dark";
+  const modoActual = document.body.classList.contains("light")
+    ? "light"
+    : "dark";
   localStorage.setItem("modo", modoActual);
   actualizarIconoModo();
   actualizarFavoritos();
@@ -151,3 +159,22 @@ window.addEventListener("click", function (event) {
     modal.style.display = "none";
   }
 });
+
+//PUSH DONACION//
+window.addEventListener("load", () => {
+  const noti = document.getElementById("donationPush");
+  setTimeout(() => {
+    cerrarNotificacion();
+  }, 10000); // Se oculta luego de 10 segundos
+});
+
+function cerrarNotificacion() {
+  const noti = document.getElementById("donationPush");
+  if (noti) {
+    noti.style.opacity = "0";
+    noti.style.transform = "translateY(-15px)";
+    setTimeout(() => {
+      noti.style.display = "none";
+    }, 400); // espera animación antes de ocultar
+  }
+}

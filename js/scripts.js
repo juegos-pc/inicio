@@ -33,7 +33,7 @@ document.querySelectorAll(".filtro-btn").forEach((btn) => {
       document
         .querySelectorAll(".filtro-btn")
         .forEach((b) => b.classList.remove("activo"));
-      filtroRequisito = btn.dataset.requisito;
+      filtroRequisito = normalizar(btn.dataset.requisito);
       btn.classList.add("activo");
     }
     aplicarFiltros();
@@ -48,7 +48,7 @@ function aplicarFiltros() {
     const req = normalizar(game.dataset.requisito || "");
     let visible =
       (!texto || titulo.includes(texto)) &&
-      (!filtroRequisito || req === filtroRequisito);
+      (!filtroRequisito || req.split(" ").includes(filtroRequisito));
     game.style.display = visible ? "block" : "none";
   });
 }

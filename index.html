@@ -457,7 +457,7 @@
   <div id="login-screen">
     <div class="login-box">
       <h1>Zona Gamer</h1>
-      <p>Accede a la mejor colección de juegos</p>
+      <p>inicia sesion o crea cuenta para poder descargar</p>
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
       </button>
@@ -467,7 +467,7 @@
         <input type="password" id="password" placeholder="Contraseña" required>
         <button type="submit" id="btn-auth-submit">INGRESAR</button>
       </form>
-      <span class="toggle-link" id="toggle-auth">¿No tienes cuenta? Regístrate gratis</span>
+      <span class="toggle-link" id="toggle-auth">¿No tienes cuenta? Regístrate</span>
     </div>
   </div>
 
@@ -484,6 +484,10 @@
                 <div class="btn-genres-toggle" id="btnGenresToggle" onclick="toggleGenresPopup()">Géneros <i class="fa-solid fa-chevron-down"></i></div>
                 <div class="genres-list-popup" id="genresListPopup">
                     <label><input type="checkbox" value="Acción" class="filter-genre-chk"> Acción</label>
+                  <label><input type="checkbox" value="Supervivencia" class="filter-genre-chk"> Supervivencia</label>
+                  <label><input type="checkbox" value="Zombies" class="filter-genre-chk"> Zombies</label>
+                  <label><input type="checkbox" value="Anime" class="filter-genre-chk"> Anime</label>
+                  <label><input type="checkbox" value="Guerra" class="filter-genre-chk"> Guerra</label>
                     <label><input type="checkbox" value="Aventura" class="filter-genre-chk"> Aventura</label>
                     <label><input type="checkbox" value="Terror" class="filter-genre-chk"> Terror</label>
                     <label><input type="checkbox" value="Carreras" class="filter-genre-chk"> Carreras</label>
@@ -491,9 +495,9 @@
                     <label><input type="checkbox" value="Estrategia" class="filter-genre-chk"> Estrategia</label>
                     <label><input type="checkbox" value="Rol/RPG" class="filter-genre-chk"> Rol/RPG</label>
                     <label><input type="checkbox" value="Shooter" class="filter-genre-chk"> Shooter</label>
-                    <label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> Mundo Abierto</label>
+                    <label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> MundoAbierto</label>
                     <label><input type="checkbox" value="Multijugador" class="filter-genre-chk" style="accent-color:#00ff00"> Multijugador</label>
-                    <label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> Pantalla Dividida</label>
+                    <label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label>
                 </div>
             </div>
             <button class="filtro-btn" onclick="toggleReq(this, 'bajos')">Bajos</button>
@@ -1493,5 +1497,6 @@
   </script>
 </body>
 </html>
+
 
 

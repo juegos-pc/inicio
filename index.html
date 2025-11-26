@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Zona Gamer</title>
-  <link rel="icon" type="image/x-icon" href="zona gamer.png" />
+  <link rel="icon" type="image/x-icon" href="img/zona gamer.png" />
   <!-- FontAwesome -->
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -104,7 +104,8 @@
     }
 
     #menuClosed button:hover, #menuClosed button.active-menu {
-      background: rgba(255,255,255,0.1); color: var(--secondary) !important; 
+      background: rgba(255,255,255,0.1); 
+      color: var(--secondary) !important; 
       box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
     }
 
@@ -612,6 +613,9 @@
                 <div id="new-links-container"></div>
                 <button type="button" onclick="window.agregarInputLink('new-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:10px; width:100%;">+ Agregar Enlace</button>
             </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <input type="text" id="new-password" placeholder="Contraseña del archivo (Opcional)">
+            </div>
         </div>
         <div class="modal-footer full-width">
             <button type="submit">PUBLICAR JUEGO</button>
@@ -675,6 +679,9 @@
                 <div id="edit-links-container"></div>
                 <button type="button" onclick="window.agregarInputLink('edit-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:10px; width:100%;">+ Agregar Enlace</button>
             </div>
+            <div class="input-group" style="margin-top: 10px;">
+                <input type="text" id="edit-password" placeholder="Contraseña del archivo (Opcional)">
+            </div>
         </div>
         <div class="modal-footer full-width">
             <button type="submit">GUARDAR CAMBIOS</button>
@@ -717,6 +724,7 @@
 
                 <!-- Descargas -->
                 <h3 style="color:white; border-bottom:1px solid #444; padding-bottom:10px;">Descargas</h3>
+                <div id="download-password-display" style="margin-bottom: 15px; color: #ccc; font-size: 0.9rem;"></div>
                 <div id="download-buttons-container" class="accordion-container"></div>
 
                 <!-- Juegos Similares -->
@@ -1147,7 +1155,6 @@
         });
     }
 
-    // --- COMENTARIOS ---
     window.enviarComentario = async () => {
         if(!usuarioActual) { alert("Inicia sesión para comentar."); return; }
         const text = document.getElementById('new-comment-text').value;
@@ -1177,8 +1184,6 @@
                 const isMine = c.uid === usuarioActual?.uid;
                 const div = document.createElement('div');
                 div.className = `comment-item ${isMine ? 'mine' : ''}`;
-                
-                // Botones de acción (Editar/Borrar)
                 let actions = "";
                 if (isMine || esAdmin) {
                     actions = `
@@ -1188,7 +1193,6 @@
                         </div>
                     `;
                 }
-
                 div.innerHTML = `
                     ${actions}
                     <div class="comment-meta">
@@ -1245,6 +1249,7 @@
         currentGameOpen = juego;
         const modal = document.getElementById('modalDownloads');
         const containerLinks = document.getElementById('download-buttons-container');
+        const passDisplay = document.getElementById('download-password-display');
         const meta = document.getElementById('game-meta-info');
         const trailerDiv = document.getElementById('trailer-container');
         document.getElementById('download-title').innerText = juego.titulo;
@@ -1263,6 +1268,14 @@
         const generosStr = (juego.generos || []).join(' • ') || "Varios";
         meta.innerHTML = `<div><i class="fa-solid fa-calendar"></i> ${juego.fechaSalida || 'N/A'} &nbsp;|&nbsp; <i class="fa-solid fa-hard-drive"></i> ${juego.peso || 'N/A'}</div><div style="margin-top:5px; color:var(--primary);">${generosStr}</div>`;
         
+        // Password display
+        if (juego.password) {
+            passDisplay.innerHTML = `<p><i class="fa-solid fa-key" style="color:var(--primary)"></i> <strong>Contraseña:</strong> <span style="background:#333; padding:2px 6px; border-radius:4px; user-select:text;">${juego.password}</span></p>`;
+            passDisplay.style.display = 'block';
+        } else {
+            passDisplay.style.display = 'none';
+        }
+
         updateRatingDisplay(juego);
         cargarComentarios(juego.id);
         mostrarSimilares(juego);
@@ -1274,7 +1287,6 @@
         if(enlacesRaw.length === 0) {
             containerLinks.innerHTML = "<p style='color:#aaa'>No hay enlaces disponibles.</p>";
         } else {
-            // Agrupar
             const groups = {};
             enlacesRaw.forEach(l => {
                 const srv = l.servidor || "Otros";
@@ -1282,7 +1294,6 @@
                 groups[srv].push(l);
             });
 
-            // Renderizar Acordeones
             for (const [server, links] of Object.entries(groups)) {
                 const item = document.createElement('div');
                 item.className = "accordion-item";
@@ -1294,12 +1305,10 @@
                 else if(srvLower.includes("drive") || srvLower.includes("google")) icon = "fa-google-drive";
                 else if(srvLower.includes("torrent")) icon = "fa-magnet";
 
-                // Botón Servidor
                 const btn = document.createElement('button');
                 btn.className = "accordion-btn";
                 btn.innerHTML = `<i class="fa-brands ${icon}"></i> ${server} <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>`;
                 
-                // Panel Links
                 const panel = document.createElement('div');
                 panel.className = "accordion-panel";
                 
@@ -1310,10 +1319,8 @@
                     panel.appendChild(a);
                 });
 
-                // Evento Toggle
                 btn.onclick = () => {
                     const open = panel.style.display === "block";
-                    // Cerrar otros (opcional)
                     document.querySelectorAll('.accordion-panel').forEach(p => p.style.display='none');
                     panel.style.display = open ? "none" : "block";
                 };
@@ -1361,6 +1368,7 @@
             titulo: document.getElementById('new-title').value,
             imagen: document.getElementById('new-image').value,
             trailerUrl: document.getElementById('new-trailer').value,
+            password: document.getElementById('new-password').value,
             fechaSalida: document.getElementById('new-date').value,
             peso: document.getElementById('new-size').value,
             requisito: document.getElementById('new-req').value, 
@@ -1384,6 +1392,7 @@
         document.getElementById('edit-title').value = j.titulo;
         document.getElementById('edit-image').value = j.imagen;
         document.getElementById('edit-trailer').value = j.trailerUrl || "";
+        document.getElementById('edit-password').value = j.password || "";
         document.getElementById('edit-date').value = j.fechaSalida || "";
         document.getElementById('edit-size').value = j.peso || "";
         document.getElementById('edit-req').value = j.requisito || "medios";
@@ -1403,6 +1412,7 @@
             titulo: document.getElementById('edit-title').value,
             imagen: document.getElementById('edit-image').value,
             trailerUrl: document.getElementById('edit-trailer').value,
+            password: document.getElementById('edit-password').value,
             fechaSalida: document.getElementById('edit-date').value,
             peso: document.getElementById('edit-size').value,
             requisito: document.getElementById('edit-req').value,

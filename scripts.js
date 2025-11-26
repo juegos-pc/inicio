@@ -1,7 +1,6 @@
-// --- FIREBASE INIT ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc, increment, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBrObF62SabOPgu1K_BBHu02NbzPDq6Zp0",
@@ -17,7 +16,6 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // --- ESTADO ---
     let juegos = [];
     let juegosFiltrados = [];
     let paginaActual = 1;
@@ -30,7 +28,6 @@
     let currentGameOpen = null; 
     let pendingVote = 0;
 
-    // --- DOM ---
     const gameList = document.getElementById('gameList');
     const loginScreen = document.getElementById('login-screen');
     const appContent = document.getElementById('app-content');
@@ -44,7 +41,6 @@
     const searchInput = document.getElementById('searchInput');
     const autocompleteList = document.getElementById('autocomplete-list');
 
-    // --- AUTH ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             usuarioActual = user;
@@ -54,12 +50,9 @@
                 appContent.style.display = 'block';
             }, 500); 
             document.getElementById('user-email-display').innerText = user.displayName || user.email;
-            
-            // Pre-llenar contacto
             document.getElementById('contact-user-info').innerText = `Enviando como: ${user.email}`;
             document.getElementById('contact-email-hidden').value = user.email;
             document.getElementById('contact-name-hidden').value = user.displayName || "Usuario";
-
             try {
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
                 if (userDoc.exists() && userDoc.data().rol === "admin") {
@@ -113,15 +106,12 @@
 
     document.getElementById('btnLogout').onclick = () => signOut(auth);
 
-    // TOGGLE MENUS CON CAMBIO DE COLOR ACTIVO
     window.toggleMenu = (btn, id) => {
         const el = document.getElementById(id);
-        // Cerrar otros primero
         document.querySelectorAll('.profile-dropdown, .notif-dropdown').forEach(d => {
             if(d.id !== id) d.style.display='none';
         });
         document.querySelectorAll('#menuClosed button').forEach(b => b.classList.remove('active-menu'));
-
         if (el.style.display === 'block') {
             el.style.display = 'none';
             btn.classList.remove('active-menu');
@@ -130,6 +120,9 @@
             btn.classList.add('active-menu');
         }
     };
+
+    btnProfile.onclick = (e) => { e.stopPropagation(); window.toggleMenu(btnProfile, 'profileDropdown'); };
+    btnNotif.onclick = (e) => { e.stopPropagation(); window.toggleMenu(btnNotif, 'notifDropdown'); cargarNotificaciones(); };
 
     window.onclick = (e) => { 
         if (!e.target.closest('#btnProfile') && !e.target.closest('#btnNotif')) {
@@ -142,11 +135,9 @@
         }
         if (!e.target.closest('#contextMenu')) contextMenu.style.display = 'none';
         if (!e.target.closest('.genres-dropdown-container')) genresPopup.style.display = 'none';
-        
         autocompleteList.style.display = 'none';
         document.getElementById('contact-autocomplete-list').style.display = 'none';
         
-        // Cerrar modales al tocar fuera
         if(e.target.classList.contains('modal')) {
             if(e.target.id === 'modalAdmin' || e.target.id === 'modalEdit') {
                 if(confirm("¿Estás seguro? Se perderán los datos si sales.")) e.target.style.display = 'none';
@@ -160,28 +151,18 @@
         if(confirm("¿Estás seguro? Se perderán los datos si sales.")) document.getElementById(id).style.display = 'none';
     };
 
-    // --- FILTROS ---
     window.toggleGenresPopup = () => {
-        const btn = document.getElementById('btnGenresToggle');
-        if (genresPopup.style.display === 'grid') {
-            genresPopup.style.display = 'none';
-        } else {
-            genresPopup.style.display = 'grid';
-        }
+        genresPopup.style.display = genresPopup.style.display === 'grid' ? 'none' : 'grid';
     };
 
     document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', aplicarFiltrosGlobales));
     
-    // Autocomplete Search
     searchInput.addEventListener('input', function() {
         const val = this.value.toLowerCase();
         aplicarFiltrosGlobales();
-        
         if (!val) { autocompleteList.style.display = 'none'; return; }
-        
         const matches = juegos.filter(j => j.titulo.toLowerCase().includes(val)).slice(0, 5);
         autocompleteList.innerHTML = '';
-        
         if (matches.length > 0) {
             matches.forEach(j => {
                 const div = document.createElement('div');
@@ -214,7 +195,6 @@
     function aplicarFiltrosGlobales() {
         const texto = document.getElementById('searchInput').value.toLowerCase();
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
-
         juegosFiltrados = juegos.filter(j => {
             const matchText = j.titulo.toLowerCase().includes(texto);
             let matchReq = true;
@@ -230,7 +210,6 @@
         renderizarJuegos();
     }
 
-    // --- CORE ---
     async function cargarJuegos() {
         const snap = await getDocs(collection(db, "juegos"));
         juegos = [];
@@ -282,10 +261,12 @@
             card.innerHTML = `
                 <img src="${juego.imagen}" alt="${juego.titulo}" onerror="this.src='https://via.placeholder.com/220x320?text=Sin+Imagen'">
                 ${ratingHtml}
-                <div class="title-overlay">${juego.titulo}</div>
-                <div class="heart" onclick="window.toggleFav('${juego.titulo}', this); event.stopPropagation();">
-                    <i class="${heartClass}"></i>
+                <div class="top-icons">
+                    <div class="heart" onclick="window.toggleFav('${juego.titulo}', this); event.stopPropagation();">
+                        <i class="${heartClass}"></i>
+                    </div>
                 </div>
+                <div class="title-overlay">${juego.titulo}</div>
             `;
             gameList.appendChild(card);
         });
@@ -334,7 +315,6 @@
         abrirDescargas(random);
     };
 
-    // --- VIDEO, RATINGS & DOWNLOADS ---
     function getYoutubeId(url) {
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
@@ -351,7 +331,6 @@
     window.submitVote = async () => {
         if(!usuarioActual) { alert("Debes iniciar sesión para votar."); return; }
         if(!currentGameOpen || pendingVote === 0) return;
-        
         const gameRef = doc(db, "juegos", currentGameOpen.id);
         const key = `puntuaciones.${usuarioActual.uid}`;
         try {
@@ -364,7 +343,7 @@
             updateRatingDisplay(updatedGame);
             document.getElementById('btn-send-vote').innerText = "¡Guardado!";
             setTimeout(() => document.getElementById('btn-send-vote').style.display = 'none', 2000);
-            renderizarJuegos(); // Actualizar tarjeta
+            renderizarJuegos();
         } catch(e) { console.error(e); }
     };
 
@@ -393,13 +372,109 @@
         });
     }
 
+    // --- COMENTARIOS ---
+    window.enviarComentario = async () => {
+        if(!usuarioActual) { alert("Inicia sesión para comentar."); return; }
+        const text = document.getElementById('new-comment-text').value;
+        if(!text.trim()) return;
+        try {
+            await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
+                user: usuarioActual.displayName || "Usuario",
+                uid: usuarioActual.uid,
+                text: text,
+                date: new Date().toISOString()
+            });
+            document.getElementById('new-comment-text').value = "";
+            cargarComentarios(currentGameOpen.id);
+        } catch(e) { console.error(e); }
+    };
+
+    async function cargarComentarios(gameId) {
+        const list = document.getElementById('comments-list');
+        list.innerHTML = "<p style='color:#888'>Cargando...</p>";
+        const q = query(collection(db, "juegos", gameId, "comentarios"), orderBy("date", "asc"));
+        try {
+            const snap = await getDocs(q);
+            list.innerHTML = "";
+            if(snap.empty) { list.innerHTML = "<p style='color:#888; text-align:center;'>Sé el primero en comentar.</p>"; return; }
+            snap.forEach(d => {
+                const c = d.data();
+                const isMine = c.uid === usuarioActual?.uid;
+                const div = document.createElement('div');
+                div.className = `comment-item ${isMine ? 'mine' : ''}`;
+                
+                // Botones de acción (Editar/Borrar)
+                let actions = "";
+                if (isMine || esAdmin) {
+                    actions = `
+                        <div class="comment-actions">
+                            ${isMine ? `<button class="btn-mini-action" onclick="editarComentario('${gameId}', '${d.id}', '${c.text}')"><i class="fa-solid fa-pencil"></i></button>` : ''}
+                            <button class="btn-mini-action" onclick="borrarComentario('${gameId}', '${d.id}')" style="background:#ff4444;"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    ${actions}
+                    <div class="comment-meta">
+                        <span style="color:var(--primary); font-weight:bold;">${c.user}</span>
+                        <span>${new Date(c.date).toLocaleDateString()}</span>
+                    </div>
+                    <div class="comment-body">${c.text}</div>
+                `;
+                list.appendChild(div);
+            });
+            list.scrollTop = list.scrollHeight;
+        } catch(e) { list.innerHTML = "<p>Error cargando comentarios.</p>"; }
+    }
+
+    window.borrarComentario = async (gameId, commentId) => {
+        if(!confirm("¿Borrar comentario?")) return;
+        try {
+            await deleteDoc(doc(db, "juegos", gameId, "comentarios", commentId));
+            cargarComentarios(gameId);
+        } catch(e) { alert("Error al borrar"); }
+    };
+
+    window.editarComentario = async (gameId, commentId, currentText) => {
+        const newText = prompt("Editar comentario:", currentText);
+        if (newText !== null && newText.trim() !== "") {
+            try {
+                await updateDoc(doc(db, "juegos", gameId, "comentarios", commentId), { text: newText });
+                cargarComentarios(gameId);
+            } catch(e) { alert("Error al editar"); }
+        }
+    };
+
+    function mostrarSimilares(juego) {
+        const container = document.getElementById('similar-games-section');
+        const list = document.getElementById('similar-games-list');
+        const myGens = juego.generos || [];
+        const similar = juegos.filter(j => j.id !== juego.id && (j.generos || []).some(g => myGens.includes(g))).slice(0, 3);
+        
+        if(similar.length === 0) { container.style.display = 'none'; return; }
+        
+        container.style.display = 'block';
+        list.innerHTML = "";
+        similar.forEach(j => {
+            const div = document.createElement('div');
+            div.className = "similar-card";
+            div.onclick = () => abrirDescargas(j);
+            div.innerHTML = `<img src="${j.imagen}"><div class="similar-title">${j.titulo}</div>`;
+            list.appendChild(div);
+        });
+    }
+
+    // --- LOGICA DE DESCARGAS AGRUPADAS ---
     function abrirDescargas(juego) {
         currentGameOpen = juego;
         const modal = document.getElementById('modalDownloads');
-        const list = document.getElementById('download-buttons-list');
+        const containerLinks = document.getElementById('download-buttons-container');
         const meta = document.getElementById('game-meta-info');
         const trailerDiv = document.getElementById('trailer-container');
         document.getElementById('download-title').innerText = juego.titulo;
+        
+        // Trailer
         const ytId = juego.trailerUrl ? getYoutubeId(juego.trailerUrl) : null;
         if (ytId) {
             trailerDiv.style.display = 'block';
@@ -408,26 +483,72 @@
             trailerDiv.style.display = 'none';
             trailerDiv.innerHTML = '';
         }
+        
+        // Meta Info
         const generosStr = (juego.generos || []).join(' • ') || "Varios";
         meta.innerHTML = `<div><i class="fa-solid fa-calendar"></i> ${juego.fechaSalida || 'N/A'} &nbsp;|&nbsp; <i class="fa-solid fa-hard-drive"></i> ${juego.peso || 'N/A'}</div><div style="margin-top:5px; color:var(--primary);">${generosStr}</div>`;
+        
         updateRatingDisplay(juego);
-        list.innerHTML = "";
-        const enlaces = juego.enlaces || (juego.link ? [{servidor: "Descarga", url: juego.link, nota: "Link Directo"}] : []);
-        if(enlaces.length === 0) list.innerHTML = "<p style='color:#aaa; grid-column:1/-1;'>No hay enlaces disponibles.</p>";
-        enlaces.forEach(link => {
-            let icon = "fa-solid fa-download";
-            let serverName = link.servidor.toLowerCase();
-            if(serverName.includes("mediafire")) icon = "fa-solid fa-fire";
-            else if(serverName.includes("mega")) icon = "fa-solid fa-cloud";
-            else if(serverName.includes("drive") || serverName.includes("google")) icon = "fa-brands fa-google-drive";
-            else if(serverName.includes("torrent")) icon = "fa-solid fa-magnet";
-            const a = document.createElement('a');
-            a.className = "dl-btn-card";
-            a.href = link.url; a.target = "_blank";
-            const notaHtml = link.nota ? `<span class="dl-note">${link.nota}</span>` : '';
-            a.innerHTML = `<i class="${icon} dl-server-icon"></i><span class="dl-server-name">${link.servidor}</span>${notaHtml}`;
-            list.appendChild(a);
-        });
+        cargarComentarios(juego.id);
+        mostrarSimilares(juego);
+
+        // Agrupar enlaces por servidor
+        containerLinks.innerHTML = "";
+        const enlacesRaw = juego.enlaces || (juego.link ? [{servidor: "Descarga Directa", url: juego.link, nota: "Link"}] : []);
+        
+        if(enlacesRaw.length === 0) {
+            containerLinks.innerHTML = "<p style='color:#aaa'>No hay enlaces disponibles.</p>";
+        } else {
+            // Agrupar
+            const groups = {};
+            enlacesRaw.forEach(l => {
+                const srv = l.servidor || "Otros";
+                if(!groups[srv]) groups[srv] = [];
+                groups[srv].push(l);
+            });
+
+            // Renderizar Acordeones
+            for (const [server, links] of Object.entries(groups)) {
+                const item = document.createElement('div');
+                item.className = "accordion-item";
+                
+                let icon = "fa-download";
+                let srvLower = server.toLowerCase();
+                if(srvLower.includes("mediafire")) icon = "fa-fire";
+                else if(srvLower.includes("mega")) icon = "fa-cloud";
+                else if(srvLower.includes("drive") || srvLower.includes("google")) icon = "fa-google-drive";
+                else if(srvLower.includes("torrent")) icon = "fa-magnet";
+
+                // Botón Servidor
+                const btn = document.createElement('button');
+                btn.className = "accordion-btn";
+                btn.innerHTML = `<i class="fa-brands ${icon}"></i> ${server} <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>`;
+                
+                // Panel Links
+                const panel = document.createElement('div');
+                panel.className = "accordion-panel";
+                
+                links.forEach(l => {
+                    const a = document.createElement('a');
+                    a.href = l.url; a.target = "_blank";
+                    a.innerHTML = `<i class="fa-solid fa-link"></i> ${l.nota || "Descargar Here"}`;
+                    panel.appendChild(a);
+                });
+
+                // Evento Toggle
+                btn.onclick = () => {
+                    const open = panel.style.display === "block";
+                    // Cerrar otros (opcional)
+                    document.querySelectorAll('.accordion-panel').forEach(p => p.style.display='none');
+                    panel.style.display = open ? "none" : "block";
+                };
+
+                item.appendChild(btn);
+                item.appendChild(panel);
+                containerLinks.appendChild(item);
+            }
+        }
+
         modal.style.display = 'flex';
     }
 
@@ -471,7 +592,7 @@
             generos: getGens('chk-genre'),
             enlaces: getLinks('new-links-container'),
             fecha: new Date().toISOString(),
-            puntuaciones: {} 
+            puntuaciones: {}
         };
         try {
             await addDoc(collection(db, "juegos"), newGame);
@@ -528,7 +649,6 @@
         localStorage.setItem("favoritos", JSON.stringify(favoritos));
         renderizarJuegos();
     };
-    
     window.toggleMostrarFavoritos = (btn) => {
         if(gameList.classList.contains('solo-favs')) {
             gameList.classList.remove('solo-favs');
@@ -543,13 +663,11 @@
     };
     
     window.abrirModalCorreo = () => document.getElementById('modalCorreo').style.display='flex';
-    
     window.toggleBuscador = (btn) => {
         buscadorExpandido.classList.toggle('visible');
         if(buscadorExpandido.classList.contains('visible')) btn.classList.add('active-menu');
         else btn.classList.remove('active-menu');
     };
-    
     window.toggleModo = () => {
         document.body.classList.toggle('light');
     };

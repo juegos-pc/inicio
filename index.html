@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zona Gamer</title>
+  <link rel="icon" type="image/x-icon" href="img/zona gamer.png" />
+  <link rel="stylesheet" href="estyles.css">
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <!-- PANTALLA DE LOGIN -->
+  <div id="login-screen">
+    <div class="login-box">
+      <h1>Zona Gamer</h1>
+      <p>Accede a la mejor colección de juegos</p>
+      <button class="btn-google" id="btn-google-login">
+        <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
+      </button>
+      <div class="divider">O USA TU EMAIL</div>
+      <form id="auth-form">
+        <input type="email" id="email" placeholder="Correo electrónico" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button type="submit" id="btn-auth-submit">INGRESAR</button>
+      </form>
+      <span class="toggle-link" id="toggle-auth">¿No tienes cuenta? Regístrate gratis</span>
+    </div>
+  </div>
+
+  <!-- CONTENIDO DE LA APP -->
+  <div id="app-content" style="display:none;">
+    
+    <div id="buscadorExpandido">
+        <div class="search-bar-container">
+            <i class="fa-solid fa-magnifying-glass" style="color: #888;"></i>
+            <input type="text" id="searchInput" placeholder="Buscar título..." autocomplete="off" />
+            <div id="autocomplete-list"></div>
+
+            <div class="genres-dropdown-container">
+                <!-- CORREGIDO: Clickbox junto al texto -->
+                <div class="btn-genres-toggle" id="btnGenresToggle" onclick="toggleGenresPopup()">Géneros <i class="fa-solid fa-chevron-down"></i></div>
+                <div class="genres-list-popup" id="genresListPopup">
+                    <label><input type="checkbox" value="Acción" class="filter-genre-chk"> Acción</label>
+                    <label><input type="checkbox" value="Aventura" class="filter-genre-chk"> Aventura</label>
+                    <label><input type="checkbox" value="Terror" class="filter-genre-chk"> Terror</label>
+                    <label><input type="checkbox" value="Carreras" class="filter-genre-chk"> Carreras</label>
+                    <label><input type="checkbox" value="Deportes" class="filter-genre-chk"> Deportes</label>
+                    <label><input type="checkbox" value="Estrategia" class="filter-genre-chk"> Estrategia</label>
+                    <label><input type="checkbox" value="Rol/RPG" class="filter-genre-chk"> Rol/RPG</label>
+                    <label><input type="checkbox" value="Shooter" class="filter-genre-chk"> Shooter</label>
+                    <label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> MundoAbierto</label>
+                    <label><input type="checkbox" value="Multijugador" class="filter-genre-chk" style="accent-color:#00ff00"> Multijugador</label>
+                    <label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label>
+                </div>
+            </div>
+            <button class="filtro-btn" onclick="toggleReq(this, 'bajos')">Bajos</button>
+            <button class="filtro-btn" onclick="toggleReq(this, 'medios')">Medios</button>
+            <button class="filtro-btn" onclick="toggleReq(this, 'altos')">Altos</button>
+        </div>
+    </div>
+
+    <button id="btnFloatingAdd" onclick="abrirModalAgregar()" title="Agregar Juego">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <div id="menuClosed">
+      <div class="menu-buttons">
+        <div class="profile-container">
+            <button id="btnProfile" title="Mi Perfil" onclick="toggleMenu(this, 'profileDropdown')"><i class="fa-solid fa-user-astronaut"></i></button>
+            <div class="profile-dropdown" id="profileDropdown">
+                <p id="user-email-display">Cargando...</p>
+                <button id="btnLogout" style="color: #ff4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+            </div>
+        </div>
+        <div style="height: 20px;"></div>
+        <button id="btnFavs" onclick="toggleMostrarFavoritos(this)" title="Mis Favoritos"><i class="fa-solid fa-heart"></i></button>
+        <button id="btnLupa" onclick="toggleBuscador(this)" title="Buscar Juegos"><i class="fa-solid fa-search"></i></button>
+        <button onclick="abrirJuegoAleatorio()" title="Juego Aleatorio 🎲"><i class="fa-solid fa-dice"></i></button>
+        <div class="notif-container">
+            <button id="btnNotif" title="Últimos Agregados" onclick="toggleMenu(this, 'notifDropdown'); cargarNotificaciones();"><i class="fa-solid fa-bell"></i></button>
+            <div class="notif-dropdown" id="notifDropdown">
+                <div style="font-weight:bold; padding-bottom:5px; border-bottom:1px solid #444; margin-bottom:5px; color:var(--primary);">Últimos Agregados</div>
+                <div id="notif-list"></div>
+            </div>
+        </div>
+        <button onclick="abrirModalCorreo()" title="Contacto"><i class="fa-solid fa-envelope"></i></button>
+        <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
+      </div>
+      <div class="bottom-icons">
+          <a target="_blank" href="html/donaciones.html" title="Apoyar"><i class="fa-solid fa-coffee"></i></a>
+          <a target="_blank" href="https://www.instagram.com/pcjuegoss2025" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+    </div>
+
+    <button id="btnSubir" title="Subir" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <main>
+      <div class="game-list" id="gameList"></div>
+      <div class="pagination-controls">
+        <button id="btnPrevPage" disabled><i class="fa-solid fa-chevron-left"></i> Anterior</button>
+        <span id="pageIndicator" style="color: #aaa;">Página 1</span>
+        <button id="btnNextPage">Siguiente <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </main>
+  </div>
+
+  <div id="contextMenu">
+      <button onclick="accionContexto('editar')"><i class="fa-solid fa-pen"></i> Editar</button>
+      <button onclick="accionContexto('borrar')" style="color:#ff4444;"><i class="fa-solid fa-trash"></i> Borrar</button>
+      <div style="border-top:1px solid #444; margin:5px 0;"></div>
+      <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar otro juego</button>
+  </div>
+
+  <!-- MODAL AGREGAR -->
+  <div id="modalAdmin" class="modal">
+    <div class="modal-content-wide">
+      <span class="close" onclick="cerrarModalConConfirmacion('modalAdmin')">&times;</span>
+      <div class="modal-header"><h2>Agregar Nuevo Juego</h2></div>
+      <form id="form-add-game" style="display:contents;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="input-group">
+                <input type="text" id="new-title" required placeholder="Título del Juego">
+            </div>
+            <div class="input-group">
+                <input type="url" id="new-image" required placeholder="URL de Portada">
+            </div>
+            <!-- Trailer Opcional -->
+            <div class="input-group">
+                <input type="url" id="new-trailer" placeholder="Trailer YouTube (URL - Opcional)">
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <div class="input-group" style="flex:1">
+                    <input type="date" id="new-date" title="Fecha Salida">
+                </div>
+                <div class="input-group" style="flex:1">
+                    <input type="text" id="new-size" placeholder="Peso (GB)">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <select id="new-req" required>
+                    <option value="bajos">Bajos Recursos</option>
+                    <option value="medios">Medios Recursos</option>
+                    <option value="altos">Altos Recursos</option>
+                </select>
+            </div>
+
+            <label style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Géneros</label>
+            <div class="genre-container">
+                <div class="genre-grid">
+                    <div class="genre-item"><label><input type="checkbox" value="Acción" class="chk-genre"> Acción</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Aventura" class="chk-genre"> Aventura</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Terror" class="chk-genre"> Terror</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Carreras" class="chk-genre"> Carreras</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Deportes" class="chk-genre"> Deportes</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="chk-genre"> Estrategia</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="chk-genre"> Rol/RPG</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Shooter" class="chk-genre"> Shooter</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre"> Mundo Abierto</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="chk-genre" style="accent-color:#00ff00;"> Multijugador</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre" style="accent-color:#00ff00;"> Pantalla Dividida</label></div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <label style="color:#aaa;">Enlaces de Descarga</label>
+            <div class="links-section">
+                <div id="new-links-container"></div>
+                <button type="button" onclick="window.agregarInputLink('new-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:10px; width:100%;">+ Agregar Enlace</button>
+            </div>
+        </div>
+        <div class="modal-footer full-width">
+            <button type="submit">PUBLICAR JUEGO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR -->
+  <div id="modalEdit" class="modal">
+    <div class="modal-content-wide">
+      <span class="close" onclick="cerrarModalConConfirmacion('modalEdit')">&times;</span>
+      <div class="modal-header"><h2>Editar Juego</h2></div>
+      <form id="form-edit-game" style="display:contents;">
+        <input type="hidden" id="edit-id">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="input-group">
+                <input type="text" id="edit-title" required placeholder="Título del Juego">
+            </div>
+            <div class="input-group">
+                <input type="url" id="edit-image" required placeholder="URL Portada">
+            </div>
+            <div class="input-group">
+                <input type="url" id="edit-trailer" placeholder="URL Trailer (Opcional)">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="input-group" style="flex:1">
+                    <input type="date" id="edit-date">
+                </div>
+                <div class="input-group" style="flex:1">
+                    <input type="text" id="edit-size" placeholder="Peso">
+                </div>
+            </div>
+            <div class="input-group">
+                <select id="edit-req" required>
+                    <option value="bajos">Bajos</option>
+                    <option value="medios">Medios</option>
+                    <option value="altos">Altos</option>
+                </select>
+            </div>
+            <label style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Géneros</label>
+            <div class="genre-container">
+                <div class="genre-grid">
+                    <div class="genre-item"><label><input type="checkbox" value="Acción" class="chk-genre-edit"> Acción</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Aventura" class="chk-genre-edit"> Aventura</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Terror" class="chk-genre-edit"> Terror</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Carreras" class="chk-genre-edit"> Carreras</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Deportes" class="chk-genre-edit"> Deportes</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="chk-genre-edit"> Estrategia</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="chk-genre-edit"> Rol/RPG</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Shooter" class="chk-genre-edit"> Shooter</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre-edit"> Mundo Abierto</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="chk-genre-edit"> Multijugador</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre-edit"> Pantalla Dividida</label></div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <label style="color:#aaa;">Enlaces</label>
+            <div class="links-section">
+                <div id="edit-links-container"></div>
+                <button type="button" onclick="window.agregarInputLink('edit-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:10px; width:100%;">+ Agregar Enlace</button>
+            </div>
+        </div>
+        <div class="modal-footer full-width">
+            <button type="submit">GUARDAR CAMBIOS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DESCARGAS & DETALLES -->
+  <div id="modalDownloads" class="modal">
+    <div class="modal-content-small" style="text-align: center; padding-top: 40px;">
+      <span class="close" onclick="document.getElementById('modalDownloads').style.display='none'">&times;</span>
+      
+      <!-- Trailer Video -->
+      <div id="trailer-container" class="video-container" style="display:none;"></div>
+
+      <h2 id="download-title" style="color: var(--primary); font-size: 2rem; text-transform: uppercase; margin-bottom: 10px;">Juego</h2>
+      
+      <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem; color: #ccc;">
+        <!-- Info técnica -->
+      </div>
+
+      <!-- Sistema de Votación Superior Derecha -->
+      <div class="vote-corner">
+          <div class="stars" id="star-rating-display">
+              <i class="fa-regular fa-star" onclick="preVote(1)"></i>
+              <i class="fa-regular fa-star" onclick="preVote(2)"></i>
+              <i class="fa-regular fa-star" onclick="preVote(3)"></i>
+              <i class="fa-regular fa-star" onclick="preVote(4)"></i>
+              <i class="fa-regular fa-star" onclick="preVote(5)"></i>
+          </div>
+          <button id="btn-send-vote" class="btn-send-vote" onclick="submitVote()">Manda</button>
+          <div style="font-size:0.7rem; color:#888; margin-top:2px;">
+              <span id="rating-score" style="color:var(--gold); font-weight:bold;">0.0</span> 
+              <span id="rating-count">(0)</span>
+          </div>
+      </div>
+
+      <div id="download-buttons-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal Contacto Mejorado -->
+  <div id="modalCorreo" class="modal">
+    <div class="modal-content-small">
+      <span class="close" onclick="document.getElementById('modalCorreo').style.display='none'">&times;</span>
+      <h2>Contacto / Pedidos</h2>
+      <p id="contact-user-info" style="font-size:0.8rem; color:#888; margin-bottom:15px;">Cargando usuario...</p>
+      
+      <form id="formCorreo" action="https://formsubmit.co/pcjuegoss2025@gmail.com" method="POST">
+        <input type="hidden" name="_next" value="https://juegos-pc.github.io/inicio/" />
+        
+        <!-- Campos ocultos para info de usuario -->
+        <input type="hidden" name="usuario_email" id="contact-email-hidden">
+        <input type="hidden" name="usuario_nombre" id="contact-name-hidden">
+
+        <span class="contact-label">Motivo</span>
+        <select name="razon" id="contact-reason" required onchange="toggleGameInput()" style="width:100%; padding:10px; background:#121212; color:white; border:1px solid #444; border-radius:8px; margin-bottom:15px;">
+            <option value="">-- Selecciona --</option>
+            <option value="Link Caído">Link Caído ⚠️</option>
+            <option value="Juego Roto">Juego Roto 🛠️</option>
+            <option value="Pedir Juego">Pedir Juego 🎁</option>
+            <option value="Otro">Otro ✉️</option>
+        </select>
+
+        <div id="game-input-group" style="display:none; margin-bottom:15px; position:relative;">
+            <span class="contact-label">Juego Opcional</span>
+            <input type="text" name="juego_solicitado" id="contact-game-name" placeholder="Escribe para buscar..." style="width:100%; padding:10px; background:#121212; color:white; border:1px solid #444; border-radius:8px;" autocomplete="off">
+            <div id="contact-autocomplete-list" style="position:absolute; top:100%; left:0; width:100%; background:#222; z-index:10; border:1px solid #444; display:none; border-radius:0 0 8px 8px;"></div>
+        </div>
+
+        <span class="contact-label">Detalle</span>
+        <textarea name="mensaje" placeholder="Describe el problema o tu pedido..." rows="4" style="width:100%; background:#121212; border:1px solid #444; color:white; padding:10px; border-radius:8px; margin-bottom:15px;"></textarea>
+
+        <button type="submit">ENVIAR MENSAJE</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- LÓGICA -->
+  <script type="module" src="scripts.js">
+  </script>
+</body>
+</html>

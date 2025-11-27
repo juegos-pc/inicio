@@ -130,8 +130,15 @@
 
     #buscadorExpandido input {
       background: transparent; border: none; color: white;
-      padding: 5px 10px; width: 200px; font-size: 1rem; outline: none;
+      padding: 5px 10px; width: 180px; font-size: 1rem; outline: none;
     }
+
+    .sort-select {
+        background: #252525; color: #ccc; border: 1px solid #555;
+        padding: 6px 10px; border-radius: 20px; outline: none;
+        font-size: 0.85rem; cursor: pointer;
+    }
+    .sort-select:hover { background: #333; color: white; }
 
     #autocomplete-list {
         position: absolute; top: 100%; left: 40px; width: 250px;
@@ -522,6 +529,13 @@
                     <label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label>
                 </div>
             </div>
+            
+            <select id="sortSelect" class="sort-select" onchange="aplicarFiltrosGlobales()">
+                <option value="date_new">Recientes</option>
+                <option value="date_old">Antiguos</option>
+                <option value="rating">Mayor Puntaje</option>
+            </select>
+
             <button class="filtro-btn" onclick="toggleReq(this, 'bajos')">Bajos</button>
             <button class="filtro-btn" onclick="toggleReq(this, 'medios')">Medios</button>
             <button class="filtro-btn" onclick="toggleReq(this, 'altos')">Altos</button>
@@ -829,7 +843,6 @@
     let juegos = [];
     let juegosFiltrados = [];
     let paginaActual = 1;
-    // Paginacion aumentada a 24
     const juegosPorPagina = 24;
     let usuarioActual = null;
     let esAdmin = false;
@@ -852,10 +865,24 @@
     const searchInput = document.getElementById('searchInput');
     const autocompleteList = document.getElementById('autocomplete-list');
 
+    // --- HELPER FECHA ---
+    function formatearFecha(fechaStr) {
+        if(!fechaStr) return "Sin fecha";
+        try {
+            if(fechaStr.includes('T')) {
+                const d = new Date(fechaStr);
+                return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+            }
+            const parts = fechaStr.split('-');
+            if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } catch(e) { return fechaStr; }
+        return fechaStr;
+    }
+
     // --- SHORTCUT ALT + N ---
     document.addEventListener('keydown', (e) => {
         if(e.altKey && e.key.toLowerCase() === 'n') {
-            if(esAdmin) abrirModalAgregar();
+            if(esAdmin) window.abrirModalAgregar();
         }
     });
 
@@ -940,7 +967,7 @@
     };
 
     btnProfile.onclick = (e) => { e.stopPropagation(); window.toggleMenu(btnProfile, 'profileDropdown'); };
-    btnNotif.onclick = (e) => { e.stopPropagation(); window.toggleMenu(btnNotif, 'notifDropdown'); cargarNotificaciones(); };
+    btnNotif.onclick = (e) => { e.stopPropagation(); window.toggleMenu(btnNotif, 'notifDropdown'); window.cargarNotificaciones(); };
 
     window.onclick = (e) => { 
         if (!e.target.closest('#btnProfile') && !e.target.closest('#btnNotif')) {
@@ -973,11 +1000,11 @@
         genresPopup.style.display = genresPopup.style.display === 'grid' ? 'none' : 'grid';
     };
 
-    document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', aplicarFiltrosGlobales));
+    document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', () => window.aplicarFiltrosGlobales()));
     
     searchInput.addEventListener('input', function() {
         const val = this.value.toLowerCase();
-        aplicarFiltrosGlobales();
+        window.aplicarFiltrosGlobales();
         if (!val) { autocompleteList.style.display = 'none'; return; }
         const matches = juegos.filter(j => j.titulo.toLowerCase().includes(val)).slice(0, 5);
         autocompleteList.innerHTML = '';
@@ -988,7 +1015,7 @@
                 div.innerText = j.titulo;
                 div.onclick = () => {
                     searchInput.value = j.titulo;
-                    aplicarFiltrosGlobales();
+                    window.aplicarFiltrosGlobales();
                     autocompleteList.style.display = 'none';
                 };
                 autocompleteList.appendChild(div);
@@ -1007,12 +1034,16 @@
             btn.classList.add('activo');
             activeReqFilter = req;
         }
-        aplicarFiltrosGlobales();
+        window.aplicarFiltrosGlobales();
     };
 
-    function aplicarFiltrosGlobales() {
+    // --- LOGICA DE FILTROS Y ORDENAMIENTO ---
+    window.aplicarFiltrosGlobales = () => {
         const texto = document.getElementById('searchInput').value.toLowerCase();
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
+        const sortMode = document.getElementById('sortSelect').value;
+
+        // 1. Filtrar
         juegosFiltrados = juegos.filter(j => {
             const matchText = j.titulo.toLowerCase().includes(texto);
             let matchReq = true;
@@ -1024,14 +1055,25 @@
             }
             return matchText && matchReq && matchGenres;
         });
+
+        // 2. Ordenar
+        if (sortMode === 'rating') {
+            juegosFiltrados.sort((a, b) => parseFloat(getAvgRating(b)) - parseFloat(getAvgRating(a)));
+        } else if (sortMode === 'date_new') {
+            juegosFiltrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        } else if (sortMode === 'date_old') {
+            juegosFiltrados.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        }
+
         paginaActual = 1;
         renderizarJuegos();
-    }
+    };
 
     async function cargarJuegos() {
         const snap = await getDocs(collection(db, "juegos"));
         juegos = [];
         snap.forEach(d => juegos.push({id: d.id, ...d.data()}));
+        juegos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
         juegosFiltrados = [...juegos];
         renderizarJuegos();
     }
@@ -1062,6 +1104,7 @@
             const esFav = favoritos.includes(juego.titulo);
             const heartClass = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
             const rating = getAvgRating(juego);
+            const fechaFormateada = formatearFecha(juego.fechaSalida || juego.fecha);
 
             card.onclick = (e) => { if(!e.target.closest('.heart')) abrirDescargas(juego); };
             card.oncontextmenu = (e) => {
@@ -1084,7 +1127,10 @@
                         <i class="${heartClass}"></i>
                     </div>
                 </div>
-                <div class="title-overlay">${juego.titulo}</div>
+                <div class="title-overlay">
+                    <div>${juego.titulo}</div>
+                    <div style="font-size:0.75rem; color:#aaa; margin-top:3px; font-weight:normal;">${fechaFormateada}</div>
+                </div>
             `;
             gameList.appendChild(card);
         });
@@ -1112,7 +1158,8 @@
         window.agregarInputLink('new-links-container');
     };
 
-    function cargarNotificaciones() {
+    // AHORA ESTÁ EN WINDOW
+    window.cargarNotificaciones = () => {
         const lista = document.getElementById('notif-list');
         lista.innerHTML = "";
         const ultimos = [...juegos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 5);
@@ -1121,14 +1168,14 @@
             const div = document.createElement('div');
             div.className = "notif-item";
             div.onclick = () => abrirDescargas(j);
-            const fecha = j.fecha ? new Date(j.fecha).toLocaleDateString() : "Reciente";
+            const fecha = formatearFecha(j.fecha);
             div.innerHTML = `<div style="font-weight:bold;">${j.titulo}</div><span class="notif-date"><i class="fa-regular fa-clock"></i> ${fecha}</span>`;
             lista.appendChild(div);
         });
-    }
+    };
 
     window.abrirJuegoAleatorio = () => {
-        if(juegos.length === 0) return;
+        if(juegos.length === 0) return alert("Cargando juegos...");
         const random = juegos[Math.floor(Math.random() * juegos.length)];
         abrirDescargas(random);
     };
@@ -1292,8 +1339,7 @@
         // 3. Ordenar: Primero los que tengan MÁS géneros en común
         matches.sort((a, b) => b.matchCount - a.matchCount);
 
-        // 4. Barajar un poco los resultados top para dar variedad (MÁS AMPLIO)
-        // Tomamos los top 15 (antes 10) para que varíe más
+        // 4. Barajar un poco los resultados top para dar variedad
         const topCandidates = matches.slice(0, 15);
         const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 3);
 
@@ -1317,7 +1363,6 @@
         });
     }
 
-    // --- LOGICA DE DESCARGAS AGRUPADAS ---
     function abrirDescargas(juego) {
         currentGameOpen = juego;
         const modal = document.getElementById('modalDownloads');
@@ -1327,7 +1372,6 @@
         const trailerDiv = document.getElementById('trailer-container');
         document.getElementById('download-title').innerText = juego.titulo;
         
-        // Trailer
         const ytId = juego.trailerUrl ? getYoutubeId(juego.trailerUrl) : null;
         if (ytId) {
             trailerDiv.style.display = 'block';
@@ -1337,11 +1381,10 @@
             trailerDiv.innerHTML = '';
         }
         
-        // Meta Info
         const generosStr = (juego.generos || []).join(' • ') || "Varios";
-        meta.innerHTML = `<div><i class="fa-solid fa-calendar"></i> ${juego.fechaSalida || 'N/A'} &nbsp;|&nbsp; <i class="fa-solid fa-hard-drive"></i> ${juego.peso || 'N/A'}</div><div style="margin-top:5px; color:var(--primary);">${generosStr}</div>`;
+        const fechaFmt = formatearFecha(juego.fechaSalida || juego.fecha);
+        meta.innerHTML = `<div><i class="fa-solid fa-calendar"></i> ${fechaFmt} &nbsp;|&nbsp; <i class="fa-solid fa-hard-drive"></i> ${juego.peso || 'N/A'}</div><div style="margin-top:5px; color:var(--primary);">${generosStr}</div>`;
         
-        // Password display
         if (juego.password) {
             passDisplay.innerHTML = `<p><i class="fa-solid fa-key" style="color:var(--primary)"></i> <strong>Contraseña:</strong> <span style="background:#333; padding:2px 6px; border-radius:4px; user-select:text;">${juego.password}</span></p>`;
             passDisplay.style.display = 'block';
@@ -1353,7 +1396,6 @@
         cargarComentarios(juego.id);
         mostrarSimilares(juego);
 
-        // Agrupar enlaces por servidor
         containerLinks.innerHTML = "";
         const enlacesRaw = juego.enlaces || (juego.link ? [{servidor: "Descarga Directa", url: juego.link, nota: "Link"}] : []);
         
@@ -1523,8 +1565,10 @@
     window.abrirModalCorreo = () => document.getElementById('modalCorreo').style.display='flex';
     window.toggleBuscador = (btn) => {
         buscadorExpandido.classList.toggle('visible');
-        if(buscadorExpandido.classList.contains('visible')) btn.classList.add('active-menu');
-        else btn.classList.remove('active-menu');
+        if(buscadorExpandido.classList.contains('visible')) {
+            btn.classList.add('active-menu');
+            document.getElementById('searchInput').focus();
+        } else btn.classList.remove('active-menu');
     };
     window.toggleModo = () => {
         document.body.classList.toggle('light');

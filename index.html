@@ -558,9 +558,10 @@
                     <label><input type="checkbox" value="Estrategia" class="filter-genre-chk"> Estrategia</label>
                     <label><input type="checkbox" value="Rol/RPG" class="filter-genre-chk"> Rol/RPG</label>
                     <label><input type="checkbox" value="Shooter" class="filter-genre-chk"> Shooter</label>
-                    <label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> Mundo Abierto</label>
+                    <label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> MundoAbierto</label>
                     <label><input type="checkbox" value="Multijugador" class="filter-genre-chk" style="accent-color:#00ff00"> Multijugador</label>
                     <label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label>
+                    <label><input type="checkbox" value="2D" class="filter-genre-chk"> 2D</label>
                 </div>
             </div>
             
@@ -685,9 +686,10 @@
                     <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="chk-genre"> Estrategia</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="chk-genre"> Rol/RPG</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Shooter" class="chk-genre"> Shooter</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre"> Mundo Abierto</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre"> MundoAbierto</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="chk-genre" style="accent-color:#00ff00;"> Multijugador</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre" style="accent-color:#00ff00;"> Pantalla Dividida</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre" style="accent-color:#00ff00;"> PantallaDividida</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="2D" class="chk-genre"> 2D</label></div>
                 </div>
             </div>
         </div>
@@ -754,9 +756,10 @@
                     <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="chk-genre-edit"> Estrategia</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="chk-genre-edit"> Rol/RPG</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Shooter" class="chk-genre-edit"> Shooter</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre-edit"> Mundo Abierto</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre-edit"> MundoAbierto</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="chk-genre-edit"> Multijugador</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre-edit"> Pantalla Dividida</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre-edit"> PantallaDividida</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="2D" class="chk-genre-edit"> 2D</label></div>
                 </div>
             </div>
         </div>
@@ -849,7 +852,6 @@
         <input type="hidden" name="_next" value="https://juegos-pc.github.io/inicio/" />
         <input type="hidden" name="usuario_email" id="contact-email-hidden">
         <input type="hidden" name="usuario_nombre" id="contact-name-hidden">
-        <input type="hidden" name="_captcha" value="false">
         <span class="contact-label">Motivo</span>
         <select name="razon" id="contact-reason" required onchange="toggleGameInput()" style="width:100%; padding:10px; background:#121212; color:white; border:1px solid #444; border-radius:8px; margin-bottom:15px;">
             <option value="">-- Selecciona --</option>
@@ -954,6 +956,11 @@
             if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
         } catch(e) { return fechaStr; }
         return fechaStr;
+    }
+
+    // --- HELPER NORMALIZAR TEXTO ---
+    function normalizarTexto(txt) {
+        return txt ? txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     }
 
     // --- SHORTCUT ALT + N ---
@@ -1095,10 +1102,10 @@
     document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', () => window.aplicarFiltrosGlobales()));
     
     searchInput.addEventListener('input', function() {
-        const val = this.value.toLowerCase();
+        const val = normalizarTexto(this.value);
         window.aplicarFiltrosGlobales();
         if (!val) { autocompleteList.style.display = 'none'; return; }
-        const matches = juegos.filter(j => j.titulo.toLowerCase().includes(val)).slice(0, 5);
+        const matches = juegos.filter(j => normalizarTexto(j.titulo).includes(val)).slice(0, 5);
         autocompleteList.innerHTML = '';
         if (matches.length > 0) {
             matches.forEach(j => {
@@ -1131,13 +1138,13 @@
 
     // --- LOGICA DE FILTROS Y ORDENAMIENTO ---
     window.aplicarFiltrosGlobales = () => {
-        const texto = document.getElementById('searchInput').value.toLowerCase();
+        const texto = normalizarTexto(document.getElementById('searchInput').value);
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
         const sortMode = document.getElementById('sortSelect').value;
 
         // 1. Filtrar
         juegosFiltrados = juegos.filter(j => {
-            const matchText = j.titulo.toLowerCase().includes(texto);
+            const matchText = normalizarTexto(j.titulo).includes(texto);
             let matchReq = true;
             if (activeReqFilter) matchReq = (j.requisito || "").includes(activeReqFilter);
             let matchGenres = true;
@@ -1481,14 +1488,15 @@
 
         document.getElementById('download-title').innerText = juego.titulo;
         
-        // --- TRAILER LOGIC ---
+        // --- TRAILER LOGIC (DESPLEGABLE) ---
         const ytId = juego.trailerUrl ? getYoutubeId(juego.trailerUrl) : null;
         if (ytId) {
             trailerBtnContainer.style.display = 'block';
-            trailerContent.style.display = 'none'; // Hidden by default
+            trailerContent.style.display = 'none'; // Oculto por defecto
+            // Generar iframe solo al desplegar para ahorrar recursos o mantenerlo pausado
             trailerContent.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0" frameborder="0" allowfullscreen></iframe>`;
             
-            // Click event for toggle
+            // Toggle Click
             btnTrailerToggle.onclick = () => {
                 const isHidden = trailerContent.style.display === 'none';
                 trailerContent.style.display = isHidden ? 'block' : 'none';
@@ -1500,7 +1508,9 @@
         
         const generosStr = (juego.generos || []).join(' • ') || "Varios";
         const fechaFmt = formatearFecha(juego.fechaSalida || juego.fecha);
-        meta.innerHTML = `<div><i class="fa-solid fa-calendar"></i> ${fechaFmt} &nbsp;|&nbsp; <i class="fa-solid fa-hard-drive"></i> ${juego.peso || 'N/A'}</div><div style="margin-top:5px; color:var(--primary);">${generosStr}</div>`;
+        const reqText = juego.requisito ? ` | ${juego.requisito.charAt(0).toUpperCase() + juego.requisito.slice(1)}` : "";
+        
+        meta.innerHTML = `<div><i class="fa-solid fa-calendar"></i> ${fechaFmt} &nbsp;|&nbsp; <i class="fa-solid fa-hard-drive"></i> ${juego.peso || 'N/A'}${reqText}</div><div style="margin-top:5px; color:var(--primary);">${generosStr}</div>`;
         
         if (juego.password) {
             passDisplay.innerHTML = `<p><i class="fa-solid fa-key" style="color:var(--primary)"></i> <strong>Contraseña:</strong> <span style="background:#333; padding:2px 6px; border-radius:4px; user-select:text;">${juego.password}</span></p>`;

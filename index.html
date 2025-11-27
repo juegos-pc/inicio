@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Zona Gamer</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
-  <!-- FontAwesome -->
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
   <style>
@@ -321,7 +320,7 @@
     .link-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
     .btn-remove { background: #ff4444 !important; width: 40px !important; height: 40px; margin-top: 0 !important; display: flex; align-items: center; justify-content: center; }
 
-    /* --- MODAL GAME DETAILS (NUEVO LAYOUT 90%) --- */
+    /* --- MODAL GAME DETAILS --- */
     .modal-game-details {
         background-color: #1e1e1e; margin: 3vh auto; padding: 0;
         border-radius: 20px; width: 90%; max-width: 1400px; height: 90vh;
@@ -408,14 +407,21 @@
         color: white; font-size: 0.8rem; padding: 5px; text-align: center;
     }
 
-    /* Ratings */
-    .vote-corner { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-    .stars { font-size: 1.2rem; cursor: pointer; }
-    .stars i { color: #555; transition: 0.2s; }
-    .stars i.gold { color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    /* Ratings - Actualizado para 10 estrellas */
+    .vote-corner { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .stars { display: flex; gap: 2px; }
+    .stars i { 
+        font-size: 1rem; 
+        cursor: pointer; 
+        color: #555; 
+        transition: 0.2s; 
+    }
+    .stars i:hover { transform: scale(1.2); }
+    .stars i.gold { color: var(--gold); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+    
     .btn-send-vote {
         background: var(--gold); color: black; border: none; font-weight: bold;
-        font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; cursor: pointer;
+        font-size: 0.7rem; padding: 5px 15px; border-radius: 10px; cursor: pointer;
         display: none; 
     }
 
@@ -453,7 +459,6 @@
 
 <body>
 
-  <!-- PANTALLA DE LOGIN -->
   <div id="login-screen">
     <div class="login-box">
       <h1>Zona Gamer</h1>
@@ -471,7 +476,6 @@
     </div>
   </div>
 
-  <!-- CONTENIDO DE LA APP -->
   <div id="app-content" style="display:none;">
     
     <div id="buscadorExpandido">
@@ -560,7 +564,6 @@
       <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar otro juego</button>
   </div>
 
-  <!-- MODAL AGREGAR -->
   <div id="modalAdmin" class="modal">
     <div class="modal-content-wide">
       <span class="close" onclick="cerrarModalConConfirmacion('modalAdmin')">&times;</span>
@@ -632,7 +635,6 @@
     </div>
   </div>
 
-  <!-- MODAL EDITAR -->
   <div id="modalEdit" class="modal">
     <div class="modal-content-wide">
       <span class="close" onclick="cerrarModalConConfirmacion('modalEdit')">&times;</span>
@@ -702,23 +704,18 @@
     </div>
   </div>
 
-  <!-- MODAL JUEGO COMPLETO (90% PANTALLA) -->
   <div id="modalDownloads" class="modal">
     <div class="modal-game-details">
         <span class="close" onclick="document.getElementById('modalDownloads').style.display='none'" style="z-index:20; right:20px; top:20px;">&times;</span>
         
         <div class="modal-game-grid">
-            <!-- COLUMNA IZQUIERDA: INFO & DESCARGAS -->
             <div class="game-col-left">
-                <!-- Trailer -->
                 <div id="trailer-container" class="video-container" style="display:none;"></div>
                 
                 <h2 id="download-title" style="color: var(--primary); font-size: 2.5rem; margin: 10px 0; text-transform: uppercase;"></h2>
                 
-                <!-- Info Meta -->
                 <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px; color: #ccc;"></div>
 
-                <!-- Votación -->
                 <div class="vote-corner" style="position:relative; right:auto; top:auto; justify-content:flex-start; margin-bottom:20px;">
                     <div class="stars" id="star-rating-display">
                         <i class="fa-regular fa-star" onclick="preVote(1)"></i>
@@ -726,6 +723,11 @@
                         <i class="fa-regular fa-star" onclick="preVote(3)"></i>
                         <i class="fa-regular fa-star" onclick="preVote(4)"></i>
                         <i class="fa-regular fa-star" onclick="preVote(5)"></i>
+                        <i class="fa-regular fa-star" onclick="preVote(6)"></i>
+                        <i class="fa-regular fa-star" onclick="preVote(7)"></i>
+                        <i class="fa-regular fa-star" onclick="preVote(8)"></i>
+                        <i class="fa-regular fa-star" onclick="preVote(9)"></i>
+                        <i class="fa-regular fa-star" onclick="preVote(10)"></i>
                     </div>
                     <button id="btn-send-vote" class="btn-send-vote" onclick="submitVote()">Manda</button>
                     <div style="font-size:0.9rem; color:#888; margin-left:10px;">
@@ -734,19 +736,16 @@
                     </div>
                 </div>
 
-                <!-- Descargas -->
                 <h3 style="color:white; border-bottom:1px solid #444; padding-bottom:10px;">Descargas</h3>
                 <div id="download-password-display" style="margin-bottom: 15px; color: #ccc; font-size: 0.9rem;"></div>
                 <div id="download-buttons-container" class="accordion-container"></div>
 
-                <!-- Juegos Similares -->
                 <div class="similar-games-section" id="similar-games-section" style="display:none;">
                     <h4 style="color:var(--primary); margin-bottom:15px;">También te podría gustar...</h4>
                     <div class="similar-grid" id="similar-games-list"></div>
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: COMENTARIOS -->
             <div class="game-col-right">
                 <div class="comments-header">
                     <h3 style="margin:0; color:var(--secondary);">Comentarios</h3>
@@ -761,7 +760,6 @@
     </div>
   </div>
 
-  <!-- Modal Contacto -->
   <div id="modalCorreo" class="modal">
     <div class="modal-content-small">
       <span class="close" onclick="document.getElementById('modalCorreo').style.display='none'">&times;</span>
@@ -791,7 +789,6 @@
     </div>
   </div>
 
-  <!-- LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -814,7 +811,8 @@
     let juegos = [];
     let juegosFiltrados = [];
     let paginaActual = 1;
-    const juegosPorPagina = 12;
+    // Paginacion aumentada a 24
+    const juegosPorPagina = 24;
     let usuarioActual = null;
     let esAdmin = false;
     let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
@@ -1148,13 +1146,14 @@
         const count = values.length;
         const sum = values.reduce((a,b) => a+b, 0);
         const avg = count > 0 ? (sum / count).toFixed(1) : "0.0";
-        document.getElementById('rating-score').innerText = avg;
+        document.getElementById('rating-score').innerText = avg + "/10";
         document.getElementById('rating-count').innerText = `(${count} votos)`;
         const myVote = ratings[usuarioActual?.uid] || 0;
         renderStars(myVote);
     }
 
     function renderStars(score) {
+        score = parseFloat(score);
         const stars = document.querySelectorAll('#star-rating-display i');
         stars.forEach((star, index) => {
             if (index < score) {
@@ -1237,21 +1236,57 @@
         }
     };
 
+    // --- LOGICA DE SIMILARES NUEVA ---
     function mostrarSimilares(juego) {
         const container = document.getElementById('similar-games-section');
         const list = document.getElementById('similar-games-list');
-        const myGens = juego.generos || [];
-        const similar = juegos.filter(j => j.id !== juego.id && (j.generos || []).some(g => myGens.includes(g))).slice(0, 3);
         
-        if(similar.length === 0) { container.style.display = 'none'; return; }
+        // 1. Géneros del juego actual
+        const currentGenres = juego.generos || [];
+
+        if (currentGenres.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        // 2. Buscar coincidencias
+        let matches = juegos
+            .filter(j => j.id !== juego.id) // Excluir el mismo juego
+            .map(otherGame => {
+                const otherGenres = otherGame.generos || [];
+                // Contar cuántos géneros coinciden
+                const intersection = otherGenres.filter(g => currentGenres.includes(g));
+                return { 
+                    ...otherGame, 
+                    matchCount: intersection.length // Guardamos la cantidad de coincidencias
+                };
+            })
+            // Solo queremos los que tengan AL MENOS 1 género en común
+            .filter(j => j.matchCount > 0);
+
+        // 3. Ordenar: Primero los que tengan MÁS géneros en común
+        matches.sort((a, b) => b.matchCount - a.matchCount);
+
+        // 4. Barajar un poco los resultados top para dar variedad
+        const topCandidates = matches.slice(0, 10);
+        const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+        // --- Renderizado ---
+        if(selected.length === 0) { 
+            container.style.display = 'none'; 
+            return; 
+        }
         
         container.style.display = 'block';
         list.innerHTML = "";
-        similar.forEach(j => {
+        selected.forEach(j => {
             const div = document.createElement('div');
             div.className = "similar-card";
-            div.onclick = () => abrirDescargas(j);
-            div.innerHTML = `<img src="${j.imagen}"><div class="similar-title">${j.titulo}</div>`;
+            div.onclick = () => {
+                abrirDescargas(j);
+                document.querySelector('.modal-game-details').scrollTop = 0;
+            };
+            div.innerHTML = `<img src="${j.imagen}" loading="lazy"><div class="similar-title">${j.titulo}</div>`;
             list.appendChild(div);
         });
     }
@@ -1505,7 +1540,3 @@
   </script>
 </body>
 </html>
-
-
-
-

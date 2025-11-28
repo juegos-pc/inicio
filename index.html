@@ -69,7 +69,6 @@
     }
     .btn-google:hover { transform: scale(1.05); }
 
-    /* BOTON INVITADO */
     .btn-guest {
         background: #555; color: white; border: 1px solid #777; padding: 10px;
         border-radius: 50px; cursor: pointer; font-weight: bold; margin-bottom: 25px;
@@ -120,6 +119,8 @@
 
     #btnProfile { border: 2px solid transparent; }
     #btnProfile:hover { border-color: var(--secondary); color: var(--secondary) !important; }
+
+    #btnAdminTools { color: var(--gold) !important; display: none; } /* Solo admin */
 
     #menuClosed a { color: #888; font-size: 1.5rem; margin-top: 15px; transition: 0.3s; }
     #menuClosed a:hover { color: var(--secondary); transform: scale(1.1); }
@@ -516,6 +517,17 @@
     }
     #btnSubir:hover { transform: translateY(-5px); }
 
+    /* ESTILO LISTA BANEADOS */
+    .banned-item {
+        display: flex; flex-direction: column; gap:5px;
+        padding: 10px; background: #2a2a2a; border-radius: 8px; margin-bottom: 10px; border:1px solid #444;
+    }
+    .banned-header { display: flex; justify-content: space-between; align-items: center; }
+    .banned-email { font-weight: bold; color: #ff4444; }
+    .appeal-text { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-style: italic; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px; }
+    .evidence-list { font-size: 0.85rem; color: #aaa; margin-top: 5px; display: none; }
+    .toggle-evidence { color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: underline; margin-top: 5px; display: block; }
+
     @media (max-width: 900px) {
         .modal-game-grid { grid-template-columns: 1fr; overflow-y: auto; }
         .game-col-left { border-right: none; border-bottom: 1px solid #333; overflow: visible; }
@@ -605,6 +617,7 @@
             <button id="btnProfile" title="Mi Perfil" onclick="toggleMenu(this, 'profileDropdown')"><i class="fa-solid fa-user-astronaut"></i></button>
             <div class="profile-dropdown" id="profileDropdown">
                 <p id="user-email-display">Cargando...</p>
+                <button id="btnApelar" onclick="abrirModalApelacion()" style="display:none; color: orange !important; font-weight:bold;">⛔ Apelar Ban</button>
                 <button id="btnLogout" style="color: #ff4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
             </div>
         </div>
@@ -620,6 +633,7 @@
             </div>
         </div>
         <button onclick="abrirModalCorreo()" title="Contacto"><i class="fa-solid fa-envelope"></i></button>
+        <button id="btnAdminTools" onclick="abrirModalBaneados()" title="Panel de Baneados"><i class="fa-solid fa-gavel"></i></button>
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
       </div>
       <div class="bottom-icons">
@@ -649,6 +663,10 @@
       </div>
       <div id="ctx-global-actions" style="display:none;">
           <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar Nuevo Juego</button>
+      </div>
+      <div id="ctx-user-actions" style="display:none;">
+          <button onclick="accionUsuario('banear')" style="color:orange;"><i class="fa-solid fa-ban"></i> Banear Usuario</button>
+          <button onclick="accionUsuario('desbanear')" style="color:green;"><i class="fa-solid fa-check"></i> Desbanear Usuario</button>
       </div>
   </div>
 
@@ -886,6 +904,26 @@
     </div>
   </div>
 
+  <div id="modalApelacion" class="modal">
+      <div class="modal-content-small">
+          <span class="close" onclick="document.getElementById('modalApelacion').style.display='none'">&times;</span>
+          <h2 style="color:var(--primary);">Apelar Baneo</h2>
+          <p style="color:#aaa; font-size:0.9rem; margin-bottom:15px;">Explica por qué deberían quitarte el baneo. Sé respetuoso.</p>
+          <textarea id="apelacion-text" rows="5" style="width:100%; background:#121212; border:1px solid #444; color:white; padding:10px; border-radius:8px; margin-bottom:15px;" placeholder="Escribe tu defensa aquí..."></textarea>
+          <button onclick="enviarApelacion()" style="background:var(--secondary); border:none; color:white; padding:10px 20px; border-radius:8px; cursor:pointer; width:100%; font-weight:bold;">ENVIAR APELACIÓN</button>
+      </div>
+  </div>
+
+  <div id="modalBaneados" class="modal">
+      <div class="modal-content-small">
+          <span class="close" onclick="document.getElementById('modalBaneados').style.display='none'">&times;</span>
+          <h2 style="color:var(--primary); margin-bottom:20px;">Panel de Baneados</h2>
+          <div id="banned-list-container">
+              <p style="color:#aaa;">Cargando...</p>
+          </div>
+      </div>
+  </div>
+
   <div id="modalDonaciones" class="modal">
     <div class="modal-content-small" style="text-align:center;">
       <span class="close" onclick="document.getElementById('modalDonaciones').style.display='none'">&times;</span>
@@ -939,9 +977,11 @@
     const juegosPorPagina = 24;
     let usuarioActual = null;
     let esAdmin = false;
-    let esInvitado = false; // FLAG NUEVA PARA MODO INVITADO
+    let esInvitado = false;
+    let usuarioBaneado = false;
     let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
     let juegoSeleccionadoId = null; 
+    let usuarioSeleccionadoUid = null;
     let activeReqFilter = null;
     let currentGameOpen = null; 
     let pendingVote = 0;
@@ -981,14 +1021,12 @@
         return txt ? txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     }
 
-    // --- CENSURA ---
-    function censurarTexto(texto) {
-        let textoCensurado = texto;
-        malasPalabras.forEach(palabra => {
-            const regex = new RegExp(palabra, "gi");
-            textoCensurado = textoCensurado.replace(regex, "****");
+    // --- CENSURA Y CHECK ---
+    function contieneMalasPalabras(texto) {
+        return malasPalabras.some(palabra => {
+            const regex = new RegExp(`\\b${palabra}\\b`, "gi");
+            return regex.test(texto);
         });
-        return textoCensurado;
     }
 
     // --- SHORTCUT ALT + N ---
@@ -1001,8 +1039,9 @@
     // MODO INVITADO LOGICA
     document.getElementById('btn-guest-login').onclick = () => {
         esInvitado = true;
-        usuarioActual = null; // No hay usuario real
+        usuarioActual = null;
         esAdmin = false;
+        usuarioBaneado = false;
         
         loginScreen.style.opacity = '0';
         setTimeout(() => {
@@ -1013,6 +1052,8 @@
         document.getElementById('user-email-display').innerText = "Invitado (Local)";
         document.getElementById('contact-user-info').innerText = "Modo Invitado (Sin envío)";
         document.getElementById('btnFloatingAdd').style.display = 'none';
+        document.getElementById('btnAdminTools').style.display = 'none';
+        document.getElementById('btnApelar').style.display = 'none';
         
         cargarJuegos();
     };
@@ -1032,12 +1073,25 @@
             document.getElementById('contact-name-hidden').value = user.displayName || "Usuario";
             try {
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-                if (userDoc.exists() && userDoc.data().rol === "admin") {
-                    esAdmin = true;
-                    document.getElementById('btnFloatingAdd').style.display = 'flex';
-                } else {
-                    esAdmin = false;
-                    document.getElementById('btnFloatingAdd').style.display = 'none';
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    if (data.rol === "admin") {
+                        esAdmin = true;
+                        document.getElementById('btnFloatingAdd').style.display = 'flex';
+                        document.getElementById('btnAdminTools').style.display = 'block';
+                    } else {
+                        esAdmin = false;
+                        document.getElementById('btnFloatingAdd').style.display = 'none';
+                        document.getElementById('btnAdminTools').style.display = 'none';
+                    }
+                    if (data.baneado) {
+                        usuarioBaneado = true;
+                        document.getElementById('btnApelar').style.display = 'block';
+                        alert("Has sido baneado por mal comportamiento.");
+                    } else {
+                        usuarioBaneado = false;
+                        document.getElementById('btnApelar').style.display = 'none';
+                    }
                 }
             } catch (e) {}
             cargarJuegos();
@@ -1058,7 +1112,7 @@
         try {
             if(modoRegistro) {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "usuarios", cred.user.uid), { email, rol: "user" });
+                await setDoc(doc(db, "usuarios", cred.user.uid), { email, rol: "user", insultos: 0, baneado: false });
                 alert("¡Bienvenido! Cuenta creada.");
             } else {
                 await signInWithEmailAndPassword(auth, email, pass);
@@ -1077,13 +1131,13 @@
             const res = await signInWithPopup(auth, googleProvider);
             const ref = doc(db, "usuarios", res.user.uid);
             const snap = await getDoc(ref);
-            if(!snap.exists()) await setDoc(ref, { email: res.user.email, rol: "user" });
+            if(!snap.exists()) await setDoc(ref, { email: res.user.email, rol: "user", insultos: 0, baneado: false });
         } catch(e) { console.error(e); }
     };
 
     document.getElementById('btnLogout').onclick = () => {
         if(esInvitado) {
-            window.location.reload(); // Recargar página para volver al login
+            window.location.reload(); 
         } else {
             signOut(auth);
         }
@@ -1130,13 +1184,14 @@
         }
     };
     
-    // CLICK DERECHO GLOBAL (Para agregar juego)
+    // CLICK DERECHO GLOBAL
     document.addEventListener('contextmenu', (e) => {
-        // Si NO es una tarjeta de juego y NO es el menú y el usuario es admin
+        if(e.target.classList.contains('user-name-span')) return;
+
         if (esAdmin && !e.target.closest('.game') && !e.target.closest('#menuClosed') && !e.target.closest('.modal')) {
             e.preventDefault();
-            // Mostrar opciones globales
             document.getElementById('ctx-game-actions').style.display = 'none';
+            document.getElementById('ctx-user-actions').style.display = 'none';
             document.getElementById('ctx-global-actions').style.display = 'block';
             
             contextMenu.style.top = `${e.pageY}px`;
@@ -1196,7 +1251,6 @@
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
         const sortMode = document.getElementById('sortSelect').value;
 
-        // 1. Filtrar
         juegosFiltrados = juegos.filter(j => {
             const matchText = normalizarTexto(j.titulo).includes(texto);
             let matchReq = true;
@@ -1209,7 +1263,6 @@
             return matchText && matchReq && matchGenres;
         });
 
-        // 2. Ordenar
         if (sortMode === 'rating') {
             juegosFiltrados.sort((a, b) => parseFloat(getAvgRating(b)) - parseFloat(getAvgRating(a)));
         } else if (sortMode === 'date_new') {
@@ -1268,15 +1321,16 @@
             const fechaFormateada = formatearFecha(juego.fechaSalida || juego.fecha);
 
             card.onclick = (e) => { if(!e.target.closest('.heart')) abrirDescargas(juego); };
-            // CLICK DERECHO EN CARTA (Solo editar/borrar)
+            
             card.oncontextmenu = (e) => {
                 if(esAdmin) {
                     e.preventDefault();
-                    e.stopPropagation(); // Evitar que dispare el del body
+                    e.stopPropagation(); 
                     juegoSeleccionadoId = juego.id;
                     
                     document.getElementById('ctx-game-actions').style.display = 'block';
                     document.getElementById('ctx-global-actions').style.display = 'none';
+                    document.getElementById('ctx-user-actions').style.display = 'none';
 
                     contextMenu.style.top = `${e.pageY}px`;
                     contextMenu.style.left = `${e.pageX}px`;
@@ -1317,6 +1371,22 @@
             }
         }
     };
+
+    window.accionUsuario = async (accion) => {
+        if(!usuarioSeleccionadoUid) return;
+        contextMenu.style.display = 'none';
+        if(accion === 'banear') {
+            if(confirm("¿Banear a este usuario?")) {
+                await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { baneado: true });
+                alert("Usuario baneado.");
+            }
+        } else if(accion === 'desbanear') {
+            if(confirm("¿Desbanear a este usuario?")) {
+                await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
+                alert("Usuario desbaneado.");
+            }
+        }
+    };
     
     window.abrirModalAgregar = () => {
         document.getElementById('modalAdmin').style.display = 'flex';
@@ -1325,7 +1395,6 @@
         window.agregarInputLink('new-links-container');
     };
 
-    // AHORA ESTÁ EN WINDOW
     window.cargarNotificaciones = () => {
         const lista = document.getElementById('notif-list');
         lista.innerHTML = "";
@@ -1354,7 +1423,7 @@
     }
 
     window.preVote = (val) => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar."); // BLOQUEO INVITADO
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar.");
         pendingVote = val;
         renderStars(val);
         document.getElementById('btn-send-vote').style.display = 'block';
@@ -1362,8 +1431,9 @@
     };
 
     window.submitVote = async () => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar."); // BLOQUEO INVITADO
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar.");
         if(!usuarioActual) { alert("Debes iniciar sesión para votar."); return; }
+        if(usuarioBaneado) { alert("Estás baneado, no puedes votar."); return; }
         if(!currentGameOpen || pendingVote === 0) return;
         const gameRef = doc(db, "juegos", currentGameOpen.id);
         const key = `puntuaciones.${usuarioActual.uid}`;
@@ -1408,14 +1478,41 @@
     }
 
     window.enviarComentario = async () => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para comentar."); // BLOQUEO INVITADO
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para comentar.");
         if(!usuarioActual) { alert("Inicia sesión para comentar."); return; }
         
+        const userRef = doc(db, "usuarios", usuarioActual.uid);
+        const userSnap = await getDoc(userRef);
+        if(userSnap.exists() && userSnap.data().baneado) {
+            usuarioBaneado = true;
+            alert("Estás baneado. No puedes comentar.");
+            return;
+        }
+
         let text = document.getElementById('new-comment-text').value;
         if(!text.trim()) return;
 
-        // FILTRO DE GROSERIAS
-        text = censurarTexto(text);
+        // VERIFICAR INSULTOS
+        if(contieneMalasPalabras(text)) {
+            // Guardar el insulto exacto en el historial
+            await updateDoc(userRef, { 
+                insultos: increment(1),
+                historialInsultos: arrayUnion({ text: text, date: new Date().toISOString() })
+            });
+            const updatedUser = await getDoc(userRef);
+            const strikes = updatedUser.data().insultos || 0;
+            
+            document.getElementById('new-comment-text').value = "";
+            alert(`Comentario eliminado por vocabulario ofensivo. Advertencia ${strikes}/5. Si llegas a 5 serás baneado.`);
+
+            if(strikes >= 5) {
+                await updateDoc(userRef, { baneado: true });
+                usuarioBaneado = true;
+                document.getElementById('btnApelar').style.display = 'block';
+                alert("Has alcanzado el límite de advertencias. Has sido baneado de los comentarios.");
+            }
+            return;
+        }
 
         try {
             await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
@@ -1443,18 +1540,19 @@
                 const div = document.createElement('div');
                 div.className = `comment-item ${isMine ? 'mine' : ''}`;
                 let actions = "";
-                if ((isMine || esAdmin) && !esInvitado) {
+                
+                if (esAdmin && !esInvitado) {
                     actions = `
                         <div class="comment-actions">
-                            ${isMine ? `<button class="btn-mini-action" onclick="editarComentario('${gameId}', '${d.id}', '${c.text}')"><i class="fa-solid fa-pencil"></i></button>` : ''}
                             <button class="btn-mini-action" onclick="borrarComentario('${gameId}', '${d.id}')" style="background:#ff4444;"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     `;
                 }
+                
                 div.innerHTML = `
                     ${actions}
                     <div class="comment-meta">
-                        <span style="color:var(--primary); font-weight:bold;">${c.user}</span>
+                        <span class="user-name-span" style="color:var(--primary); font-weight:bold; cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${c.user}</span>
                         <span>${new Date(c.date).toLocaleDateString()}</span>
                     </div>
                     <div class="comment-body">${c.text}</div>
@@ -1465,6 +1563,22 @@
         } catch(e) { list.innerHTML = "<p>Error cargando comentarios.</p>"; }
     }
 
+    // CLICK DERECHO EN USUARIO
+    window.abrirContextoUsuario = (e, uid) => {
+        if(!esAdmin) return;
+        e.preventDefault();
+        e.stopPropagation();
+        usuarioSeleccionadoUid = uid;
+        
+        document.getElementById('ctx-game-actions').style.display = 'none';
+        document.getElementById('ctx-global-actions').style.display = 'none';
+        document.getElementById('ctx-user-actions').style.display = 'block';
+
+        contextMenu.style.top = `${e.pageY}px`;
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.display = 'block';
+    };
+
     window.borrarComentario = async (gameId, commentId) => {
         if(!confirm("¿Borrar comentario?")) return;
         try {
@@ -1473,14 +1587,72 @@
         } catch(e) { alert("Error al borrar"); }
     };
 
-    window.editarComentario = async (gameId, commentId, currentText) => {
-        const newTextRaw = prompt("Editar comentario:", currentText);
-        if (newTextRaw !== null && newTextRaw.trim() !== "") {
-            const newText = censurarTexto(newTextRaw); // CENSURA TAMBIEN AL EDITAR
-            try {
-                await updateDoc(doc(db, "juegos", gameId, "comentarios", commentId), { text: newText });
-                cargarComentarios(gameId);
-            } catch(e) { alert("Error al editar"); }
+    // APELACION
+    window.abrirModalApelacion = () => {
+        if(!usuarioBaneado) return alert("No estás baneado.");
+        document.getElementById('modalApelacion').style.display = 'flex';
+    };
+
+    window.enviarApelacion = async () => {
+        const text = document.getElementById('apelacion-text').value;
+        if(!text.trim()) return alert("Escribe algo.");
+        try {
+            await updateDoc(doc(db, "usuarios", usuarioActual.uid), { apelacion: text });
+            alert("Apelación enviada al administrador.");
+            document.getElementById('modalApelacion').style.display = 'none';
+        } catch(e) { alert("Error al enviar apelación."); }
+    };
+
+    // PANEL BANEADOS MEJORADO
+    window.abrirModalBaneados = async () => {
+        if(!esAdmin) return;
+        document.getElementById('modalBaneados').style.display = 'flex';
+        const list = document.getElementById('banned-list-container');
+        list.innerHTML = "Cargando...";
+        
+        const q = query(collection(db, "usuarios"), where("baneado", "==", true));
+        const snap = await getDocs(q);
+        list.innerHTML = "";
+        
+        if(snap.empty) {
+            list.innerHTML = "No hay usuarios baneados.";
+            return;
+        }
+
+        snap.forEach(d => {
+            const u = d.data();
+            const div = document.createElement('div');
+            div.className = 'banned-item';
+            
+            let evidenciaHtml = "";
+            if(u.historialInsultos && u.historialInsultos.length > 0) {
+                evidenciaHtml = `<ul class="evidence-list" id="evidence-${d.id}">`;
+                u.historialInsultos.forEach(insulto => {
+                    evidenciaHtml += `<li>"${insulto.text}" (${new Date(insulto.date).toLocaleDateString()})</li>`;
+                });
+                evidenciaHtml += `</ul>`;
+            } else {
+                evidenciaHtml = `<div class="evidence-list" id="evidence-${d.id}">Sin registro guardado.</div>`;
+            }
+
+            div.innerHTML = `
+                <div class="banned-header">
+                    <span class="banned-email">${u.email}</span>
+                    <button onclick="desbanearDesdePanel('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Desbanear</button>
+                </div>
+                ${u.apelacion ? `<div class="appeal-text">" ${u.apelacion} "</div>` : '<div style="font-size:0.8rem; color:#666;">Sin apelación</div>'}
+                
+                <span class="toggle-evidence" onclick="document.getElementById('evidence-${d.id}').style.display = document.getElementById('evidence-${d.id}').style.display==='block'?'none':'block'">Ver Mensajes Ofensivos</span>
+                ${evidenciaHtml}
+            `;
+            list.appendChild(div);
+        });
+    };
+
+    window.desbanearDesdePanel = async (uid) => {
+        if(confirm("¿Desbanear usuario?")) {
+            await updateDoc(doc(db, "usuarios", uid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
+            window.abrirModalBaneados(); // Recargar lista
         }
     };
 
@@ -1489,7 +1661,6 @@
         const container = document.getElementById('similar-games-section');
         const list = document.getElementById('similar-games-list');
         
-        // 1. Géneros del juego actual
         const currentGenres = juego.generos || [];
 
         if (currentGenres.length === 0) {
@@ -1497,29 +1668,23 @@
             return;
         }
 
-        // 2. Buscar coincidencias
         let matches = juegos
-            .filter(j => j.id !== juego.id) // Excluir el mismo juego
+            .filter(j => j.id !== juego.id) 
             .map(otherGame => {
                 const otherGenres = otherGame.generos || [];
-                // Contar cuántos géneros coinciden
                 const intersection = otherGenres.filter(g => currentGenres.includes(g));
                 return { 
                     ...otherGame, 
-                    matchCount: intersection.length // Guardamos la cantidad de coincidencias
+                    matchCount: intersection.length 
                 };
             })
-            // Solo queremos los que tengan AL MENOS 1 género en común
             .filter(j => j.matchCount > 0);
 
-        // 3. Ordenar: Primero los que tengan MÁS géneros en común
         matches.sort((a, b) => b.matchCount - a.matchCount);
 
-        // 4. Barajar un poco los resultados top para dar variedad
         const topCandidates = matches.slice(0, 15);
         const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 3);
 
-        // --- Renderizado ---
         if(selected.length === 0) { 
             container.style.display = 'none'; 
             return; 
@@ -1551,15 +1716,12 @@
 
         document.getElementById('download-title').innerText = juego.titulo;
         
-        // --- TRAILER LOGIC (DESPLEGABLE) ---
         const ytId = juego.trailerUrl ? getYoutubeId(juego.trailerUrl) : null;
         if (ytId) {
             trailerBtnContainer.style.display = 'block';
-            trailerContent.style.display = 'none'; // Oculto por defecto
-            // Generar iframe solo al desplegar para ahorrar recursos o mantenerlo pausado
+            trailerContent.style.display = 'none'; 
             trailerContent.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0" frameborder="0" allowfullscreen></iframe>`;
             
-            // Toggle Click
             btnTrailerToggle.onclick = () => {
                 const isHidden = trailerContent.style.display === 'none';
                 trailerContent.style.display = isHidden ? 'block' : 'none';
@@ -1762,7 +1924,7 @@
     };
     
     window.abrirModalCorreo = () => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para contactar o pedir juegos."); // BLOQUEO INVITADO
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para contactar o pedir juegos.");
         document.getElementById('modalCorreo').style.display='flex';
     };
     window.abrirModalDonaciones = () => document.getElementById('modalDonaciones').style.display='flex';

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zona Gamer</title>
+  <title>Zona Gamer OS</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -541,7 +541,7 @@
 
   <div id="login-screen">
     <div class="login-box">
-      <h1>Zona Gamer</h1>
+      <h1>Zona Gamer OS</h1>
       <p>inicia sesion o crea cuenta para poder descargar</p>
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
@@ -633,7 +633,6 @@
             </div>
         </div>
         <button onclick="abrirModalCorreo()" title="Contacto"><i class="fa-solid fa-envelope"></i></button>
-        <button id="btnAdminTools" onclick="abrirModalBaneados()" title="Panel de Baneados"><i class="fa-solid fa-gavel"></i></button>
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
       </div>
       <div class="bottom-icons">
@@ -663,6 +662,7 @@
       </div>
       <div id="ctx-global-actions" style="display:none;">
           <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar Nuevo Juego</button>
+          <button onclick="abrirModalBaneados()" style="color:var(--gold); border-top:1px solid #444;"><i class="fa-solid fa-gavel"></i> Herramientas Admin</button>
       </div>
       <div id="ctx-user-actions" style="display:none;">
           <button onclick="accionUsuario('banear')" style="color:orange;"><i class="fa-solid fa-ban"></i> Banear Usuario</button>
@@ -955,7 +955,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc, increment, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc, increment, query, orderBy, where, collectionGroup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBrObF62SabOPgu1K_BBHu02NbzPDq6Zp0",
@@ -1029,10 +1029,15 @@
         });
     }
 
-    // --- SHORTCUT ALT + N ---
+    // --- SHORTCUT ALT + N Y ALT + L ---
     document.addEventListener('keydown', (e) => {
-        if(e.altKey && e.key.toLowerCase() === 'n') {
-            if(esAdmin) window.abrirModalAgregar();
+        if(e.altKey) {
+            if(e.key.toLowerCase() === 'n') {
+                if(esAdmin) window.abrirModalAgregar();
+            }
+            if(e.key.toLowerCase() === 'l') { // MENU SECRETO ADMIN
+                if(esAdmin) window.abrirModalBaneados();
+            }
         }
     });
 
@@ -1375,15 +1380,29 @@
     window.accionUsuario = async (accion) => {
         if(!usuarioSeleccionadoUid) return;
         contextMenu.style.display = 'none';
+        
         if(accion === 'banear') {
+            // VERIFICAR QUE NO SEA ADMIN
+            const targetSnap = await getDoc(doc(db, "usuarios", usuarioSeleccionadoUid));
+            if(targetSnap.exists() && targetSnap.data().rol === 'admin') {
+                alert("🛡️ PROTECCIÓN ADMIN ACTIVADA: No puedes banear a un Administrador.");
+                return;
+            }
+
             if(confirm("¿Banear a este usuario?")) {
                 await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { baneado: true });
                 alert("Usuario baneado.");
             }
         } else if(accion === 'desbanear') {
-            if(confirm("¿Desbanear a este usuario?")) {
+            if(confirm("¿Desbanear usuario y borrar historial (Desvanecer)?")) {
+                // Borrar comentarios
+                const comentariosRef = query(collectionGroup(db, 'comentarios'), where('uid', '==', usuarioSeleccionadoUid));
+                const comentariosSnap = await getDocs(comentariosRef);
+                const deletePromises = comentariosSnap.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+
                 await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
-                alert("Usuario desbaneado.");
+                alert("Usuario desbaneado y borrón y cuenta nueva realizado.");
             }
         }
     };
@@ -1638,7 +1657,7 @@
             div.innerHTML = `
                 <div class="banned-header">
                     <span class="banned-email">${u.email}</span>
-                    <button onclick="desbanearDesdePanel('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Desbanear</button>
+                    <button onclick="desbanearDesdePanel('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Desbanear (Borrón y cuenta nueva)</button>
                 </div>
                 ${u.apelacion ? `<div class="appeal-text">" ${u.apelacion} "</div>` : '<div style="font-size:0.8rem; color:#666;">Sin apelación</div>'}
                 
@@ -1650,7 +1669,16 @@
     };
 
     window.desbanearDesdePanel = async (uid) => {
-        if(confirm("¿Desbanear usuario?")) {
+        if(confirm("¿Desbanear usuario y borrar TODO su historial de comentarios?")) {
+            // LOGICA DESVANECER (Borrón y cuenta nueva)
+            const comentariosRef = query(collectionGroup(db, 'comentarios'), where('uid', '==', uid));
+            const comentariosSnap = await getDocs(comentariosRef);
+            
+            // Borramos cada comentario encontrado
+            const deletePromises = comentariosSnap.docs.map(doc => deleteDoc(doc.ref));
+            await Promise.all(deletePromises);
+
+            // Reseteamos al usuario
             await updateDoc(doc(db, "usuarios", uid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
             window.abrirModalBaneados(); // Recargar lista
         }

@@ -63,11 +63,20 @@
     
     .btn-google {
         background: white; color: #333; border: none; padding: 12px;
-        border-radius: 50px; cursor: pointer; font-weight: bold; margin-bottom: 25px;
+        border-radius: 50px; cursor: pointer; font-weight: bold; margin-bottom: 15px;
         display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
         transition: transform 0.2s;
     }
     .btn-google:hover { transform: scale(1.05); }
+
+    /* BOTON INVITADO */
+    .btn-guest {
+        background: #555; color: white; border: 1px solid #777; padding: 10px;
+        border-radius: 50px; cursor: pointer; font-weight: bold; margin-bottom: 25px;
+        display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+        transition: transform 0.2s; font-size: 0.9rem;
+    }
+    .btn-guest:hover { background: #666; transform: scale(1.05); }
 
     .divider { display: flex; align-items: center; color: #aaa; margin: 20px 0; font-size: 0.8rem; }
     .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #444; margin: 0 10px; }
@@ -525,6 +534,11 @@
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
       </button>
+
+      <button class="btn-guest" id="btn-guest-login">
+        <i class="fa-solid fa-user-secret"></i> Entrar como Invitado
+      </button>
+
       <div class="divider">O USA TU EMAIL</div>
       <form id="auth-form">
         <input type="email" id="email" placeholder="Correo electrónico" required>
@@ -925,11 +939,15 @@
     const juegosPorPagina = 24;
     let usuarioActual = null;
     let esAdmin = false;
+    let esInvitado = false; // FLAG NUEVA PARA MODO INVITADO
     let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
     let juegoSeleccionadoId = null; 
     let activeReqFilter = null;
     let currentGameOpen = null; 
     let pendingVote = 0;
+
+    // LISTA DE MALAS PALABRAS
+    const malasPalabras = ["tonto", "estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo"];
 
     const gameList = document.getElementById('gameList');
     const loginScreen = document.getElementById('login-screen');
@@ -963,6 +981,16 @@
         return txt ? txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     }
 
+    // --- CENSURA ---
+    function censurarTexto(texto) {
+        let textoCensurado = texto;
+        malasPalabras.forEach(palabra => {
+            const regex = new RegExp(palabra, "gi");
+            textoCensurado = textoCensurado.replace(regex, "****");
+        });
+        return textoCensurado;
+    }
+
     // --- SHORTCUT ALT + N ---
     document.addEventListener('keydown', (e) => {
         if(e.altKey && e.key.toLowerCase() === 'n') {
@@ -970,8 +998,28 @@
         }
     });
 
+    // MODO INVITADO LOGICA
+    document.getElementById('btn-guest-login').onclick = () => {
+        esInvitado = true;
+        usuarioActual = null; // No hay usuario real
+        esAdmin = false;
+        
+        loginScreen.style.opacity = '0';
+        setTimeout(() => {
+            loginScreen.style.display = 'none';
+            appContent.style.display = 'block';
+        }, 500);
+
+        document.getElementById('user-email-display').innerText = "Invitado (Local)";
+        document.getElementById('contact-user-info').innerText = "Modo Invitado (Sin envío)";
+        document.getElementById('btnFloatingAdd').style.display = 'none';
+        
+        cargarJuegos();
+    };
+
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            esInvitado = false;
             usuarioActual = user;
             loginScreen.style.opacity = '0';
             setTimeout(() => {
@@ -993,7 +1041,7 @@
                 }
             } catch (e) {}
             cargarJuegos();
-        } else {
+        } else if (!esInvitado) {
             loginScreen.style.display = 'flex';
             loginScreen.style.opacity = '1';
             appContent.style.display = 'none';
@@ -1033,7 +1081,13 @@
         } catch(e) { console.error(e); }
     };
 
-    document.getElementById('btnLogout').onclick = () => signOut(auth);
+    document.getElementById('btnLogout').onclick = () => {
+        if(esInvitado) {
+            window.location.reload(); // Recargar página para volver al login
+        } else {
+            signOut(auth);
+        }
+    };
 
     window.toggleMenu = (btn, id) => {
         const el = document.getElementById(id);
@@ -1300,6 +1354,7 @@
     }
 
     window.preVote = (val) => {
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar."); // BLOQUEO INVITADO
         pendingVote = val;
         renderStars(val);
         document.getElementById('btn-send-vote').style.display = 'block';
@@ -1307,6 +1362,7 @@
     };
 
     window.submitVote = async () => {
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar."); // BLOQUEO INVITADO
         if(!usuarioActual) { alert("Debes iniciar sesión para votar."); return; }
         if(!currentGameOpen || pendingVote === 0) return;
         const gameRef = doc(db, "juegos", currentGameOpen.id);
@@ -1352,9 +1408,15 @@
     }
 
     window.enviarComentario = async () => {
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para comentar."); // BLOQUEO INVITADO
         if(!usuarioActual) { alert("Inicia sesión para comentar."); return; }
-        const text = document.getElementById('new-comment-text').value;
+        
+        let text = document.getElementById('new-comment-text').value;
         if(!text.trim()) return;
+
+        // FILTRO DE GROSERIAS
+        text = censurarTexto(text);
+
         try {
             await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
                 user: usuarioActual.displayName || "Usuario",
@@ -1381,7 +1443,7 @@
                 const div = document.createElement('div');
                 div.className = `comment-item ${isMine ? 'mine' : ''}`;
                 let actions = "";
-                if (isMine || esAdmin) {
+                if ((isMine || esAdmin) && !esInvitado) {
                     actions = `
                         <div class="comment-actions">
                             ${isMine ? `<button class="btn-mini-action" onclick="editarComentario('${gameId}', '${d.id}', '${c.text}')"><i class="fa-solid fa-pencil"></i></button>` : ''}
@@ -1412,8 +1474,9 @@
     };
 
     window.editarComentario = async (gameId, commentId, currentText) => {
-        const newText = prompt("Editar comentario:", currentText);
-        if (newText !== null && newText.trim() !== "") {
+        const newTextRaw = prompt("Editar comentario:", currentText);
+        if (newTextRaw !== null && newTextRaw.trim() !== "") {
+            const newText = censurarTexto(newTextRaw); // CENSURA TAMBIEN AL EDITAR
             try {
                 await updateDoc(doc(db, "juegos", gameId, "comentarios", commentId), { text: newText });
                 cargarComentarios(gameId);
@@ -1698,7 +1761,10 @@
         paginaActual = 1; renderizarJuegos();
     };
     
-    window.abrirModalCorreo = () => document.getElementById('modalCorreo').style.display='flex';
+    window.abrirModalCorreo = () => {
+        if(esInvitado) return alert("Debes iniciar sesión con cuenta para contactar o pedir juegos."); // BLOQUEO INVITADO
+        document.getElementById('modalCorreo').style.display='flex';
+    };
     window.abrirModalDonaciones = () => document.getElementById('modalDonaciones').style.display='flex';
 
     window.toggleBuscador = (btn) => {

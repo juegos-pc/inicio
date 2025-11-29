@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zona Gamer</title>
+  <title>Zona Gamer OS</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -118,11 +118,9 @@
       box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
     }
 
-    #btnProfile { border: 2px solid transparent; }
+    #btnProfile { border: 2px solid transparent; overflow: hidden; padding:0; }
+    #btnProfile img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
     #btnProfile:hover { border-color: var(--secondary); color: var(--secondary) !important; }
-
-    #btnAdminTools { color: var(--gold) !important; display: none; } /* Solo admin */
-    #btnGodTools { color: var(--god-color) !important; display: none; text-shadow: 0 0 10px var(--god-color); } /* Solo Dios */
 
     #menuClosed a { color: #888; font-size: 1.5rem; margin-top: 15px; transition: 0.3s; }
     #menuClosed a:hover { color: var(--secondary); transform: scale(1.1); }
@@ -263,7 +261,7 @@
     .profile-dropdown, .notif-dropdown {
         display: none; position: absolute; left: 70px; top: 0;
         background: #252525; padding: 15px; border-radius: 10px;
-        width: 200px; box-shadow: 5px 5px 20px rgba(0,0,0,0.5);
+        width: 250px; box-shadow: 5px 5px 20px rgba(0,0,0,0.5);
         border: 1px solid #444; z-index: 1200;
     }
     .profile-dropdown::before, .notif-dropdown::before {
@@ -278,6 +276,18 @@
         justify-content: flex-start !important;
     }
     .profile-dropdown button:hover { background: #444 !important; }
+
+    /* ULTIMOS AGREGADOS STYLE */
+    .notif-item { 
+        padding: 10px; border-bottom: 1px solid #333; cursor: pointer; transition: 0.2s;
+        border: 1px solid transparent; border-radius: 5px; margin-bottom: 5px;
+    }
+    .notif-item:hover { 
+        background: rgba(0, 229, 255, 0.1); 
+        border-color: var(--primary);
+        cursor: url('https://cdn.custom-cursor.com/db/8358/32/gaming-crosshair-pointer.png'), pointer; /* Cursor gamer opcional */
+    }
+    .notif-date { font-size: 0.75rem; color: #888; display: block; margin-top: 3px; }
 
     #contextMenu {
         display: none; position: absolute; z-index: 2000;
@@ -413,7 +423,12 @@
     
     .comment-item { background: #2a2a2a; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 90%; position: relative; }
     .comment-item.mine { background: #005f73; align-self: flex-end; border-radius: 10px 10px 0 10px; }
-    .comment-meta { font-size: 0.75rem; color: #aaa; margin-bottom: 3px; display: flex; justify-content: space-between; }
+    .comment-item.pinned { border: 1px solid var(--gold); background: #332b00; order: -1; }
+    
+    /* Nesting for replies */
+    .comment-item.reply { margin-left: 40px; border-left: 2px solid #444; border-radius: 0 10px 10px 0; }
+
+    .comment-meta { font-size: 0.75rem; color: #aaa; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: center; }
     .comment-body { font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
     
     .comment-actions {
@@ -435,6 +450,9 @@
         border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; float: right;
     }
 
+    .user-avatar { width: 25px; height: 25px; border-radius: 50%; vertical-align: middle; margin-right: 8px; object-fit: cover; }
+    .pinned-icon { color: var(--gold); margin-right: 5px; font-size: 0.8rem; }
+
     /* JUEGOS SIMILARES */
     .similar-games-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #444; }
     .similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
@@ -449,7 +467,7 @@
         color: white; font-size: 0.8rem; padding: 5px; text-align: center;
     }
 
-    /* Ratings - Actualizado para 10 estrellas */
+    /* Ratings */
     .vote-corner { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
     .stars { display: flex; gap: 2px; }
     .stars i { 
@@ -530,17 +548,45 @@
     .evidence-list { font-size: 0.85rem; color: #aaa; margin-top: 5px; display: none; }
     .toggle-evidence { color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: underline; margin-top: 5px; display: block; }
 
-    /* ESTILO PANEL ADMINS (DIOS) */
+    /* ESTILO PANEL UNIFICADO */
+    .panel-container { display: flex; width: 100%; height: 500px; }
+    .panel-sidebar { 
+        width: 200px; background: #181818; border-right: 1px solid #333; 
+        padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; 
+    }
+    .panel-main { flex: 1; padding: 20px; overflow-y: auto; background: #222; }
+    
+    .sidebar-btn {
+        background: transparent; border: none; color: #aaa; padding: 12px;
+        text-align: left; cursor: pointer; font-size: 1rem; border-radius: 5px;
+        transition: 0.2s;
+    }
+    .sidebar-btn:hover, .sidebar-btn.active { background: rgba(255,255,255,0.05); color: white; font-weight: bold; border-left: 3px solid var(--primary); }
+    .sidebar-btn.god-btn.active { border-left-color: var(--god-color); color: var(--god-color); }
+
     .admin-list-item {
         display: flex; justify-content: space-between; align-items: center;
         background: #333; padding: 10px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #444;
     }
     .admin-list-email { color: var(--gold); font-weight: bold; }
 
+    /* AUTOCOMPLETE ADMIN */
+    #admin-autocomplete-list {
+        background: #333; border: 1px solid #444; max-height: 150px; overflow-y: auto;
+        position: absolute; width: 100%; top: 100%; left: 0; z-index: 10; display: none;
+    }
+    .admin-autocomplete-item { padding: 8px; cursor: pointer; border-bottom: 1px solid #444; font-size: 0.9rem; }
+    .admin-autocomplete-item:hover { background: var(--primary); color: black; }
+
+    /* REPLYING STATE */
+    .replying-bar { background: #005f73; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; margin-bottom: 5px; display: none; justify-content: space-between; align-items: center; }
+
     @media (max-width: 900px) {
         .modal-game-grid { grid-template-columns: 1fr; overflow-y: auto; }
         .game-col-left { border-right: none; border-bottom: 1px solid #333; overflow: visible; }
         .modal-game-details { height: auto; min-height: 90vh; display: block; }
+        .panel-container { flex-direction: column; height: auto; }
+        .panel-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
     }
 
   </style>
@@ -623,7 +669,7 @@
     <div id="menuClosed">
       <div class="menu-buttons">
         <div class="profile-container">
-            <button id="btnProfile" title="Mi Perfil" onclick="toggleMenu(this, 'profileDropdown')"><i class="fa-solid fa-user-astronaut"></i></button>
+            <button id="btnProfile" title="Mi Perfil" onclick="toggleMenu(this, 'profileDropdown')"></button>
             <div class="profile-dropdown" id="profileDropdown">
                 <p id="user-email-display">Cargando...</p>
                 <button id="btnApelar" onclick="abrirModalApelacion()" style="display:none; color: orange !important; font-weight:bold;">⛔ Apelar Ban</button>
@@ -643,9 +689,6 @@
         </div>
         <button onclick="abrirModalCorreo()" title="Contacto"><i class="fa-solid fa-envelope"></i></button>
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
-        
-        <button id="btnAdminTools" onclick="abrirModalBaneados()" title="Panel Admin (Baneos)"><i class="fa-solid fa-gavel"></i></button>
-        <button id="btnGodTools" onclick="abrirModalGestionAdmins()" title="Panel DIOS (Gestión Admins)"><i class="fa-solid fa-bolt"></i></button>
       </div>
       <div class="bottom-icons">
           <button onclick="abrirModalDonaciones()" title="Donar / Apoyar" style="background:none; border:none; cursor:pointer; font-size:1.5rem; color:#888; transition:0.3s;"><i class="fa-solid fa-coffee"></i></button>
@@ -674,7 +717,7 @@
       </div>
       <div id="ctx-global-actions" style="display:none;">
           <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar Nuevo Juego</button>
-          <button onclick="abrirModalBaneados()" style="color:var(--gold); border-top:1px solid #444;"><i class="fa-solid fa-gavel"></i> Herramientas Admin</button>
+          <button onclick="abrirPanelAdmin()" style="color:var(--gold); border-top:1px solid #444;"><i class="fa-solid fa-sliders"></i> Panel Admin/Dios</button>
       </div>
       <div id="ctx-user-actions" style="display:none;">
           <button onclick="accionUsuario('banear')" style="color:orange;"><i class="fa-solid fa-ban"></i> Banear Usuario</button>
@@ -879,7 +922,12 @@
                 </div>
                 <div id="comments-list" class="comments-list-container"></div>
                 <div class="comments-input-container" id="comments-input-wrapper">
+                    <div id="replying-to-bar" class="replying-bar">
+                        <span id="reply-target-text">Respondiendo a...</span>
+                        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="cancelarRespuesta()"></i>
+                    </div>
                     <textarea id="new-comment-text" class="comment-input-box" rows="2" placeholder="Escribe un mensaje..."></textarea>
+                    <small id="spam-warning" style="display:block; color:#777; margin-top:5px; font-size:0.75rem;">⚠️ No se permite SPAM. Los administradores pueden banear.</small>
                     <button onclick="enviarComentario()" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
@@ -928,32 +976,44 @@
       </div>
   </div>
 
-  <div id="modalBaneados" class="modal">
-      <div class="modal-content-small">
-          <span class="close" onclick="document.getElementById('modalBaneados').style.display='none'">&times;</span>
-          <h2 style="color:var(--primary); margin-bottom:20px;">Panel de Baneados</h2>
-          <div id="banned-list-container">
-              <p style="color:#aaa;">Cargando...</p>
-          </div>
-      </div>
-  </div>
-
-  <div id="modalGestionAdmins" class="modal">
-    <div class="modal-content-small">
-        <span class="close" onclick="document.getElementById('modalGestionAdmins').style.display='none'">&times;</span>
-        <h2 style="color:var(--god-color); margin-bottom:20px; text-transform:uppercase;">Gestión de Administradores (DIOS)</h2>
-        
-        <div style="margin-bottom:20px; border-bottom:1px solid #444; padding-bottom:20px;">
-            <p style="margin-bottom:10px;">Agregar nuevo Admin por Email:</p>
-            <div style="display:flex; gap:10px;">
-                <input type="email" id="input-admin-email" placeholder="ejemplo@gmail.com" style="flex:1; padding:10px; background:#222; border:1px solid #444; color:white; border-radius:5px;">
-                <button onclick="agregarNuevoAdmin()" style="background:var(--primary); border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">AGREGAR</button>
-            </div>
+  <div id="modalPanelUnificado" class="modal">
+    <div class="modal-content-wide" style="padding:0; overflow:hidden; max-width:900px; display:flex;">
+        <div class="panel-sidebar">
+            <h3 style="color:white; margin:10px 10px 20px 10px; text-transform:uppercase; font-size:1rem; border-bottom:1px solid #444; padding-bottom:10px;">Panel de Control</h3>
+            <button class="sidebar-btn active" id="tab-btn-banned" onclick="cambiarTabPanel('banned')">
+                <i class="fa-solid fa-ban" style="margin-right:8px;"></i> Baneados
+            </button>
+            <button class="sidebar-btn god-btn" id="tab-btn-admins" onclick="cambiarTabPanel('admins')" style="display:none;">
+                <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Gestión Admins
+            </button>
+            <button class="sidebar-btn" onclick="document.getElementById('modalPanelUnificado').style.display='none'" style="margin-top:auto; color:#ff4444;">
+                <i class="fa-solid fa-xmark" style="margin-right:8px;"></i> Cerrar Panel
+            </button>
         </div>
 
-        <h3 style="margin-bottom:10px;">Lista de Administradores</h3>
-        <div id="admin-list-container" style="max-height:300px; overflow-y:auto;">
-            Cargando...
+        <div class="panel-main">
+            <div id="view-banned" style="display:block;">
+                <h2 style="color:var(--primary); margin-bottom:20px;">Usuarios Baneados</h2>
+                <div id="banned-list-container">
+                    <p style="color:#aaa;">Cargando...</p>
+                </div>
+            </div>
+
+            <div id="view-admins" style="display:none;">
+                <h2 style="color:var(--god-color); margin-bottom:20px;">Gestión de Administradores</h2>
+                <div style="margin-bottom:20px; border-bottom:1px solid #444; padding-bottom:20px;">
+                    <p style="margin-bottom:10px;">Agregar nuevo Admin por Email:</p>
+                    <div style="display:flex; gap:10px; position:relative;">
+                        <input type="email" id="input-admin-email" placeholder="ejemplo@gmail.com" autocomplete="off" style="flex:1; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:5px;">
+                        <div id="admin-autocomplete-list"></div>
+                        <button id="btn-add-admin-submit" onclick="agregarNuevoAdmin()" style="background:var(--primary); border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">AGREGAR</button>
+                    </div>
+                </div>
+                <h3 style="margin-bottom:10px;">Lista de Administradores</h3>
+                <div id="admin-list-container" style="max-height:300px; overflow-y:auto;">
+                    Cargando...
+                </div>
+            </div>
         </div>
     </div>
   </div>
@@ -989,7 +1049,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc, increment, query, orderBy, where, collectionGroup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc, deleteField, increment, query, orderBy, where, collectionGroup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBrObF62SabOPgu1K_BBHu02NbzPDq6Zp0",
@@ -1011,18 +1071,18 @@
     const juegosPorPagina = 24;
     let usuarioActual = null;
     let esAdmin = false;
-    let esDios = false; // Nuevo ROL
+    let esDios = false; 
     let esInvitado = false;
     let usuarioBaneado = false;
-    // Favoritos se guardan en LocalStorage (computadora), perfecto para invitados y usuarios.
     let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
     let juegoSeleccionadoId = null; 
     let usuarioSeleccionadoUid = null;
     let activeReqFilter = null;
     let currentGameOpen = null; 
     let pendingVote = 0;
+    let allUsersCache = []; 
+    let respondingToId = null; // ID del comentario al que respondemos
 
-    // LISTA DE MALAS PALABRAS
     const malasPalabras = ["tonto", "estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo"];
 
     const gameList = document.getElementById('gameList');
@@ -1052,12 +1112,10 @@
         return fechaStr;
     }
 
-    // --- HELPER NORMALIZAR TEXTO ---
     function normalizarTexto(txt) {
         return txt ? txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     }
 
-    // --- CENSURA (REEMPLAZO) ---
     function censurarTexto(texto) {
         let textoLimpio = texto;
         malasPalabras.forEach(palabra => {
@@ -1067,19 +1125,17 @@
         return textoLimpio;
     }
 
-    // --- SHORTCUT ALT + N Y ALT + L ---
     document.addEventListener('keydown', (e) => {
         if(e.altKey) {
             if(e.key.toLowerCase() === 'n') {
                 if(esAdmin || esDios) window.abrirModalAgregar();
             }
             if(e.key.toLowerCase() === 'l') { 
-                if(esAdmin || esDios) window.abrirModalBaneados();
+                if(esAdmin || esDios) window.abrirPanelAdmin();
             }
         }
     });
 
-    // MODO INVITADO LOGICA
     document.getElementById('btn-guest-login').onclick = () => {
         esInvitado = true;
         usuarioActual = null;
@@ -1096,8 +1152,6 @@
         document.getElementById('user-email-display').innerText = "Invitado (Local)";
         document.getElementById('contact-user-info').innerText = "Modo Invitado (Sin envío)";
         document.getElementById('btnFloatingAdd').style.display = 'none';
-        document.getElementById('btnAdminTools').style.display = 'none';
-        document.getElementById('btnGodTools').style.display = 'none';
         document.getElementById('btnApelar').style.display = 'none';
         
         cargarJuegos();
@@ -1116,30 +1170,34 @@
             document.getElementById('contact-user-info').innerText = `Enviando como: ${user.email}`;
             document.getElementById('contact-email-hidden').value = user.email;
             document.getElementById('contact-name-hidden').value = user.displayName || "Usuario";
+            
+            // PROFILE PIC
+            if(user.photoURL) {
+                document.getElementById('btnProfile').innerHTML = `<img src="${user.photoURL}" alt="P">`;
+            } else {
+                document.getElementById('btnProfile').innerHTML = `<i class="fa-solid fa-user-astronaut"></i>`;
+            }
+
             try {
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     
-                    // Lógica Roles
                     if (data.rol === "dios") {
                         esDios = true;
-                        esAdmin = true;
+                        esAdmin = true; // Dios hereda todo
                         document.getElementById('btnFloatingAdd').style.display = 'flex';
-                        document.getElementById('btnAdminTools').style.display = 'block';
-                        document.getElementById('btnGodTools').style.display = 'block';
+                        document.getElementById('spam-warning').style.display = 'none';
                     } else if (data.rol === "admin") {
                         esAdmin = true;
                         esDios = false;
                         document.getElementById('btnFloatingAdd').style.display = 'flex';
-                        document.getElementById('btnAdminTools').style.display = 'block';
-                        document.getElementById('btnGodTools').style.display = 'none';
+                        document.getElementById('spam-warning').style.display = 'none';
                     } else {
                         esAdmin = false;
                         esDios = false;
                         document.getElementById('btnFloatingAdd').style.display = 'none';
-                        document.getElementById('btnAdminTools').style.display = 'none';
-                        document.getElementById('btnGodTools').style.display = 'none';
+                        document.getElementById('spam-warning').style.display = 'block';
                     }
 
                     if (data.baneado) {
@@ -1233,6 +1291,7 @@
         if (!e.target.closest('.genres-dropdown-container')) genresPopup.style.display = 'none';
         autocompleteList.style.display = 'none';
         document.getElementById('contact-autocomplete-list').style.display = 'none';
+        document.getElementById('admin-autocomplete-list').style.display = 'none';
         
         if(e.target.classList.contains('modal')) {
             if(e.target.id === 'modalAdmin' || e.target.id === 'modalEdit') {
@@ -1306,7 +1365,6 @@
         window.aplicarFiltrosGlobales();
     };
 
-    // --- LOGICA DE FILTROS Y ORDENAMIENTO ---
     window.aplicarFiltrosGlobales = () => {
         const texto = normalizarTexto(document.getElementById('searchInput').value);
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
@@ -1376,7 +1434,6 @@
         pagina.forEach(juego => {
             const card = document.createElement('div');
             card.className = "game";
-            // Favoritos funciona localmente para todos (incluido invitados)
             const esFav = favoritos.includes(juego.titulo);
             const heartClass = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
             const rating = getAvgRating(juego);
@@ -1439,7 +1496,6 @@
         contextMenu.style.display = 'none';
         
         if(accion === 'banear') {
-            // VERIFICAR QUE NO SEA ADMIN
             const targetSnap = await getDoc(doc(db, "usuarios", usuarioSeleccionadoUid));
             if(targetSnap.exists() && (targetSnap.data().rol === 'admin' || targetSnap.data().rol === 'dios')) {
                 alert("🛡️ PROTECCIÓN ADMIN: No puedes banear a un Administrador.");
@@ -1452,14 +1508,19 @@
             }
         } else if(accion === 'desbanear') {
             if(confirm("¿Desbanear usuario y borrar historial (Desvanecer)?")) {
-                // Borrar comentarios
                 const comentariosRef = query(collectionGroup(db, 'comentarios'), where('uid', '==', usuarioSeleccionadoUid));
                 const comentariosSnap = await getDocs(comentariosRef);
                 const deletePromises = comentariosSnap.docs.map(doc => deleteDoc(doc.ref));
                 await Promise.all(deletePromises);
 
-                await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
-                alert("Usuario desbaneado y borrón y cuenta nueva realizado.");
+                // RESET COMPLETO (NACER DE NUEVO)
+                await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { 
+                    baneado: false, 
+                    insultos: 0, 
+                    historialInsultos: deleteField(),
+                    apelacion: deleteField() 
+                });
+                alert("Usuario desbaneado. Historial borrado completamente.");
             }
         }
     };
@@ -1568,61 +1629,163 @@
         let text = document.getElementById('new-comment-text').value;
         if(!text.trim()) return;
 
-        // CENSURA AUTOMÁTICA (Reemplazo con asteriscos)
+        // CENSURA AUTOMÁTICA
         const textoFinal = censurarTexto(text);
 
         try {
             await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
                 user: usuarioActual.displayName || "Usuario",
                 uid: usuarioActual.uid,
+                photo: usuarioActual.photoURL || null,
                 text: textoFinal,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                parentId: respondingToId || null,
+                anclado: false // Por defecto no anclado
             });
             document.getElementById('new-comment-text').value = "";
+            window.cancelarRespuesta();
             cargarComentarios(currentGameOpen.id);
         } catch(e) { console.error(e); }
     };
 
+    // --- CARGA COMENTARIOS CON LÓGICA DE RESPUESTA Y PIN ---
     async function cargarComentarios(gameId) {
         const list = document.getElementById('comments-list');
         list.innerHTML = "<p style='color:#888'>Cargando...</p>";
-        const q = query(collection(db, "juegos", gameId, "comentarios"), orderBy("date", "asc"));
+        
+        const q = query(collection(db, "juegos", gameId, "comentarios"));
+        
         try {
             const snap = await getDocs(q);
             list.innerHTML = "";
             if(snap.empty) { list.innerHTML = "<p style='color:#888; text-align:center;'>Sé el primero en comentar.</p>"; return; }
-            snap.forEach(d => {
-                const c = d.data();
-                const isMine = c.uid === usuarioActual?.uid;
-                const div = document.createElement('div');
-                div.className = `comment-item ${isMine ? 'mine' : ''}`;
-                let actions = "";
-                
-                if (esAdmin && !esInvitado) {
-                    actions = `
-                        <div class="comment-actions">
-                            <button class="btn-mini-action" onclick="borrarComentario('${gameId}', '${d.id}')" style="background:#ff4444;"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    `;
-                }
-                
-                div.innerHTML = `
-                    ${actions}
-                    <div class="comment-meta">
-                        <span class="user-name-span" style="color:var(--primary); font-weight:bold; cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${c.user}</span>
-                        <span>${new Date(c.date).toLocaleDateString()}</span>
-                    </div>
-                    <div class="comment-body">${c.text}</div>
-                `;
-                list.appendChild(div);
+            
+            // Ordenar en JS: Anclados primero, luego fecha.
+            let comments = [];
+            snap.forEach(d => comments.push({id: d.id, ...d.data()}));
+            
+            comments.sort((a, b) => {
+                if (a.anclado && !b.anclado) return -1;
+                if (!a.anclado && b.anclado) return 1;
+                return new Date(a.date) - new Date(b.date);
             });
+
+            // Organizar padres e hijos
+            const parents = comments.filter(c => !c.parentId);
+            const replies = comments.filter(c => c.parentId);
+
+            parents.forEach(p => {
+                renderCommentItem(list, p, gameId, false);
+                // Render replies under parent
+                const childs = replies.filter(r => r.parentId === p.id);
+                childs.forEach(c => renderCommentItem(list, c, gameId, true));
+            });
+
             list.scrollTop = list.scrollHeight;
-        } catch(e) { list.innerHTML = "<p>Error cargando comentarios.</p>"; }
+        } catch(e) { console.error(e); list.innerHTML = "<p>Error cargando comentarios.</p>"; }
     }
+
+    function renderCommentItem(container, c, gameId, isReply) {
+        const isMine = c.uid === usuarioActual?.uid;
+        const div = document.createElement('div');
+        div.className = `comment-item ${isMine ? 'mine' : ''} ${c.anclado ? 'pinned' : ''} ${isReply ? 'reply' : ''}`;
+        div.id = `comment-${c.id}`;
+        
+        let actions = "";
+        // PERMISOS: Dios hace todo. User edita/borra suyo.
+        if (esDios || isMine) {
+            actions += `<button class="btn-mini-action" onclick="editarComentario('${gameId}', '${c.id}', '${c.text.replace(/'/g, "\\'")}')" style="background:#009ee3; margin-right:3px;"><i class="fa-solid fa-pen"></i></button>`;
+            actions += `<button class="btn-mini-action" onclick="borrarComentario('${gameId}', '${c.id}')" style="background:#ff4444;"><i class="fa-solid fa-trash"></i></button>`;
+        }
+        
+        // ANCLAR (Solo Admin/Dios)
+        if (esAdmin || esDios) {
+            const iconPin = c.anclado ? "fa-thumbtack-slash" : "fa-thumbtack";
+            const colorPin = c.anclado ? "#777" : "var(--gold)";
+            actions += `<button class="btn-mini-action" onclick="anclarComentario('${gameId}', '${c.id}', ${!c.anclado})" style="background:transparent; color:${colorPin}; border:1px solid ${colorPin}; margin-left:3px;"><i class="fa-solid ${iconPin}"></i></button>`;
+        }
+
+        // RESPONDER (Todos logueados)
+        if (usuarioActual && !isReply) { // Solo 1 nivel de anidamiento visual simple
+             actions += `<button class="btn-mini-action" onclick="responderComentario('${c.id}', '${c.user}')" style="background:#444; margin-left:3px;"><i class="fa-solid fa-reply"></i></button>`;
+        }
+
+        const avatarUrl = c.photo || "https://ui-avatars.com/api/?name=" + c.user + "&background=random";
+        const pinIcon = c.anclado ? `<i class="fa-solid fa-thumbtack pinned-icon"></i>` : '';
+
+        div.innerHTML = `
+            <div class="comment-actions">${actions}</div>
+            <div class="comment-meta">
+                <div style="display:flex; align-items:center;">
+                    ${pinIcon}
+                    <img src="${avatarUrl}" class="user-avatar" alt="av">
+                    <span class="user-name-span" style="color:var(--primary); font-weight:bold; cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${c.user}</span>
+                </div>
+                <span>${new Date(c.date).toLocaleDateString()}</span>
+            </div>
+            <div class="comment-body" id="comment-body-${c.id}">${c.text}</div>
+        `;
+        container.appendChild(div);
+    }
+
+    // --- FUNCIONES COMENTARIOS EXTRA ---
+    window.responderComentario = (id, user) => {
+        if(esInvitado) return alert("Invitado no puede responder.");
+        respondingToId = id;
+        document.getElementById('replying-to-bar').style.display = 'flex';
+        document.getElementById('reply-target-text').innerText = `Respondiendo a ${user}...`;
+        document.getElementById('new-comment-text').focus();
+    };
+
+    window.cancelarRespuesta = () => {
+        respondingToId = null;
+        document.getElementById('replying-to-bar').style.display = 'none';
+    };
+
+    window.anclarComentario = async (gameId, commentId, estado) => {
+        try {
+            await updateDoc(doc(db, "juegos", gameId, "comentarios", commentId), { anclado: estado });
+            cargarComentarios(gameId);
+        } catch(e) { console.error(e); }
+    };
+
+    window.borrarComentario = async (gameId, commentId) => {
+        if(!confirm("¿Borrar comentario?")) return;
+        try {
+            // Dios bypass rules in client logic? No, Database rules control access.
+            // Assuming rules are set up correctly for 'dios' role.
+            await deleteDoc(doc(db, "juegos", gameId, "comentarios", commentId));
+            cargarComentarios(gameId); 
+        } catch(e) { 
+            console.error(e);
+            alert("Error al borrar. Si eres Dios, verifica las Reglas de Firebase."); 
+        }
+    };
+
+    window.editarComentario = (gameId, commentId, textoActual) => {
+        const bodyDiv = document.getElementById(`comment-body-${commentId}`);
+        bodyDiv.innerHTML = `
+            <input type="text" value="${textoActual}" id="edit-input-${commentId}" style="width:100%; background:#111; border:1px solid #444; color:white; padding:5px; border-radius:5px;">
+            <div style="margin-top:5px; text-align:right;">
+                <button onclick="guardarEdicionComentario('${gameId}', '${commentId}')" style="background:green; color:white; border:none; padding:3px 8px; border-radius:3px; cursor:pointer;">Guardar</button>
+                <button onclick="cargarComentarios('${gameId}')" style="background:#555; color:white; border:none; padding:3px 8px; border-radius:3px; cursor:pointer;">Cancelar</button>
+            </div>
+        `;
+    };
+
+    window.guardarEdicionComentario = async (gameId, commentId) => {
+        const nuevoTexto = document.getElementById(`edit-input-${commentId}`).value;
+        if(!nuevoTexto.trim()) return;
+        const textoFinal = censurarTexto(nuevoTexto);
+        try {
+            await updateDoc(doc(db, "juegos", gameId, "comentarios", commentId), { text: textoFinal });
+            cargarComentarios(gameId);
+        } catch(e) { alert("Error al editar."); }
+    };
 
     // CLICK DERECHO EN USUARIO
     window.abrirContextoUsuario = (e, uid) => {
-        if(!esAdmin) return;
+        if(!esAdmin && !esDios) return;
         e.preventDefault();
         e.stopPropagation();
         usuarioSeleccionadoUid = uid;
@@ -1634,14 +1797,6 @@
         contextMenu.style.top = `${e.pageY}px`;
         contextMenu.style.left = `${e.pageX}px`;
         contextMenu.style.display = 'block';
-    };
-
-    window.borrarComentario = async (gameId, commentId) => {
-        if(!confirm("¿Borrar comentario?")) return;
-        try {
-            await deleteDoc(doc(db, "juegos", gameId, "comentarios", commentId));
-            cargarComentarios(gameId);
-        } catch(e) { alert("Error al borrar"); }
     };
 
     // APELACION
@@ -1660,10 +1815,46 @@
         } catch(e) { alert("Error al enviar apelación."); }
     };
 
-    // PANEL BANEADOS
-    window.abrirModalBaneados = async () => {
-        if(!esAdmin) return;
-        document.getElementById('modalBaneados').style.display = 'flex';
+    // --- PANEL UNIFICADO LOGICA ---
+
+    window.abrirPanelAdmin = async () => {
+        if(!esAdmin && !esDios) return;
+
+        const modal = document.getElementById('modalPanelUnificado');
+        const btnAdmins = document.getElementById('tab-btn-admins');
+
+        modal.style.display = 'flex';
+        contextMenu.style.display = 'none'; 
+        window.cambiarTabPanel('banned'); 
+
+        if(esDios) {
+            btnAdmins.style.display = 'block';
+            if(allUsersCache.length === 0) {
+                const snap = await getDocs(collection(db, "usuarios"));
+                allUsersCache = snap.docs.map(d => d.data().email);
+            }
+        } else {
+            btnAdmins.style.display = 'none';
+        }
+    };
+
+    window.cambiarTabPanel = (tab) => {
+        document.getElementById('view-banned').style.display = 'none';
+        document.getElementById('view-admins').style.display = 'none';
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+
+        if(tab === 'banned') {
+            document.getElementById('view-banned').style.display = 'block';
+            document.getElementById('tab-btn-banned').classList.add('active');
+            cargarListaBaneados();
+        } else if (tab === 'admins') {
+            document.getElementById('view-admins').style.display = 'block';
+            document.getElementById('tab-btn-admins').classList.add('active');
+            cargarListaAdmins();
+        }
+    };
+
+    async function cargarListaBaneados() {
         const list = document.getElementById('banned-list-container');
         list.innerHTML = "Cargando...";
         
@@ -1698,34 +1889,35 @@
                     <button onclick="desbanearDesdePanel('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Desbanear</button>
                 </div>
                 ${u.apelacion ? `<div class="appeal-text">" ${u.apelacion} "</div>` : '<div style="font-size:0.8rem; color:#666;">Sin apelación</div>'}
+                <span class="toggle-evidence" onclick="document.getElementById('evidence-${d.id}').style.display = document.getElementById('evidence-${d.id}').style.display==='block'?'none':'block'">Ver Mensajes Ofensivos</span>
+                ${evidenciaHtml}
             `;
             list.appendChild(div);
         });
     };
 
     window.desbanearDesdePanel = async (uid) => {
-        if(confirm("¿Desbanear usuario y borrar TODO su historial de comentarios?")) {
+        if(confirm("¿Desbanear usuario? Se borrará todo su historial (Nacer de nuevo).")) {
             const comentariosRef = query(collectionGroup(db, 'comentarios'), where('uid', '==', uid));
             const comentariosSnap = await getDocs(comentariosRef);
             const deletePromises = comentariosSnap.docs.map(doc => deleteDoc(doc.ref));
             await Promise.all(deletePromises);
-            await updateDoc(doc(db, "usuarios", uid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
-            window.abrirModalBaneados(); 
+
+            await updateDoc(doc(db, "usuarios", uid), { 
+                baneado: false, 
+                insultos: 0, 
+                historialInsultos: deleteField(), 
+                apelacion: deleteField() 
+            });
+            cargarListaBaneados(); 
         }
     };
 
     // --- PANEL GESTIÓN ADMINS (DIOS) ---
-    window.abrirModalGestionAdmins = async () => {
-        if(!esDios) return alert("Solo Dios puede entrar aquí.");
-        document.getElementById('modalGestionAdmins').style.display = 'flex';
-        cargarListaAdmins();
-    };
-
     async function cargarListaAdmins() {
         const cont = document.getElementById('admin-list-container');
         cont.innerHTML = "Cargando...";
         
-        // Buscar admins y dioses
         const qAdmin = query(collection(db, "usuarios"), where("rol", "in", ["admin", "dios"]));
         const snap = await getDocs(qAdmin);
         
@@ -1739,7 +1931,7 @@
             
             let btnAction = "";
             if(u.rol === "admin") {
-                btnAction = `<button onclick="quitarRangoAdmin('${d.id}')" style="background:#ff4444; color:white; border:none; border-radius:3px; padding:5px; cursor:pointer;">Quitar Admin</button>`;
+                btnAction = `<button onclick="quitarRangoAdmin('${d.id}')" style="background:#ff4444; color:white; border:none; border-radius:3px; padding:5px; cursor:pointer;">Eliminar Admin</button>`;
             } else {
                 btnAction = `<span style="color:var(--god-color); font-weight:bold;">DIOS</span>`;
             }
@@ -1752,28 +1944,75 @@
         });
     }
 
+    // AUTOCOMPLETE ADMIN INPUT
+    document.getElementById('input-admin-email').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        const list = document.getElementById('admin-autocomplete-list');
+        list.innerHTML = "";
+        if(!val) { list.style.display = 'none'; return; }
+        
+        const matches = allUsersCache.filter(email => email.toLowerCase().includes(val)).slice(0, 5);
+        if(matches.length > 0) {
+            list.style.display = 'block';
+            matches.forEach(email => {
+                const div = document.createElement('div');
+                div.className = "admin-autocomplete-item";
+                div.innerText = email;
+                div.onclick = () => {
+                    document.getElementById('input-admin-email').value = email;
+                    list.style.display = 'none';
+                };
+                list.appendChild(div);
+            });
+        } else {
+            list.style.display = 'none';
+        }
+    });
+
     window.agregarNuevoAdmin = async () => {
         const email = document.getElementById('input-admin-email').value;
+        const btn = document.getElementById('btn-add-admin-submit');
         if(!email) return alert("Ingresa un correo");
         
-        // Buscar usuario por email
+        btn.innerText = "Cargando...";
+        btn.disabled = true;
+
         const q = query(collection(db, "usuarios"), where("email", "==", email));
         const snap = await getDocs(q);
         
-        if(snap.empty) return alert("Usuario no encontrado. Debe registrarse primero.");
+        if(snap.empty) {
+            alert("Usuario no encontrado en la base de datos.");
+            btn.innerText = "AGREGAR";
+            btn.disabled = false;
+            return;
+        }
         
         const docUser = snap.docs[0];
-        if(docUser.data().rol === 'dios') return alert("Este usuario es Dios.");
-        if(docUser.data().rol === 'admin') return alert("Ya es Admin.");
+        if(docUser.data().rol === 'dios') {
+            alert("Este usuario es Dios.");
+            btn.innerText = "AGREGAR";
+            btn.disabled = false;
+            return;
+        }
+        if(docUser.data().rol === 'admin') {
+            alert("Ya es Admin.");
+            btn.innerText = "AGREGAR";
+            btn.disabled = false;
+            return;
+        }
 
         await updateDoc(doc(db, "usuarios", docUser.id), { rol: "admin" });
-        alert(`¡${email} ahora es Administrador!`);
-        document.getElementById('input-admin-email').value = "";
-        cargarListaAdmins();
+        btn.innerText = "¡Ya es Admin!";
+        setTimeout(() => {
+            btn.innerText = "AGREGAR";
+            btn.disabled = false;
+            document.getElementById('input-admin-email').value = "";
+            cargarListaAdmins();
+        }, 1500);
     };
 
     window.quitarRangoAdmin = async (uid) => {
-        if(confirm("¿Quitar rango de administrador a este usuario?")) {
+        if(confirm("¿Eliminar rango de administrador a este usuario? Volverá a ser usuario normal.")) {
             await updateDoc(doc(db, "usuarios", uid), { rol: "user" });
             cargarListaAdmins();
         }
@@ -1814,7 +2053,7 @@
         });
     }
 
-    // ABRIR DESCARGAS (LOGICA INVITADO UI)
+    // ABRIR DESCARGAS
     function abrirDescargas(juego) {
         currentGameOpen = juego;
         const modal = document.getElementById('modalDownloads');
@@ -1826,7 +2065,6 @@
         const btnTrailerToggle = document.getElementById('btn-trailer-toggle');
         const commentInputWrapper = document.getElementById('comments-input-wrapper');
 
-        // Si es invitado, ocultar input comentarios
         if(esInvitado) {
             commentInputWrapper.style.display = 'none';
         } else {
@@ -1925,7 +2163,7 @@
         const modal = document.getElementById('modalDownloads');
         const trailerContent = document.getElementById('trailer-content');
         modal.style.display = 'none';
-        trailerContent.innerHTML = ''; // Esto mata el iframe y para el video
+        trailerContent.innerHTML = ''; 
     };
 
     // --- ADMIN ---

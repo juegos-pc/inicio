@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zona Gamer OS</title>
+  <title>Zona Gamer</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -17,6 +17,7 @@
         --text-light: #ffffff;
         --gold: #ffd700;
         --mp-blue: #009ee3;
+        --god-color: #9d00ff; /* Color para el modo Dios */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -121,6 +122,7 @@
     #btnProfile:hover { border-color: var(--secondary); color: var(--secondary) !important; }
 
     #btnAdminTools { color: var(--gold) !important; display: none; } /* Solo admin */
+    #btnGodTools { color: var(--god-color) !important; display: none; text-shadow: 0 0 10px var(--god-color); } /* Solo Dios */
 
     #menuClosed a { color: #888; font-size: 1.5rem; margin-top: 15px; transition: 0.3s; }
     #menuClosed a:hover { color: var(--secondary); transform: scale(1.1); }
@@ -528,6 +530,13 @@
     .evidence-list { font-size: 0.85rem; color: #aaa; margin-top: 5px; display: none; }
     .toggle-evidence { color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: underline; margin-top: 5px; display: block; }
 
+    /* ESTILO PANEL ADMINS (DIOS) */
+    .admin-list-item {
+        display: flex; justify-content: space-between; align-items: center;
+        background: #333; padding: 10px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #444;
+    }
+    .admin-list-email { color: var(--gold); font-weight: bold; }
+
     @media (max-width: 900px) {
         .modal-game-grid { grid-template-columns: 1fr; overflow-y: auto; }
         .game-col-left { border-right: none; border-bottom: 1px solid #333; overflow: visible; }
@@ -634,6 +643,9 @@
         </div>
         <button onclick="abrirModalCorreo()" title="Contacto"><i class="fa-solid fa-envelope"></i></button>
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
+        
+        <button id="btnAdminTools" onclick="abrirModalBaneados()" title="Panel Admin (Baneos)"><i class="fa-solid fa-gavel"></i></button>
+        <button id="btnGodTools" onclick="abrirModalGestionAdmins()" title="Panel DIOS (Gestión Admins)"><i class="fa-solid fa-bolt"></i></button>
       </div>
       <div class="bottom-icons">
           <button onclick="abrirModalDonaciones()" title="Donar / Apoyar" style="background:none; border:none; cursor:pointer; font-size:1.5rem; color:#888; transition:0.3s;"><i class="fa-solid fa-coffee"></i></button>
@@ -814,7 +826,7 @@
 
   <div id="modalDownloads" class="modal">
     <div class="modal-game-details">
-        <span class="close" onclick="document.getElementById('modalDownloads').style.display='none'" style="z-index:20; right:20px; top:20px;">&times;</span>
+        <span class="close" onclick="cerrarModalDownloads()" style="z-index:20; right:20px; top:20px;">&times;</span>
         
         <div class="modal-game-grid">
             <div class="game-col-left">
@@ -866,7 +878,7 @@
                     <h3 style="margin:0; color:var(--secondary);">Comentarios</h3>
                 </div>
                 <div id="comments-list" class="comments-list-container"></div>
-                <div class="comments-input-container">
+                <div class="comments-input-container" id="comments-input-wrapper">
                     <textarea id="new-comment-text" class="comment-input-box" rows="2" placeholder="Escribe un mensaje..."></textarea>
                     <button onclick="enviarComentario()" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
@@ -881,6 +893,8 @@
       <h2>Contacto / Pedidos</h2>
       <p id="contact-user-info" style="font-size:0.8rem; color:#888; margin-bottom:15px;">Cargando usuario...</p>
       <form id="formCorreo" action="https://formsubmit.co/pcjuegoss2025@gmail.com" method="POST">
+        <input type="hidden" name="_captcha" value="false">
+        
         <input type="hidden" name="_next" value="https://juegos-pc.github.io/inicio/" />
         <input type="hidden" name="usuario_email" id="contact-email-hidden">
         <input type="hidden" name="usuario_nombre" id="contact-name-hidden">
@@ -922,6 +936,26 @@
               <p style="color:#aaa;">Cargando...</p>
           </div>
       </div>
+  </div>
+
+  <div id="modalGestionAdmins" class="modal">
+    <div class="modal-content-small">
+        <span class="close" onclick="document.getElementById('modalGestionAdmins').style.display='none'">&times;</span>
+        <h2 style="color:var(--god-color); margin-bottom:20px; text-transform:uppercase;">Gestión de Administradores (DIOS)</h2>
+        
+        <div style="margin-bottom:20px; border-bottom:1px solid #444; padding-bottom:20px;">
+            <p style="margin-bottom:10px;">Agregar nuevo Admin por Email:</p>
+            <div style="display:flex; gap:10px;">
+                <input type="email" id="input-admin-email" placeholder="ejemplo@gmail.com" style="flex:1; padding:10px; background:#222; border:1px solid #444; color:white; border-radius:5px;">
+                <button onclick="agregarNuevoAdmin()" style="background:var(--primary); border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">AGREGAR</button>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom:10px;">Lista de Administradores</h3>
+        <div id="admin-list-container" style="max-height:300px; overflow-y:auto;">
+            Cargando...
+        </div>
+    </div>
   </div>
 
   <div id="modalDonaciones" class="modal">
@@ -977,8 +1011,10 @@
     const juegosPorPagina = 24;
     let usuarioActual = null;
     let esAdmin = false;
+    let esDios = false; // Nuevo ROL
     let esInvitado = false;
     let usuarioBaneado = false;
+    // Favoritos se guardan en LocalStorage (computadora), perfecto para invitados y usuarios.
     let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
     let juegoSeleccionadoId = null; 
     let usuarioSeleccionadoUid = null;
@@ -1021,22 +1057,24 @@
         return txt ? txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     }
 
-    // --- CENSURA Y CHECK ---
-    function contieneMalasPalabras(texto) {
-        return malasPalabras.some(palabra => {
+    // --- CENSURA (REEMPLAZO) ---
+    function censurarTexto(texto) {
+        let textoLimpio = texto;
+        malasPalabras.forEach(palabra => {
             const regex = new RegExp(`\\b${palabra}\\b`, "gi");
-            return regex.test(texto);
+            textoLimpio = textoLimpio.replace(regex, "****");
         });
+        return textoLimpio;
     }
 
     // --- SHORTCUT ALT + N Y ALT + L ---
     document.addEventListener('keydown', (e) => {
         if(e.altKey) {
             if(e.key.toLowerCase() === 'n') {
-                if(esAdmin) window.abrirModalAgregar();
+                if(esAdmin || esDios) window.abrirModalAgregar();
             }
-            if(e.key.toLowerCase() === 'l') { // MENU SECRETO ADMIN
-                if(esAdmin) window.abrirModalBaneados();
+            if(e.key.toLowerCase() === 'l') { 
+                if(esAdmin || esDios) window.abrirModalBaneados();
             }
         }
     });
@@ -1046,6 +1084,7 @@
         esInvitado = true;
         usuarioActual = null;
         esAdmin = false;
+        esDios = false;
         usuarioBaneado = false;
         
         loginScreen.style.opacity = '0';
@@ -1058,6 +1097,7 @@
         document.getElementById('contact-user-info').innerText = "Modo Invitado (Sin envío)";
         document.getElementById('btnFloatingAdd').style.display = 'none';
         document.getElementById('btnAdminTools').style.display = 'none';
+        document.getElementById('btnGodTools').style.display = 'none';
         document.getElementById('btnApelar').style.display = 'none';
         
         cargarJuegos();
@@ -1080,15 +1120,28 @@
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-                    if (data.rol === "admin") {
+                    
+                    // Lógica Roles
+                    if (data.rol === "dios") {
+                        esDios = true;
                         esAdmin = true;
                         document.getElementById('btnFloatingAdd').style.display = 'flex';
                         document.getElementById('btnAdminTools').style.display = 'block';
+                        document.getElementById('btnGodTools').style.display = 'block';
+                    } else if (data.rol === "admin") {
+                        esAdmin = true;
+                        esDios = false;
+                        document.getElementById('btnFloatingAdd').style.display = 'flex';
+                        document.getElementById('btnAdminTools').style.display = 'block';
+                        document.getElementById('btnGodTools').style.display = 'none';
                     } else {
                         esAdmin = false;
+                        esDios = false;
                         document.getElementById('btnFloatingAdd').style.display = 'none';
                         document.getElementById('btnAdminTools').style.display = 'none';
+                        document.getElementById('btnGodTools').style.display = 'none';
                     }
+
                     if (data.baneado) {
                         usuarioBaneado = true;
                         document.getElementById('btnApelar').style.display = 'block';
@@ -1106,6 +1159,7 @@
             appContent.style.display = 'none';
             usuarioActual = null;
             esAdmin = false;
+            esDios = false;
         }
     });
 
@@ -1183,6 +1237,8 @@
         if(e.target.classList.contains('modal')) {
             if(e.target.id === 'modalAdmin' || e.target.id === 'modalEdit') {
                 if(confirm("¿Estás seguro? Se perderán los datos si sales.")) e.target.style.display = 'none';
+            } else if (e.target.id === 'modalDownloads') {
+                window.cerrarModalDownloads(); // Usar función especial para parar tráiler
             } else {
                 e.target.style.display = 'none';
             }
@@ -1320,6 +1376,7 @@
         pagina.forEach(juego => {
             const card = document.createElement('div');
             card.className = "game";
+            // Favoritos funciona localmente para todos (incluido invitados)
             const esFav = favoritos.includes(juego.titulo);
             const heartClass = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
             const rating = getAvgRating(juego);
@@ -1384,8 +1441,8 @@
         if(accion === 'banear') {
             // VERIFICAR QUE NO SEA ADMIN
             const targetSnap = await getDoc(doc(db, "usuarios", usuarioSeleccionadoUid));
-            if(targetSnap.exists() && targetSnap.data().rol === 'admin') {
-                alert("🛡️ PROTECCIÓN ADMIN ACTIVADA: No puedes banear a un Administrador.");
+            if(targetSnap.exists() && (targetSnap.data().rol === 'admin' || targetSnap.data().rol === 'dios')) {
+                alert("🛡️ PROTECCIÓN ADMIN: No puedes banear a un Administrador.");
                 return;
             }
 
@@ -1442,7 +1499,7 @@
     }
 
     window.preVote = (val) => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para votar.");
+        if(esInvitado) return alert("Invitados no pueden votar. Inicia sesión.");
         pendingVote = val;
         renderStars(val);
         document.getElementById('btn-send-vote').style.display = 'block';
@@ -1497,7 +1554,7 @@
     }
 
     window.enviarComentario = async () => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para comentar.");
+        if(esInvitado) return alert("Modo invitado: No puedes comentar.");
         if(!usuarioActual) { alert("Inicia sesión para comentar."); return; }
         
         const userRef = doc(db, "usuarios", usuarioActual.uid);
@@ -1511,33 +1568,14 @@
         let text = document.getElementById('new-comment-text').value;
         if(!text.trim()) return;
 
-        // VERIFICAR INSULTOS
-        if(contieneMalasPalabras(text)) {
-            // Guardar el insulto exacto en el historial
-            await updateDoc(userRef, { 
-                insultos: increment(1),
-                historialInsultos: arrayUnion({ text: text, date: new Date().toISOString() })
-            });
-            const updatedUser = await getDoc(userRef);
-            const strikes = updatedUser.data().insultos || 0;
-            
-            document.getElementById('new-comment-text').value = "";
-            alert(`Comentario eliminado por vocabulario ofensivo. Advertencia ${strikes}/5. Si llegas a 5 serás baneado.`);
-
-            if(strikes >= 5) {
-                await updateDoc(userRef, { baneado: true });
-                usuarioBaneado = true;
-                document.getElementById('btnApelar').style.display = 'block';
-                alert("Has alcanzado el límite de advertencias. Has sido baneado de los comentarios.");
-            }
-            return;
-        }
+        // CENSURA AUTOMÁTICA (Reemplazo con asteriscos)
+        const textoFinal = censurarTexto(text);
 
         try {
             await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
                 user: usuarioActual.displayName || "Usuario",
                 uid: usuarioActual.uid,
-                text: text,
+                text: textoFinal,
                 date: new Date().toISOString()
             });
             document.getElementById('new-comment-text').value = "";
@@ -1622,7 +1660,7 @@
         } catch(e) { alert("Error al enviar apelación."); }
     };
 
-    // PANEL BANEADOS MEJORADO
+    // PANEL BANEADOS
     window.abrirModalBaneados = async () => {
         if(!esAdmin) return;
         document.getElementById('modalBaneados').style.display = 'flex';
@@ -1657,12 +1695,9 @@
             div.innerHTML = `
                 <div class="banned-header">
                     <span class="banned-email">${u.email}</span>
-                    <button onclick="desbanearDesdePanel('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Desbanear (Borrón y cuenta nueva)</button>
+                    <button onclick="desbanearDesdePanel('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Desbanear</button>
                 </div>
                 ${u.apelacion ? `<div class="appeal-text">" ${u.apelacion} "</div>` : '<div style="font-size:0.8rem; color:#666;">Sin apelación</div>'}
-                
-                <span class="toggle-evidence" onclick="document.getElementById('evidence-${d.id}').style.display = document.getElementById('evidence-${d.id}').style.display==='block'?'none':'block'">Ver Mensajes Ofensivos</span>
-                ${evidenciaHtml}
             `;
             list.appendChild(div);
         });
@@ -1670,53 +1705,100 @@
 
     window.desbanearDesdePanel = async (uid) => {
         if(confirm("¿Desbanear usuario y borrar TODO su historial de comentarios?")) {
-            // LOGICA DESVANECER (Borrón y cuenta nueva)
             const comentariosRef = query(collectionGroup(db, 'comentarios'), where('uid', '==', uid));
             const comentariosSnap = await getDocs(comentariosRef);
-            
-            // Borramos cada comentario encontrado
             const deletePromises = comentariosSnap.docs.map(doc => deleteDoc(doc.ref));
             await Promise.all(deletePromises);
-
-            // Reseteamos al usuario
             await updateDoc(doc(db, "usuarios", uid), { baneado: false, insultos: 0, historialInsultos: [], apelacion: "" });
-            window.abrirModalBaneados(); // Recargar lista
+            window.abrirModalBaneados(); 
         }
     };
 
-    // --- LOGICA DE SIMILARES NUEVA (MIXED) ---
+    // --- PANEL GESTIÓN ADMINS (DIOS) ---
+    window.abrirModalGestionAdmins = async () => {
+        if(!esDios) return alert("Solo Dios puede entrar aquí.");
+        document.getElementById('modalGestionAdmins').style.display = 'flex';
+        cargarListaAdmins();
+    };
+
+    async function cargarListaAdmins() {
+        const cont = document.getElementById('admin-list-container');
+        cont.innerHTML = "Cargando...";
+        
+        // Buscar admins y dioses
+        const qAdmin = query(collection(db, "usuarios"), where("rol", "in", ["admin", "dios"]));
+        const snap = await getDocs(qAdmin);
+        
+        cont.innerHTML = "";
+        if(snap.empty) { cont.innerHTML = "No hay admins."; return; }
+
+        snap.forEach(d => {
+            const u = d.data();
+            const div = document.createElement('div');
+            div.className = 'admin-list-item';
+            
+            let btnAction = "";
+            if(u.rol === "admin") {
+                btnAction = `<button onclick="quitarRangoAdmin('${d.id}')" style="background:#ff4444; color:white; border:none; border-radius:3px; padding:5px; cursor:pointer;">Quitar Admin</button>`;
+            } else {
+                btnAction = `<span style="color:var(--god-color); font-weight:bold;">DIOS</span>`;
+            }
+
+            div.innerHTML = `
+                <span class="admin-list-email">${u.email}</span>
+                ${btnAction}
+            `;
+            cont.appendChild(div);
+        });
+    }
+
+    window.agregarNuevoAdmin = async () => {
+        const email = document.getElementById('input-admin-email').value;
+        if(!email) return alert("Ingresa un correo");
+        
+        // Buscar usuario por email
+        const q = query(collection(db, "usuarios"), where("email", "==", email));
+        const snap = await getDocs(q);
+        
+        if(snap.empty) return alert("Usuario no encontrado. Debe registrarse primero.");
+        
+        const docUser = snap.docs[0];
+        if(docUser.data().rol === 'dios') return alert("Este usuario es Dios.");
+        if(docUser.data().rol === 'admin') return alert("Ya es Admin.");
+
+        await updateDoc(doc(db, "usuarios", docUser.id), { rol: "admin" });
+        alert(`¡${email} ahora es Administrador!`);
+        document.getElementById('input-admin-email').value = "";
+        cargarListaAdmins();
+    };
+
+    window.quitarRangoAdmin = async (uid) => {
+        if(confirm("¿Quitar rango de administrador a este usuario?")) {
+            await updateDoc(doc(db, "usuarios", uid), { rol: "user" });
+            cargarListaAdmins();
+        }
+    };
+
+    // --- LOGICA DE SIMILARES ---
     function mostrarSimilares(juego) {
         const container = document.getElementById('similar-games-section');
         const list = document.getElementById('similar-games-list');
-        
         const currentGenres = juego.generos || [];
-
-        if (currentGenres.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
+        if (currentGenres.length === 0) { container.style.display = 'none'; return; }
 
         let matches = juegos
             .filter(j => j.id !== juego.id) 
             .map(otherGame => {
                 const otherGenres = otherGame.generos || [];
                 const intersection = otherGenres.filter(g => currentGenres.includes(g));
-                return { 
-                    ...otherGame, 
-                    matchCount: intersection.length 
-                };
+                return { ...otherGame, matchCount: intersection.length };
             })
             .filter(j => j.matchCount > 0);
 
         matches.sort((a, b) => b.matchCount - a.matchCount);
-
         const topCandidates = matches.slice(0, 15);
         const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-        if(selected.length === 0) { 
-            container.style.display = 'none'; 
-            return; 
-        }
+        if(selected.length === 0) { container.style.display = 'none'; return; }
         
         container.style.display = 'block';
         list.innerHTML = "";
@@ -1732,6 +1814,7 @@
         });
     }
 
+    // ABRIR DESCARGAS (LOGICA INVITADO UI)
     function abrirDescargas(juego) {
         currentGameOpen = juego;
         const modal = document.getElementById('modalDownloads');
@@ -1741,6 +1824,14 @@
         const trailerBtnContainer = document.getElementById('trailer-btn-container');
         const trailerContent = document.getElementById('trailer-content');
         const btnTrailerToggle = document.getElementById('btn-trailer-toggle');
+        const commentInputWrapper = document.getElementById('comments-input-wrapper');
+
+        // Si es invitado, ocultar input comentarios
+        if(esInvitado) {
+            commentInputWrapper.style.display = 'none';
+        } else {
+            commentInputWrapper.style.display = 'block';
+        }
 
         document.getElementById('download-title').innerText = juego.titulo;
         
@@ -1829,6 +1920,14 @@
         modal.style.display = 'flex';
     }
 
+    // FUNCION ESPECIAL CERRAR MODAL Y PARAR VIDEO
+    window.cerrarModalDownloads = () => {
+        const modal = document.getElementById('modalDownloads');
+        const trailerContent = document.getElementById('trailer-content');
+        modal.style.display = 'none';
+        trailerContent.innerHTML = ''; // Esto mata el iframe y para el video
+    };
+
     // --- ADMIN ---
     window.pegarEnInput = async (btn) => {
         try {
@@ -1867,7 +1966,7 @@
 
     document.getElementById('form-add-game').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(!esAdmin) return;
+        if(!esAdmin && !esDios) return;
         const newGame = {
             titulo: document.getElementById('new-title').value,
             imagen: document.getElementById('new-image').value,
@@ -1952,7 +2051,7 @@
     };
     
     window.abrirModalCorreo = () => {
-        if(esInvitado) return alert("Debes iniciar sesión con cuenta para contactar o pedir juegos.");
+        if(esInvitado) return alert("Invitados no pueden contactar. Crea una cuenta.");
         document.getElementById('modalCorreo').style.display='flex';
     };
     window.abrirModalDonaciones = () => document.getElementById('modalDonaciones').style.display='flex';
@@ -1995,12 +2094,6 @@
         } else list.style.display='none';
     });
 
-    window.hacermeAdmin = async () => {
-        if(usuarioActual) {
-            await updateDoc(doc(db, "usuarios", usuarioActual.uid), {rol: "admin"});
-            alert("Ahora eres Admin. Recarga la página.");
-        }
-    };
   </script>
 </body>
 </html>

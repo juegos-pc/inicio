@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zona Gamer OS</title>
+  <title>Zona Gamer</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -31,6 +31,9 @@
       display: flex; flex-direction: column; min-height: 100vh;
     }
 
+    /* CLASE PARA BLOQUEAR SCROLL DE FONDO */
+    body.no-scroll { overflow: hidden !important; }
+
     body.light {
       background: #f0f2f5; color: #333; --bg-panel: #ffffff;
     }
@@ -41,12 +44,35 @@
     ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
+    /* --- LOADING SCREEN --- */
+    #loading-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #0f0c29; z-index: 10000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        overflow: hidden;
+    }
+    .loading-text {
+        font-size: 3rem; font-weight: bold; color: var(--primary);
+        text-transform: uppercase; letter-spacing: 5px; z-index: 10;
+        text-shadow: 0 0 20px var(--primary);
+        animation: pulseText 1.5s infinite alternate;
+        background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px;
+    }
+    @keyframes pulseText { from { opacity: 0.8; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
+    
+    .floating-element {
+        position: absolute; color: rgba(255,255,255,0.15);
+        z-index: 1; font-weight: bold; user-select: none;
+    }
+
     /* --- LOGIN SCREEN --- */
     #login-screen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
         z-index: 9999;
-        display: flex; align-items: center; justify-content: center;
+        display: none; 
+        align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.5s;
     }
     .login-box {
         background: rgba(255, 255, 255, 0.05);
@@ -122,8 +148,17 @@
     #btnProfile img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
     #btnProfile:hover { border-color: var(--secondary); color: var(--secondary) !important; }
 
-    #menuClosed a { color: #888; font-size: 1.5rem; margin-top: 15px; transition: 0.3s; }
-    #menuClosed a:hover { color: var(--secondary); transform: scale(1.1); }
+    /* Alineacion iconos abajo */
+    .bottom-icons {
+        display: flex;
+        flex-direction: row; /* Uno al lado del otro */
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .bottom-icons button, .bottom-icons a {
+        background: none; border: none; cursor: pointer; font-size: 1.5rem; color: #888; transition: 0.3s;
+    }
+    .bottom-icons button:hover, .bottom-icons a:hover { color: var(--primary); transform: scale(1.1); }
 
     /* --- BARRA DE BÚSQUEDA --- */
     #buscadorExpandido {
@@ -370,8 +405,10 @@
     .game-col-left {
         padding: 30px; overflow-y: auto; border-right: 1px solid #333;
     }
+    /* SCROLL FIX RIGHT COLUMN */
     .game-col-right {
         padding: 0; display: flex; flex-direction: column; background: #181818;
+        height: 100%; overflow: hidden; /* Esto evita que el modal crezca */
     }
 
     .video-container {
@@ -418,17 +455,29 @@
     .accordion-panel a:last-child { border-bottom: none; }
 
     /* COMENTARIOS (Derecha) */
-    .comments-header { padding: 20px; border-bottom: 1px solid #333; background: #202020; }
-    .comments-list-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-    .comments-input-container { padding: 20px; background: #202020; border-top: 1px solid #333; }
+    .comments-header { padding: 20px; border-bottom: 1px solid #333; background: #202020; flex-shrink: 0; }
+    .comments-list-container { 
+        flex: 1; 
+        overflow-y: auto; /* Scroll AQUI */
+        padding: 20px; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 15px; 
+    }
+    .comments-input-container { padding: 20px; background: #202020; border-top: 1px solid #333; flex-shrink: 0; }
     
-    .comment-item { background: #2a2a2a; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 90%; position: relative; }
-    .comment-item.mine { background: #005f73; align-self: flex-end; border-radius: 10px 10px 0 10px; }
+    /* CAMBIO: width 100% */
+    .comment-item { 
+        background: #2a2a2a; padding: 10px 15px; border-radius: 10px; 
+        width: 100%; position: relative; 
+        border: 1px solid #333;
+    }
+    .comment-item.mine { border-color: #005f73; background: #1a2a30; }
     .comment-item.pinned { border: 1px solid var(--gold); background: #332b00; order: -1; }
-    .comment-item.reply { margin-left: 30px; border-left: 2px solid #444; border-radius: 5px; }
+    .comment-item.highlight-report { border: 2px solid red; box-shadow: 0 0 15px red; }
 
     .comment-meta { font-size: 0.75rem; color: #aaa; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: center; }
-    .comment-body { font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+    .comment-body { font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap; }
     
     .comment-actions {
         position: absolute; top: 5px; right: 5px; display: none; gap: 5px;
@@ -452,6 +501,12 @@
     .user-avatar { width: 25px; height: 25px; border-radius: 50%; vertical-align: middle; margin-right: 8px; object-fit: cover; }
     .pinned-icon { color: var(--gold); margin-right: 5px; font-size: 0.8rem; }
 
+    /* ROLES */
+    .role-tag { font-size: 0.7rem; padding: 1px 4px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-transform: uppercase; }
+    .role-tag.admin { background: var(--secondary); color: white; }
+    .role-tag.dios { background: var(--god-color); color: white; box-shadow: 0 0 5px var(--god-color); }
+    .role-tag.user { background: #444; color: #ccc; }
+
     /* ESTILO INSTAGRAM RESPUESTAS */
     .reply-link { 
         font-size: 0.75rem; color: #aaa; cursor: pointer; margin-top: 5px; display: inline-block; font-weight: bold; 
@@ -463,7 +518,15 @@
     }
     .toggle-replies-btn::before { content: ""; width: 20px; height: 1px; background: #666; display: block; }
     .toggle-replies-btn:hover { color: white; }
-    .replies-container { margin-top: 5px; display: none; flex-direction: column; gap: 10px; }
+    .replies-container { margin-top: 5px; display: none; flex-direction: column; gap: 10px; padding-left: 20px; border-left: 2px solid #333; }
+
+    /* BTN VER MAS COMENTARIOS */
+    .btn-load-more-comments {
+        width: 100%; padding: 10px; background: #333; color: white;
+        border: 1px dashed #555; cursor: pointer; margin-top: 10px; border-radius: 5px;
+        flex-shrink: 0;
+    }
+    .btn-load-more-comments:hover { background: #444; }
 
     /* JUEGOS SIMILARES */
     .similar-games-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #444; }
@@ -549,12 +612,12 @@
     }
     #btnSubir:hover { transform: translateY(-5px); }
 
-    /* ESTILO LISTA BANEADOS */
-    .banned-item {
+    /* ESTILO LISTA BANEADOS Y REPORTES */
+    .banned-item, .report-item {
         display: flex; flex-direction: column; gap:5px;
         padding: 10px; background: #2a2a2a; border-radius: 8px; margin-bottom: 10px; border:1px solid #444;
     }
-    .banned-header { display: flex; justify-content: space-between; align-items: center; }
+    .banned-header, .report-header { display: flex; justify-content: space-between; align-items: center; }
     .banned-email { font-weight: bold; color: #ff4444; }
     .appeal-text { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-style: italic; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px; }
     .evidence-list { font-size: 0.85rem; color: #aaa; margin-top: 5px; display: none; }
@@ -593,6 +656,18 @@
     /* REPLYING STATE */
     .replying-bar { background: #005f73; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; margin-bottom: 5px; display: none; justify-content: space-between; align-items: center; }
 
+    /* PUSH NOTIFICATION DONATION */
+    #push-donation {
+        position: fixed; top: 80px; right: 20px;
+        background: linear-gradient(135deg, var(--secondary), #ff5e62);
+        color: white; padding: 15px 25px; border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 9999;
+        font-weight: bold; cursor: pointer;
+        transform: translateX(150%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex; align-items: center; gap: 10px;
+    }
+    #push-donation.show { transform: translateX(0); }
+
     @media (max-width: 900px) {
         .modal-game-grid { grid-template-columns: 1fr; overflow-y: auto; }
         .game-col-left { border-right: none; border-bottom: 1px solid #333; overflow: visible; }
@@ -605,6 +680,14 @@
 </head>
 
 <body>
+
+  <div id="loading-screen">
+      <div class="loading-text">ZONA GAMER</div>
+      </div>
+
+  <div id="push-donation" onclick="abrirModalDonaciones()">
+      <i class="fa-solid fa-heart"></i> ¡Apóyanos con una donación!
+  </div>
 
   <div id="login-screen">
     <div class="login-box">
@@ -703,7 +786,7 @@
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
       </div>
       <div class="bottom-icons">
-          <button onclick="abrirModalDonaciones()" title="Donar / Apoyar" style="background:none; border:none; cursor:pointer; font-size:1.5rem; color:#888; transition:0.3s;"><i class="fa-solid fa-coffee"></i></button>
+          <button onclick="abrirModalDonaciones()" title="Donar"><i class="fa-solid fa-coffee"></i></button>
           <a target="_blank" href="https://www.instagram.com/pcjuegoss2025" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
       </div>
     </div>
@@ -933,12 +1016,13 @@
                     <h3 style="margin:0; color:var(--secondary);">Comentarios</h3>
                 </div>
                 <div id="comments-list" class="comments-list-container"></div>
+                <button id="btn-load-more-comments" class="btn-load-more-comments" style="display:none;">Ver más comentarios</button>
                 <div class="comments-input-container" id="comments-input-wrapper">
                     <div id="replying-to-bar" class="replying-bar">
                         <span id="reply-target-text">Respondiendo a...</span>
                         <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="cancelarRespuesta()"></i>
                     </div>
-                    <textarea id="new-comment-text" class="comment-input-box" rows="2" placeholder="Escribe un mensaje..."></textarea>
+                    <textarea id="new-comment-text" class="comment-input-box" rows="2" placeholder="Escribe un mensaje... (Shift+Enter para salto de línea)"></textarea>
                     <small id="spam-warning" style="display:block; color:#777; margin-top:5px; font-size:0.75rem;">⚠️ No se permite SPAM. Los administradores pueden banear.</small>
                     <button onclick="enviarComentario()" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
@@ -995,6 +1079,9 @@
             <button class="sidebar-btn active" id="tab-btn-banned" onclick="cambiarTabPanel('banned')">
                 <i class="fa-solid fa-ban" style="margin-right:8px;"></i> Baneados
             </button>
+            <button class="sidebar-btn" id="tab-btn-reports" onclick="cambiarTabPanel('reports')">
+                <i class="fa-solid fa-flag" style="margin-right:8px;"></i> Reportes
+            </button>
             <button class="sidebar-btn god-btn" id="tab-btn-admins" onclick="cambiarTabPanel('admins')" style="display:none;">
                 <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Gestión Admins
             </button>
@@ -1007,6 +1094,13 @@
             <div id="view-banned" style="display:block;">
                 <h2 style="color:var(--primary); margin-bottom:20px;">Usuarios Baneados</h2>
                 <div id="banned-list-container">
+                    <p style="color:#aaa;">Cargando...</p>
+                </div>
+            </div>
+
+            <div id="view-reports" style="display:none;">
+                <h2 style="color:orange; margin-bottom:20px;">Comentarios Reportados</h2>
+                <div id="reports-list-container">
                     <p style="color:#aaa;">Cargando...</p>
                 </div>
             </div>
@@ -1082,6 +1176,7 @@
     let paginaActual = 1;
     const juegosPorPagina = 24;
     let usuarioActual = null;
+    let currentUserRole = "user"; // cache local
     let esAdmin = false;
     let esDios = false; 
     let esInvitado = false;
@@ -1094,11 +1189,13 @@
     let pendingVote = 0;
     let allUsersCache = []; 
     let respondingToId = null;
+    let currentCommentLimit = 30; // PAGINACION COMENTARIOS
 
     const malasPalabras = ["tonto", "estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo"];
 
     const gameList = document.getElementById('gameList');
     const loginScreen = document.getElementById('login-screen');
+    const loadingScreen = document.getElementById('loading-screen');
     const appContent = document.getElementById('app-content');
     const btnProfile = document.getElementById('btnProfile');
     const profileDropdown = document.getElementById('profileDropdown');
@@ -1109,6 +1206,40 @@
     const genresPopup = document.getElementById('genresListPopup');
     const searchInput = document.getElementById('searchInput');
     const autocompleteList = document.getElementById('autocomplete-list');
+
+    // --- LOADING ICONS & WORDS ---
+    const iconosPosibles = ['fa-gamepad', 'fa-desktop', 'fa-ghost', 'fa-dragon', 'fa-chess-knight', 'fa-puzzle-piece', 'fa-headset', 'fa-microchip', 'fa-bolt', 'fa-fire'];
+    const palabrasRandom = ["GAME OVER", "PRESS START", "LEVEL UP", "FATALITY", "WINS", "LOADING...", "INSERT COIN"];
+    
+    // Generar iconos
+    for(let i=0; i<20; i++) {
+        const icon = document.createElement('i');
+        icon.classList.add('fa-solid', iconosPosibles[Math.floor(Math.random() * iconosPosibles.length)], 'floating-element');
+        icon.style.left = Math.random() * 100 + 'vw';
+        icon.style.top = Math.random() * 100 + 'vh';
+        icon.style.fontSize = (Math.random() * 30 + 10) + 'px';
+        // Animacion simple de rotacion
+        icon.animate([
+            { transform: `translate(0, 0) rotate(0deg)` },
+            { transform: `translate(${Math.random()*100 - 50}px, ${Math.random()*100 - 50}px) rotate(360deg)` }
+        ], {
+            duration: 3000,
+            iterations: Infinity,
+            direction: 'alternate'
+        });
+        loadingScreen.appendChild(icon);
+    }
+    // Generar palabras
+    for(let i=0; i<10; i++) {
+        const span = document.createElement('span');
+        span.innerText = palabrasRandom[Math.floor(Math.random() * palabrasRandom.length)];
+        span.classList.add('floating-element');
+        span.style.left = Math.random() * 80 + 'vw';
+        span.style.top = Math.random() * 80 + 'vh';
+        span.style.fontSize = (Math.random() * 1 + 0.5) + 'rem';
+        span.style.opacity = '0.3';
+        loadingScreen.appendChild(span);
+    }
 
     // --- HELPER FECHA ---
     function formatearFecha(fechaStr) {
@@ -1148,6 +1279,14 @@
         }
     });
 
+    // LISTENER PARA ENTER EN COMENTARIOS
+    document.getElementById('new-comment-text').addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            enviarComentario();
+        }
+    });
+
     document.getElementById('btn-guest-login').onclick = () => {
         esInvitado = true;
         usuarioActual = null;
@@ -1155,8 +1294,10 @@
         esDios = false;
         usuarioBaneado = false;
         
+        loadingScreen.style.opacity = '0';
         loginScreen.style.opacity = '0';
         setTimeout(() => {
+            loadingScreen.style.display = 'none';
             loginScreen.style.display = 'none';
             appContent.style.display = 'block';
         }, 500);
@@ -1170,67 +1311,84 @@
     };
 
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            esInvitado = false;
-            usuarioActual = user;
-            loginScreen.style.opacity = '0';
-            setTimeout(() => {
-                loginScreen.style.display = 'none';
-                appContent.style.display = 'block';
-            }, 500); 
-            document.getElementById('user-email-display').innerText = user.displayName || user.email;
-            document.getElementById('contact-user-info').innerText = `Enviando como: ${user.email}`;
-            document.getElementById('contact-email-hidden').value = user.email;
-            document.getElementById('contact-name-hidden').value = user.displayName || "Usuario";
-            
-            // PROFILE PIC
-            if(user.photoURL) {
-                document.getElementById('btnProfile').innerHTML = `<img src="${user.photoURL}" alt="P">`;
-            } else {
-                document.getElementById('btnProfile').innerHTML = `<i class="fa-solid fa-user-astronaut"></i>`;
-            }
+        // Simular carga de 3 segundos siempre al inicio si se detecta usuario
+        setTimeout(async () => {
+            if (user) {
+                esInvitado = false;
+                usuarioActual = user;
+                
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    loginScreen.style.display = 'none'; // Asegurar que login no se vea
+                    appContent.style.display = 'block';
+                    // PUSH DONACION
+                    setTimeout(() => {
+                        const push = document.getElementById('push-donation');
+                        push.classList.add('show');
+                        setTimeout(() => push.classList.remove('show'), 3000);
+                    }, 2000);
+                }, 500); 
 
-            try {
-                const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    
-                    if (data.rol === "dios") {
-                        esDios = true;
-                        esAdmin = true;
-                        document.getElementById('btnFloatingAdd').style.display = 'flex';
-                        document.getElementById('spam-warning').style.display = 'none';
-                    } else if (data.rol === "admin") {
-                        esAdmin = true;
-                        esDios = false;
-                        document.getElementById('btnFloatingAdd').style.display = 'flex';
-                        document.getElementById('spam-warning').style.display = 'none';
-                    } else {
-                        esAdmin = false;
-                        esDios = false;
-                        document.getElementById('btnFloatingAdd').style.display = 'none';
-                        document.getElementById('spam-warning').style.display = 'block';
-                    }
-
-                    if (data.baneado) {
-                        usuarioBaneado = true;
-                        document.getElementById('btnApelar').style.display = 'block';
-                        alert("Has sido baneado por mal comportamiento.");
-                    } else {
-                        usuarioBaneado = false;
-                        document.getElementById('btnApelar').style.display = 'none';
-                    }
+                document.getElementById('user-email-display').innerText = user.displayName || user.email;
+                document.getElementById('contact-user-info').innerText = `Enviando como: ${user.email}`;
+                document.getElementById('contact-email-hidden').value = user.email;
+                document.getElementById('contact-name-hidden').value = user.displayName || "Usuario";
+                
+                if(user.photoURL) {
+                    document.getElementById('btnProfile').innerHTML = `<img src="${user.photoURL}" alt="P">`;
+                } else {
+                    document.getElementById('btnProfile').innerHTML = `<i class="fa-solid fa-user-astronaut"></i>`;
                 }
-            } catch (e) {}
-            cargarJuegos();
-        } else if (!esInvitado) {
-            loginScreen.style.display = 'flex';
-            loginScreen.style.opacity = '1';
-            appContent.style.display = 'none';
-            usuarioActual = null;
-            esAdmin = false;
-            esDios = false;
-        }
+
+                try {
+                    const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        currentUserRole = data.rol || "user";
+                        
+                        if (data.rol === "dios") {
+                            esDios = true;
+                            esAdmin = true;
+                            document.getElementById('btnFloatingAdd').style.display = 'flex';
+                            document.getElementById('spam-warning').style.display = 'none';
+                        } else if (data.rol === "admin") {
+                            esAdmin = true;
+                            esDios = false;
+                            document.getElementById('btnFloatingAdd').style.display = 'flex';
+                            document.getElementById('spam-warning').style.display = 'none';
+                        } else {
+                            esAdmin = false;
+                            esDios = false;
+                            document.getElementById('btnFloatingAdd').style.display = 'none';
+                            document.getElementById('spam-warning').style.display = 'block';
+                        }
+
+                        if (data.baneado) {
+                            usuarioBaneado = true;
+                            document.getElementById('btnApelar').style.display = 'block';
+                            alert("Has sido baneado por mal comportamiento.");
+                        } else {
+                            usuarioBaneado = false;
+                            document.getElementById('btnApelar').style.display = 'none';
+                        }
+                    }
+                } catch (e) {}
+                cargarJuegos();
+            } else if (!esInvitado) {
+                // No hay usuario, ocultamos loading y mostramos login
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    loginScreen.style.display = 'flex';
+                    loginScreen.style.opacity = '1';
+                    appContent.style.display = 'none';
+                }, 500);
+                usuarioActual = null;
+                esAdmin = false;
+                esDios = false;
+            }
+        }, 3000); // 3 segundos forzados de loading
     });
 
     let modoRegistro = false;
@@ -1410,7 +1568,7 @@
             juegosFiltrados.sort((a, b) => b.titulo.localeCompare(a.titulo));
         }
 
-        paginaActual = 1;
+        // NO RESETEAR PAGINA SI NO CAMBIA CRITERIO (PARA PAGINACION CON FILTROS)
         renderizarJuegos();
     };
 
@@ -1528,7 +1686,7 @@
                 await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { 
                     baneado: false, 
                     insultos: 0, 
-                    historialInsultos: deleteField(),
+                    historialInsultos: deleteField(), 
                     apelacion: deleteField() 
                 });
                 alert("Usuario desbaneado. Historial borrado completamente.");
@@ -1647,29 +1805,42 @@
             await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
                 user: usuarioActual.displayName || "Usuario",
                 uid: usuarioActual.uid,
+                role: currentUserRole, // GUARDAMOS EL ROL AQUI
                 photo: usuarioActual.photoURL || null,
                 text: textoFinal,
                 date: new Date().toISOString(),
                 parentId: respondingToId || null,
-                anclado: false // Por defecto no anclado
+                anclado: false
             });
             document.getElementById('new-comment-text').value = "";
-            window.cancelarRespuesta();
+            
+            // NO CANCELAMOS RESPUESTA PARA QUE PUEDA SEGUIR ESCRIBIENDO SI QUIERE
+            // PERO SI FUE RESPUESTA, SE DEBE QUEDAR EN EL HILO
+            // POR UX, LO DEJAMOS ABIERTO
+            // window.cancelarRespuesta(); 
+            
             cargarComentarios(currentGameOpen.id);
         } catch(e) { console.error(e); }
     };
 
-    // --- CARGA COMENTARIOS CON LÓGICA TIPO INSTAGRAM ---
-    async function cargarComentarios(gameId) {
+    // --- CARGA COMENTARIOS CON PAGINACION DE 30 ---
+    document.getElementById('btn-load-more-comments').addEventListener('click', () => {
+        currentCommentLimit += 30;
+        cargarComentarios(currentGameOpen.id);
+    });
+
+    async function cargarComentarios(gameId, highlightId = null) {
         const list = document.getElementById('comments-list');
-        list.innerHTML = "<p style='color:#888'>Cargando...</p>";
+        const btnMore = document.getElementById('btn-load-more-comments');
+        // Si no es "ver mas", resetea
+        if(currentCommentLimit === 30) list.innerHTML = "<p style='color:#888'>Cargando...</p>";
         
         const q = query(collection(db, "juegos", gameId, "comentarios"));
         
         try {
             const snap = await getDocs(q);
             list.innerHTML = "";
-            if(snap.empty) { list.innerHTML = "<p style='color:#888; text-align:center;'>Sé el primero en comentar.</p>"; return; }
+            if(snap.empty) { list.innerHTML = "<p style='color:#888; text-align:center;'>Sé el primero en comentar.</p>"; btnMore.style.display='none'; return; }
             
             let allComments = [];
             snap.forEach(d => allComments.push({id: d.id, ...d.data()}));
@@ -1683,14 +1854,22 @@
 
             const parents = allComments.filter(c => !c.parentId);
             
-            parents.forEach(p => {
+            // PAGINACION CLIENT SIDE (SLICE)
+            const visibleParents = parents.slice(0, currentCommentLimit);
+            
+            if(parents.length > currentCommentLimit) {
+                btnMore.style.display = 'block';
+            } else {
+                btnMore.style.display = 'none';
+            }
+
+            visibleParents.forEach(p => {
                 // Render Parent
-                renderCommentItem(list, p, gameId, false);
+                renderCommentItem(list, p, gameId, false, highlightId === p.id);
                 
-                // Check replies
+                // Check replies (Respuestas no cuentan para el límite de 30)
                 const replies = allComments.filter(r => r.parentId === p.id);
                 if (replies.length > 0) {
-                    // Botón para expandir
                     const toggleBtn = document.createElement('div');
                     toggleBtn.className = "toggle-replies-btn";
                     toggleBtn.innerHTML = `<span>---- Ver ${replies.length} respuestas ----</span>`;
@@ -1698,28 +1877,46 @@
                     const repliesContainer = document.createElement('div');
                     repliesContainer.className = "replies-container";
                     
-                    // Render children inside container
-                    replies.forEach(r => renderCommentItem(repliesContainer, r, gameId, true));
+                    // Render children
+                    replies.forEach(r => renderCommentItem(repliesContainer, r, gameId, true, highlightId === r.id));
                     
+                    // Si el destacado es una respuesta, abrir automáticamente
+                    let shouldOpen = replies.some(r => r.id === highlightId);
+                    
+                    // SI ESTAMOS RESPONDIENDO A ESTE PADRE, DEJAR ABIERTO
+                    if(respondingToId === p.id) shouldOpen = true;
+
                     toggleBtn.onclick = () => {
                         const isHidden = repliesContainer.style.display === "none" || repliesContainer.style.display === "";
                         repliesContainer.style.display = isHidden ? "flex" : "none";
                         toggleBtn.innerHTML = isHidden ? `<span>---- Ocultar respuestas ----</span>` : `<span>---- Ver ${replies.length} respuestas ----</span>`;
                     };
 
+                    if(shouldOpen) {
+                        repliesContainer.style.display = "flex";
+                        toggleBtn.innerHTML = `<span>---- Ocultar respuestas ----</span>`;
+                    }
+
                     list.appendChild(toggleBtn);
                     list.appendChild(repliesContainer);
                 }
             });
 
-            list.scrollTop = list.scrollHeight;
+            // Scroll al destacado si existe
+            if(highlightId) {
+                setTimeout(() => {
+                    const el = document.getElementById(`comment-${highlightId}`);
+                    if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }, 500);
+            }
+
         } catch(e) { console.error(e); list.innerHTML = "<p>Error cargando comentarios.</p>"; }
     }
 
-    function renderCommentItem(container, c, gameId, isReply) {
+    function renderCommentItem(container, c, gameId, isReply, isHighlight) {
         const isMine = c.uid === usuarioActual?.uid;
         const div = document.createElement('div');
-        div.className = `comment-item ${isMine ? 'mine' : ''} ${c.anclado ? 'pinned' : ''} ${isReply ? 'reply' : ''}`;
+        div.className = `comment-item ${isMine ? 'mine' : ''} ${c.anclado ? 'pinned' : ''} ${isReply ? 'reply' : ''} ${isHighlight ? 'highlight-report' : ''}`;
         div.id = `comment-${c.id}`;
         
         let actions = "";
@@ -1736,12 +1933,24 @@
             actions += `<button class="btn-mini-action" onclick="anclarComentario('${gameId}', '${c.id}', ${!c.anclado})" style="background:transparent; color:${colorPin}; border:1px solid ${colorPin}; margin-left:3px;"><i class="fa-solid ${iconPin}"></i></button>`;
         }
 
+        // REPORTAR (Cualquiera logueado)
+        if (usuarioActual && !isMine) {
+            actions += `<button class="btn-mini-action" onclick="reportarComentario('${gameId}', '${c.id}', '${c.text.replace(/'/g, "\\'")}')" style="background:transparent; color:#ff4444; border:1px solid #ff4444; margin-left:3px; font-size:0.6rem;" title="Reportar"><i class="fa-solid fa-flag"></i></button>`;
+        }
+
         const avatarUrl = c.photo || "https://ui-avatars.com/api/?name=" + c.user + "&background=random";
         const pinIcon = c.anclado ? `<i class="fa-solid fa-thumbtack pinned-icon"></i>` : '';
+
+        // Role Badge
+        let roleBadge = "";
+        if (c.role === 'dios') roleBadge = `<span class="role-tag dios">DIOS</span>`;
+        else if (c.role === 'admin') roleBadge = `<span class="role-tag admin">ADMIN</span>`;
+        else roleBadge = `<span class="role-tag user">USER</span>`;
 
         // Boton Responder Texto
         let replyLink = "";
         if (usuarioActual && !isReply) {
+            // SI ES PADRE, pasamos su ID. SI YA ES HIJO (isReply), NO MOSTRAMOS RESPONDER (solo 1 nivel)
             replyLink = `<span class="reply-link" onclick="responderComentario('${c.id}', '${c.user}')">Responder</span>`;
         }
 
@@ -1752,6 +1961,7 @@
                     ${pinIcon}
                     <img src="${avatarUrl}" class="user-avatar" alt="av">
                     <span class="user-name-span" style="color:var(--primary); font-weight:bold; cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${c.user}</span>
+                    ${roleBadge}
                 </div>
                 <span>${new Date(c.date).toLocaleDateString()}</span>
             </div>
@@ -1785,12 +1995,53 @@
     window.borrarComentario = async (gameId, commentId) => {
         if(!confirm("¿Borrar comentario?")) return;
         try {
+            // 1. Delete the comment
             await deleteDoc(doc(db, "juegos", gameId, "comentarios", commentId));
+
+            // 2. Delete associated reports (Best effort)
+            try {
+                const qReports = query(collection(db, "reportes"), where("commentId", "==", commentId));
+                const snapReports = await getDocs(qReports);
+                snapReports.forEach(async (d) => {
+                    await deleteDoc(doc(db, "reportes", d.id));
+                });
+            } catch(err) {
+                console.log("No se pudieron borrar los reportes (quizás falta de permisos):", err);
+            }
+
             cargarComentarios(gameId); 
         } catch(e) { 
             console.error(e);
-            // Mensaje específico para el error de permisos
-            alert("Error al borrar: " + e.message + "\n\nNOTA: Si eres Dios y ves esto, debes editar las Reglas de Firestore en la consola de Firebase para permitir delete si request.auth.token.rol == 'dios'."); 
+            alert("Error al borrar: " + e.message); 
+        }
+    };
+
+    window.reportarComentario = async (gameId, commentId, texto) => {
+        // VERIFICAR TIEMPO (1 HORA) SOLO SI NO ES ADMIN/DIOS
+        if (!esAdmin && !esDios) {
+            const lastReport = localStorage.getItem('last_report_time');
+            if (lastReport && (Date.now() - parseInt(lastReport)) < 3600000) {
+                alert("Debes esperar 1 hora para volver a reportar.");
+                return;
+            }
+        }
+
+        if(!confirm("¿Reportar este comentario a los administradores?")) return;
+        try {
+            await addDoc(collection(db, "reportes"), {
+                gameId: gameId,
+                commentId: commentId,
+                text: texto,
+                reporter: usuarioActual.email,
+                date: new Date().toISOString()
+            });
+            alert("Reporte enviado.");
+            if (!esAdmin && !esDios) {
+                localStorage.setItem('last_report_time', Date.now().toString());
+            }
+        } catch(e) { 
+            console.error(e);
+            alert("Error al reportar: " + e.message); 
         }
     };
 
@@ -1872,6 +2123,7 @@
 
     window.cambiarTabPanel = (tab) => {
         document.getElementById('view-banned').style.display = 'none';
+        document.getElementById('view-reports').style.display = 'none';
         document.getElementById('view-admins').style.display = 'none';
         document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
 
@@ -1879,6 +2131,10 @@
             document.getElementById('view-banned').style.display = 'block';
             document.getElementById('tab-btn-banned').classList.add('active');
             cargarListaBaneados();
+        } else if (tab === 'reports') {
+            document.getElementById('view-reports').style.display = 'block';
+            document.getElementById('tab-btn-reports').classList.add('active');
+            cargarListaReportes();
         } else if (tab === 'admins') {
             document.getElementById('view-admins').style.display = 'block';
             document.getElementById('tab-btn-admins').classList.add('active');
@@ -1942,6 +2198,44 @@
                 apelacion: deleteField() 
             });
             cargarListaBaneados(); 
+        }
+    };
+
+    // --- REPORTES ---
+    async function cargarListaReportes() {
+        const list = document.getElementById('reports-list-container');
+        list.innerHTML = "Cargando...";
+        const snap = await getDocs(collection(db, "reportes"));
+        list.innerHTML = "";
+        if(snap.empty) { list.innerHTML = "No hay reportes."; return; }
+
+        snap.forEach(d => {
+            const r = d.data();
+            const div = document.createElement('div');
+            div.className = 'report-item';
+            div.innerHTML = `
+                <div class="report-header">
+                    <span style="font-weight:bold; color:orange;">Reporte</span>
+                    <button onclick="verComentarioReportado('${r.gameId}', '${r.commentId}')" style="background:var(--primary); color:black; border:none; padding:5px; border-radius:3px; cursor:pointer;">Ver Comentario</button>
+                </div>
+                <div style="font-size:0.9rem;">"${r.text}"</div>
+                <div style="font-size:0.75rem; color:#888;">Reportado por: ${r.reporter}</div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    window.verComentarioReportado = async (gameId, commentId) => {
+        document.getElementById('modalPanelUnificado').style.display = 'none';
+        const game = juegos.find(j => j.id === gameId);
+        if(game) {
+            abrirDescargas(game);
+            // Esperar a que abra y cargar comentarios resaltando
+            setTimeout(() => {
+                cargarComentarios(gameId, commentId);
+            }, 500);
+        } else {
+            alert("El juego asociado ya no existe.");
         }
     };
 
@@ -2033,7 +2327,9 @@
             return;
         }
 
+        // CAMBIO DE ROL EXPLICITO
         await updateDoc(doc(db, "usuarios", docUser.id), { rol: "admin" });
+        
         btn.innerText = "¡Ya es Admin!";
         setTimeout(() => {
             btn.innerText = "AGREGAR";
@@ -2088,6 +2384,8 @@
     // ABRIR DESCARGAS
     function abrirDescargas(juego) {
         currentGameOpen = juego;
+        currentCommentLimit = 30; // RESETEAR LIMITE
+        
         const modal = document.getElementById('modalDownloads');
         const containerLinks = document.getElementById('download-buttons-container');
         const passDisplay = document.getElementById('download-password-display');
@@ -2096,6 +2394,9 @@
         const trailerContent = document.getElementById('trailer-content');
         const btnTrailerToggle = document.getElementById('btn-trailer-toggle');
         const commentInputWrapper = document.getElementById('comments-input-wrapper');
+
+        // BLOQUEAR SCROLL FONDO
+        document.body.classList.add('no-scroll');
 
         if(esInvitado) {
             commentInputWrapper.style.display = 'none';
@@ -2190,12 +2491,13 @@
         modal.style.display = 'flex';
     }
 
-    // FUNCION ESPECIAL CERRAR MODAL Y PARAR VIDEO
+    // FUNCION ESPECIAL CERRAR MODAL Y PARAR VIDEO Y DESBLOQUEAR SCROLL
     window.cerrarModalDownloads = () => {
         const modal = document.getElementById('modalDownloads');
         const trailerContent = document.getElementById('trailer-content');
         modal.style.display = 'none';
         trailerContent.innerHTML = ''; 
+        document.body.classList.remove('no-scroll');
     };
 
     // --- ADMIN ---
@@ -2337,8 +2639,18 @@
         document.body.classList.toggle('light');
     };
 
-    document.getElementById('btnPrevPage').onclick = () => { paginaActual--; renderizarJuegos(); window.scrollTo(0,0); };
-    document.getElementById('btnNextPage').onclick = () => { paginaActual++; renderizarJuegos(); window.scrollTo(0,0); };
+    document.getElementById('btnPrevPage').onclick = () => { 
+        if(paginaActual > 1) {
+            paginaActual--; 
+            renderizarJuegos(); 
+            window.scrollTo(0,0); 
+        }
+    };
+    document.getElementById('btnNextPage').onclick = () => { 
+        paginaActual++; 
+        renderizarJuegos(); 
+        window.scrollTo(0,0); 
+    };
 
     window.toggleGameInput = () => {
         const val = document.getElementById('contact-reason').value;

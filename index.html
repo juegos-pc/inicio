@@ -17,7 +17,7 @@
         --text-light: #ffffff;
         --gold: #ffd700;
         --mp-blue: #009ee3;
-        --god-color: #9d00ff; /* Color para el modo Dios */
+        --god-color: #9d00ff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -280,12 +280,13 @@
     /* ULTIMOS AGREGADOS STYLE */
     .notif-item { 
         padding: 10px; border-bottom: 1px solid #333; cursor: pointer; transition: 0.2s;
-        border: 1px solid transparent; border-radius: 5px; margin-bottom: 5px;
+        border: 1px solid #444; border-radius: 5px; margin-bottom: 5px; background: #222;
     }
     .notif-item:hover { 
         background: rgba(0, 229, 255, 0.1); 
         border-color: var(--primary);
-        cursor: url('https://cdn.custom-cursor.com/db/8358/32/gaming-crosshair-pointer.png'), pointer; /* Cursor gamer opcional */
+        cursor: url('https://cdn.custom-cursor.com/db/8358/32/gaming-crosshair-pointer.png'), pointer;
+        transform: translateX(5px);
     }
     .notif-date { font-size: 0.75rem; color: #888; display: block; margin-top: 3px; }
 
@@ -424,9 +425,7 @@
     .comment-item { background: #2a2a2a; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 90%; position: relative; }
     .comment-item.mine { background: #005f73; align-self: flex-end; border-radius: 10px 10px 0 10px; }
     .comment-item.pinned { border: 1px solid var(--gold); background: #332b00; order: -1; }
-    
-    /* Nesting for replies */
-    .comment-item.reply { margin-left: 40px; border-left: 2px solid #444; border-radius: 0 10px 10px 0; }
+    .comment-item.reply { margin-left: 30px; border-left: 2px solid #444; border-radius: 5px; }
 
     .comment-meta { font-size: 0.75rem; color: #aaa; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: center; }
     .comment-body { font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
@@ -452,6 +451,19 @@
 
     .user-avatar { width: 25px; height: 25px; border-radius: 50%; vertical-align: middle; margin-right: 8px; object-fit: cover; }
     .pinned-icon { color: var(--gold); margin-right: 5px; font-size: 0.8rem; }
+
+    /* ESTILO INSTAGRAM RESPUESTAS */
+    .reply-link { 
+        font-size: 0.75rem; color: #aaa; cursor: pointer; margin-top: 5px; display: inline-block; font-weight: bold; 
+    }
+    .reply-link:hover { color: white; }
+    .toggle-replies-btn {
+        font-size: 0.75rem; color: #888; cursor: pointer; margin-top: 5px; margin-left: 20px;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .toggle-replies-btn::before { content: ""; width: 20px; height: 1px; background: #666; display: block; }
+    .toggle-replies-btn:hover { color: white; }
+    .replies-container { margin-top: 5px; display: none; flex-direction: column; gap: 10px; }
 
     /* JUEGOS SIMILARES */
     .similar-games-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #444; }
@@ -1081,7 +1093,7 @@
     let currentGameOpen = null; 
     let pendingVote = 0;
     let allUsersCache = []; 
-    let respondingToId = null; // ID del comentario al que respondemos
+    let respondingToId = null;
 
     const malasPalabras = ["tonto", "estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo"];
 
@@ -1185,7 +1197,7 @@
                     
                     if (data.rol === "dios") {
                         esDios = true;
-                        esAdmin = true; // Dios hereda todo
+                        esAdmin = true;
                         document.getElementById('btnFloatingAdd').style.display = 'flex';
                         document.getElementById('spam-warning').style.display = 'none';
                     } else if (data.rol === "admin") {
@@ -1297,7 +1309,7 @@
             if(e.target.id === 'modalAdmin' || e.target.id === 'modalEdit') {
                 if(confirm("¿Estás seguro? Se perderán los datos si sales.")) e.target.style.display = 'none';
             } else if (e.target.id === 'modalDownloads') {
-                window.cerrarModalDownloads(); // Usar función especial para parar tráiler
+                window.cerrarModalDownloads();
             } else {
                 e.target.style.display = 'none';
             }
@@ -1513,7 +1525,6 @@
                 const deletePromises = comentariosSnap.docs.map(doc => deleteDoc(doc.ref));
                 await Promise.all(deletePromises);
 
-                // RESET COMPLETO (NACER DE NUEVO)
                 await updateDoc(doc(db, "usuarios", usuarioSeleccionadoUid), { 
                     baneado: false, 
                     insultos: 0, 
@@ -1648,7 +1659,7 @@
         } catch(e) { console.error(e); }
     };
 
-    // --- CARGA COMENTARIOS CON LÓGICA DE RESPUESTA Y PIN ---
+    // --- CARGA COMENTARIOS CON LÓGICA TIPO INSTAGRAM ---
     async function cargarComentarios(gameId) {
         const list = document.getElementById('comments-list');
         list.innerHTML = "<p style='color:#888'>Cargando...</p>";
@@ -1660,25 +1671,45 @@
             list.innerHTML = "";
             if(snap.empty) { list.innerHTML = "<p style='color:#888; text-align:center;'>Sé el primero en comentar.</p>"; return; }
             
-            // Ordenar en JS: Anclados primero, luego fecha.
-            let comments = [];
-            snap.forEach(d => comments.push({id: d.id, ...d.data()}));
+            let allComments = [];
+            snap.forEach(d => allComments.push({id: d.id, ...d.data()}));
             
-            comments.sort((a, b) => {
+            // Ordenar: Anclados primero, luego fecha.
+            allComments.sort((a, b) => {
                 if (a.anclado && !b.anclado) return -1;
                 if (!a.anclado && b.anclado) return 1;
                 return new Date(a.date) - new Date(b.date);
             });
 
-            // Organizar padres e hijos
-            const parents = comments.filter(c => !c.parentId);
-            const replies = comments.filter(c => c.parentId);
-
+            const parents = allComments.filter(c => !c.parentId);
+            
             parents.forEach(p => {
+                // Render Parent
                 renderCommentItem(list, p, gameId, false);
-                // Render replies under parent
-                const childs = replies.filter(r => r.parentId === p.id);
-                childs.forEach(c => renderCommentItem(list, c, gameId, true));
+                
+                // Check replies
+                const replies = allComments.filter(r => r.parentId === p.id);
+                if (replies.length > 0) {
+                    // Botón para expandir
+                    const toggleBtn = document.createElement('div');
+                    toggleBtn.className = "toggle-replies-btn";
+                    toggleBtn.innerHTML = `<span>---- Ver ${replies.length} respuestas ----</span>`;
+                    
+                    const repliesContainer = document.createElement('div');
+                    repliesContainer.className = "replies-container";
+                    
+                    // Render children inside container
+                    replies.forEach(r => renderCommentItem(repliesContainer, r, gameId, true));
+                    
+                    toggleBtn.onclick = () => {
+                        const isHidden = repliesContainer.style.display === "none" || repliesContainer.style.display === "";
+                        repliesContainer.style.display = isHidden ? "flex" : "none";
+                        toggleBtn.innerHTML = isHidden ? `<span>---- Ocultar respuestas ----</span>` : `<span>---- Ver ${replies.length} respuestas ----</span>`;
+                    };
+
+                    list.appendChild(toggleBtn);
+                    list.appendChild(repliesContainer);
+                }
             });
 
             list.scrollTop = list.scrollHeight;
@@ -1692,26 +1723,27 @@
         div.id = `comment-${c.id}`;
         
         let actions = "";
-        // PERMISOS: Dios hace todo. User edita/borra suyo.
+        // PERMISOS
         if (esDios || isMine) {
             actions += `<button class="btn-mini-action" onclick="editarComentario('${gameId}', '${c.id}', '${c.text.replace(/'/g, "\\'")}')" style="background:#009ee3; margin-right:3px;"><i class="fa-solid fa-pen"></i></button>`;
             actions += `<button class="btn-mini-action" onclick="borrarComentario('${gameId}', '${c.id}')" style="background:#ff4444;"><i class="fa-solid fa-trash"></i></button>`;
         }
         
-        // ANCLAR (Solo Admin/Dios)
-        if (esAdmin || esDios) {
+        // ANCLAR (Solo Admin/Dios y no es respuesta)
+        if ((esAdmin || esDios) && !isReply) {
             const iconPin = c.anclado ? "fa-thumbtack-slash" : "fa-thumbtack";
             const colorPin = c.anclado ? "#777" : "var(--gold)";
             actions += `<button class="btn-mini-action" onclick="anclarComentario('${gameId}', '${c.id}', ${!c.anclado})" style="background:transparent; color:${colorPin}; border:1px solid ${colorPin}; margin-left:3px;"><i class="fa-solid ${iconPin}"></i></button>`;
         }
 
-        // RESPONDER (Todos logueados)
-        if (usuarioActual && !isReply) { // Solo 1 nivel de anidamiento visual simple
-             actions += `<button class="btn-mini-action" onclick="responderComentario('${c.id}', '${c.user}')" style="background:#444; margin-left:3px;"><i class="fa-solid fa-reply"></i></button>`;
-        }
-
         const avatarUrl = c.photo || "https://ui-avatars.com/api/?name=" + c.user + "&background=random";
         const pinIcon = c.anclado ? `<i class="fa-solid fa-thumbtack pinned-icon"></i>` : '';
+
+        // Boton Responder Texto
+        let replyLink = "";
+        if (usuarioActual && !isReply) {
+            replyLink = `<span class="reply-link" onclick="responderComentario('${c.id}', '${c.user}')">Responder</span>`;
+        }
 
         div.innerHTML = `
             <div class="comment-actions">${actions}</div>
@@ -1724,6 +1756,7 @@
                 <span>${new Date(c.date).toLocaleDateString()}</span>
             </div>
             <div class="comment-body" id="comment-body-${c.id}">${c.text}</div>
+            ${replyLink}
         `;
         container.appendChild(div);
     }
@@ -1752,13 +1785,12 @@
     window.borrarComentario = async (gameId, commentId) => {
         if(!confirm("¿Borrar comentario?")) return;
         try {
-            // Dios bypass rules in client logic? No, Database rules control access.
-            // Assuming rules are set up correctly for 'dios' role.
             await deleteDoc(doc(db, "juegos", gameId, "comentarios", commentId));
             cargarComentarios(gameId); 
         } catch(e) { 
             console.error(e);
-            alert("Error al borrar. Si eres Dios, verifica las Reglas de Firebase."); 
+            // Mensaje específico para el error de permisos
+            alert("Error al borrar: " + e.message + "\n\nNOTA: Si eres Dios y ves esto, debes editar las Reglas de Firestore en la consola de Firebase para permitir delete si request.auth.token.rol == 'dios'."); 
         }
     };
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zona Gamer</title>
+  <title>Zona Gamer OS - Ultimate</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -18,6 +18,9 @@
         --gold: #ffd700;
         --mp-blue: #009ee3;
         --god-color: #9d00ff;
+        /* Nuevas variables para Barras de Vida/Mana */
+        --hp-red: #ff3030;
+        --mp-blue-bar: #3060ff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,11 +41,31 @@
       background: #f0f2f5; color: #333; --bg-panel: #ffffff;
     }
 
-    /* --- SCROLLBAR --- */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #111; }
-    ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    /* --- SCROLLBAR ESTILO RPG (HP/VIDA) --- */
+    ::-webkit-scrollbar { width: 12px; }
+    ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #333; }
+    ::-webkit-scrollbar-thumb { 
+        background: linear-gradient(180deg, #8b0000, var(--hp-red), #8b0000); 
+        border: 2px solid #500000;
+        border-radius: 6px; 
+    }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ff5050, #ff0000, #ff5050); }
+
+    /* --- TOAST NOTIFICATIONS (NUEVO) --- */
+    #toast-container {
+        position: fixed; top: 20px; right: 20px; z-index: 100000;
+        display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+    }
+    .toast {
+        background: rgba(30, 30, 30, 0.95); border-left: 5px solid var(--primary);
+        color: white; padding: 15px 25px; border-radius: 5px; min-width: 250px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 10px;
+        pointer-events: auto;
+    }
+    .toast.success { border-color: #00ff00; }
+    .toast.error { border-color: #ff3333; }
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     /* --- LOADING SCREEN --- */
     #loading-screen {
@@ -160,9 +183,22 @@
     }
     .bottom-icons button:hover, .bottom-icons a:hover { color: var(--primary); transform: scale(1.1); }
 
+    /* --- CAMPANA NOTIFICACIONES SUPERIOR --- */
+    .top-notification-bell {
+        position: fixed; top: 20px; right: 20px; z-index: 1001;
+        background: rgba(30,30,30,0.8); border: 1px solid #444; border-radius: 50%;
+        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.3s; display: none; /* Se activa con JS */
+    }
+    .top-notification-bell.has-notif { 
+        display: flex; animation: swing 1s infinite; 
+        background: var(--secondary); border-color: var(--secondary); 
+    }
+    @keyframes swing { 0% { transform: rotate(0deg); } 20% { transform: rotate(15deg); } 40% { transform: rotate(-10deg); } 60% { transform: rotate(5deg); } 100% { transform: rotate(0deg); } }
+
     /* --- BARRA DE BÚSQUEDA --- */
     #buscadorExpandido {
-      position: fixed; top: 15px; left: 100px; right: 20px;
+      position: fixed; top: 15px; left: 100px; right: 80px; /* Ajustado para la campana */
       display: flex; gap: 10px; z-index: 1000;
       pointer-events: none; opacity: 0; transition: opacity 0.3s;
     }
@@ -178,6 +214,10 @@
       background: transparent; border: none; color: white;
       padding: 5px 10px; width: 180px; font-size: 1rem; outline: none;
     }
+
+    /* SLIDER DE AÑO (NUEVO) */
+    .year-slider-container { display: flex; align-items: center; gap: 5px; color: #ccc; font-size: 0.8rem; margin-left: 10px; border-left: 1px solid #444; padding-left: 10px; }
+    .year-slider-container input[type=range] { width: 100px; accent-color: var(--primary); }
 
     .sort-select {
         background: #252525; color: #ccc; border: 1px solid #555;
@@ -280,6 +320,7 @@
         color: var(--gold); font-weight: bold; font-size: 0.85rem;
         display: flex; align-items: center; gap: 5px;
     }
+    .view-count-icon { font-size: 0.75rem; color: #ddd; margin-left: 8px; display: flex; align-items: center; gap: 4px; }
 
     #btnFloatingAdd {
         display: none; position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
@@ -338,20 +379,23 @@
     }
     #contextMenu button:hover { background: var(--primary); color: black; }
 
-    /* --- MODALES --- */
+    /* --- MODALES CON GLASSMORPHISM MEJORADO --- */
     .modal {
       display: none; position: fixed; z-index: 2000; left: 0; top: 0;
       width: 100%; height: 100%; overflow: auto;
-      background-color: rgba(0, 0, 0, 0.9); backdrop-filter: blur(5px);
+      background-color: rgba(0, 0, 0, 0.6); /* Fondo menos opaco para notar el blur */
+      backdrop-filter: blur(15px); /* Efecto vidrio */
       align-items: center; justify-content: center;
     }
     .modal-content-wide {
-      background-color: #1e1e1e; margin: 5vh auto; padding: 40px;
+      background-color: rgba(30, 30, 30, 0.85); /* Semi transparente */
+      margin: 5vh auto; padding: 40px;
       border-radius: 20px; width: 90%; max-width: 1000px;
-      color: #fff; position: relative; border: 1px solid #333;
+      color: #fff; position: relative; border: 1px solid rgba(255,255,255,0.1);
       box-shadow: 0 0 50px rgba(0, 229, 255, 0.15);
       animation: zoomIn 0.3s ease;
       display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+      backdrop-filter: blur(10px);
     }
     @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 
@@ -392,7 +436,7 @@
 
     /* --- MODAL GAME DETAILS --- */
     .modal-game-details {
-        background-color: #1e1e1e; margin: 3vh auto; padding: 0;
+        background-color: rgba(30, 30, 30, 0.95); margin: 3vh auto; padding: 0;
         border-radius: 20px; width: 90%; max-width: 1400px; height: 90vh;
         color: #fff; position: relative; border: 1px solid #333;
         box-shadow: 0 0 50px rgba(0,0,0,0.7);
@@ -489,6 +533,11 @@
     }
     .btn-mini-action:hover { background: white; color: black; }
 
+    /* Reacciones Comentarios */
+    .comment-reactions { margin-top: 5px; display: flex; gap: 10px; }
+    .reaction-btn { background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 15px; padding: 2px 8px; font-size: 0.8rem; cursor: pointer; color: #aaa; transition: 0.2s; }
+    .reaction-btn:hover, .reaction-btn.active { background: var(--primary); color: black; border-color: var(--primary); }
+
     .comment-input-box {
         width: 100%; background: #111; border: 1px solid #444; color: white;
         padding: 12px; border-radius: 20px; resize: none; outline: none;
@@ -506,6 +555,20 @@
     .role-tag.admin { background: var(--secondary); color: white; }
     .role-tag.dios { background: var(--god-color); color: white; box-shadow: 0 0 5px var(--god-color); }
     .role-tag.user { background: #444; color: #ccc; }
+
+    /* BADGES / MEDALLAS CSS */
+    .badge-icon { display: inline-block; width: 18px; height: 18px; border-radius: 50%; margin-left: 5px; vertical-align: middle; box-shadow: 0 0 5px rgba(255,255,255,0.3); text-align: center; font-size: 0.7rem; line-height: 18px; font-weight: bold; color:black; cursor: help;}
+    .badge-yellow { background: yellow; border: 1px solid gold; box-shadow: 0 0 5px yellow; }
+    .badge-orange { background: orange; border: 1px solid darkorange; box-shadow: 0 0 5px orange; }
+    .badge-red { background: red; border: 1px solid darkred; box-shadow: 0 0 5px red; color: white; }
+    .badge-purple { background: purple; border: 1px solid indigo; box-shadow: 0 0 5px purple; color: white; }
+
+    /* Personalizacion Perfil Grid */
+    .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 10px; }
+    .badge-card { background: #333; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; border: 2px solid transparent; opacity: 0.5; }
+    .badge-card.unlocked { opacity: 1; border-color: #555; }
+    .badge-card.equipped { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); }
+    .badge-card i { font-size: 2rem; margin-bottom: 5px; }
 
     /* ESTILO INSTAGRAM RESPUESTAS */
     .reply-link { 
@@ -568,6 +631,11 @@
         box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
     .contact-label { display: block; margin-bottom: 5px; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
+
+    /* MURO DE PETICIONES CSS */
+    .request-item { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+    .vote-btn { background: #333; color: white; border: 1px solid #555; padding: 5px 15px; border-radius: 20px; cursor: pointer; display: flex; gap: 5px; align-items: center; }
+    .vote-btn.voted { background: var(--primary); color: black; border-color: var(--primary); }
 
     /* --- ESTILOS DONACIONES --- */
     .donation-grid {
@@ -681,9 +749,15 @@
 
 <body>
 
+  <div id="toast-container"></div>
+
   <div id="loading-screen">
       <div class="loading-text">ZONA GAMER</div>
-      </div>
+  </div>
+
+  <div id="top-notif-bell" class="top-notification-bell" onclick="verNotificacionesPanel()">
+      <i class="fa-solid fa-bell" style="color:white;"></i>
+  </div>
 
   <div id="push-donation" onclick="abrirModalDonaciones()">
       <i class="fa-solid fa-heart"></i> ¡Apóyanos con una donación! 
@@ -694,7 +768,7 @@
   <div id="login-screen">
     <div class="login-box">
       <h1>Zona Gamer OS</h1>
-      <p>inicia sesion o crea cuenta para poder descargar</p>
+      <p>inicia sesion o crea cuenta para desbloquear logros y descargas</p>
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
       </button>
@@ -719,6 +793,12 @@
         <div class="search-bar-container">
             <i class="fa-solid fa-magnifying-glass" style="color: #888;"></i>
             <input type="text" id="searchInput" placeholder="Buscar título..." autocomplete="off" />
+            
+            <div class="year-slider-container">
+                <span>Año: <span id="year-disp">Todos</span></span>
+                <input type="range" id="yearSlider" min="1990" max="2025" step="1" value="2025" oninput="actualizarSliderAnio(this.value)" onchange="aplicarFiltrosGlobales()">
+            </div>
+
             <div id="autocomplete-list"></div>
 
             <div class="genres-dropdown-container">
@@ -744,10 +824,10 @@
             </div>
             
             <select id="sortSelect" class="sort-select" onchange="aplicarFiltrosGlobales()">
+                <option value="date_release_old">Lanzamiento (Antiguos)</option>
+                <option value="date_release_new">Lanzamiento (Nuevos)</option>
                 <option value="date_new">Agregado (Recientes)</option>
                 <option value="date_old">Agregado (Antiguos)</option>
-                <option value="date_release_new">Lanzamiento (Nuevos)</option>
-                <option value="date_release_old">Lanzamiento (Viejos)</option>
                 <option value="alpha_az">Nombre (A-Z)</option>
                 <option value="alpha_za">Nombre (Z-A)</option>
                 <option value="rating">Mayor Puntaje</option>
@@ -768,7 +848,14 @@
         <div class="profile-container">
             <button id="btnProfile" title="Mi Perfil" onclick="toggleMenu(this, 'profileDropdown')"></button>
             <div class="profile-dropdown" id="profileDropdown">
-                <p id="user-email-display">Cargando...</p>
+                <p id="user-email-display" style="font-weight:bold; color:var(--primary); margin-bottom:5px;">Cargando...</p>
+                
+                <div id="mini-xp-bar" style="height:4px; background:#333; margin-bottom:10px; border-radius:2px; width:100%;">
+                    <div id="xp-fill" style="height:100%; width:0%; background:var(--gold); border-radius:2px;"></div>
+                </div>
+
+                <button onclick="abrirModalPersonalizar()"><i class="fa-solid fa-user-gear"></i> Personalizar Insignias</button>
+                <button id="btnAdminTools" style="display:none;" onclick="abrirPanelAdmin()"><i class="fa-solid fa-screwdriver-wrench"></i> Admin Panel</button>
                 <button id="btnApelar" onclick="abrirModalApelacion()" style="display:none; color: orange !important; font-weight:bold;">⛔ Apelar Ban</button>
                 <button id="btnLogout" style="color: #ff4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
             </div>
@@ -777,6 +864,8 @@
         <button id="btnFavs" onclick="toggleMostrarFavoritos(this)" title="Mis Favoritos"><i class="fa-solid fa-heart"></i></button>
         <button id="btnLupa" onclick="toggleBuscador(this)" title="Buscar Juegos"><i class="fa-solid fa-search"></i></button>
         <button onclick="abrirJuegoAleatorio()" title="Juego Aleatorio 🎲"><i class="fa-solid fa-dice"></i></button>
+        <button onclick="abrirMuroPeticiones()" title="Muro de Peticiones"><i class="fa-solid fa-bullhorn"></i></button>
+        
         <div class="notif-container">
             <button id="btnNotif" title="Últimos Agregados" onclick="toggleMenu(this, 'notifDropdown'); cargarNotificaciones();"><i class="fa-solid fa-bell"></i></button>
             <div class="notif-dropdown" id="notifDropdown">
@@ -788,7 +877,6 @@
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
       </div>
       <div class="bottom-icons">
-          
           <a target="_blank" href="https://www.instagram.com/pcjuegoss2025" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
       </div>
     </div>
@@ -810,7 +898,7 @@
   <div id="contextMenu">
       <div id="ctx-game-actions" style="display:none;">
           <button onclick="accionContexto('editar')"><i class="fa-solid fa-pen"></i> Editar</button>
-          <button onclick="accionContexto('borrar')" style="color:#ff4444;"><i class="fa-solid fa-trash"></i> Borrar</button>
+          <button onclick="accionContexto('borrar')" style="color:#ff4444;"><i class="fa-solid fa-trash"></i> Mover a Papelera (30 días)</button>
       </div>
       <div id="ctx-global-actions" style="display:none;">
           <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar Nuevo Juego</button>
@@ -1003,7 +1091,12 @@
                     </div>
                 </div>
 
-                <h3 style="color:white; border-bottom:1px solid #444; padding-bottom:10px;">Descargas</h3>
+                <h3 style="color:white; border-bottom:1px solid #444; padding-bottom:10px; margin-top:20px; display:flex; justify-content:space-between;">
+                    Descargas 
+                    <button onclick="copiarTodosLinks()" style="font-size:0.8rem; background:#333; color:white; border:1px solid #555; border-radius:5px; padding:2px 8px; cursor:pointer;">
+                        <i class="fa-solid fa-copy"></i> Copiar Todo
+                    </button>
+                </h3>
                 <div id="download-password-display" style="margin-bottom: 15px; color: #ccc; font-size: 0.9rem;"></div>
                 <div id="download-buttons-container" class="accordion-container"></div>
 
@@ -1031,6 +1124,41 @@
             </div>
         </div>
     </div>
+  </div>
+
+  <div id="modalPersonalizar" class="modal">
+      <div class="modal-content-small">
+          <span class="close" onclick="document.getElementById('modalPersonalizar').style.display='none'">&times;</span>
+          <h2 style="color:var(--primary);">Mi Perfil Gamer</h2>
+          <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+              <div id="profile-xp-circle" style="width:60px; height:60px; border-radius:50%; border:3px solid var(--gold); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.5rem; color:var(--gold);">1</div>
+              <div>
+                  <div style="font-weight:bold;">Nivel Actual</div>
+                  <div style="font-size:0.8rem; color:#aaa;">Juegos Visitados: <span id="visited-count">0</span></div>
+              </div>
+          </div>
+          <h3 style="border-bottom:1px solid #444; padding-bottom:5px;">Mis Insignias (Elige 3)</h3>
+          <div class="badge-grid" id="user-badges-grid"></div>
+          
+          <div id="admin-badge-controls" style="display:none; margin-top:20px; border-top:1px solid #444; padding-top:10px;">
+              <h4 style="color:var(--god-color);">Control Dios</h4>
+              <button onclick="addXpManual()" style="background:#333; color:white; border:1px solid #555; cursor:pointer; padding:5px;">+100 Juegos Visitados (Simular)</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="modalPeticiones" class="modal">
+      <div class="modal-content-wide">
+          <span class="close" onclick="document.getElementById('modalPeticiones').style.display='none'">&times;</span>
+          <div class="modal-header"><h2>Muro de Peticiones</h2><p style="color:#aaa;">Vota por los juegos que quieres que subamos.</p></div>
+          <div style="grid-column: 1 / -1;">
+              <div style="display:flex; gap:10px; margin-bottom:20px;">
+                  <input type="text" id="req-game-input" placeholder="Nombre del juego..." style="flex:1; padding:10px; border-radius:5px; border:1px solid #444; background:#111; color:white;">
+                  <button onclick="crearPeticion()" style="background:var(--primary); color:black; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">Pedir</button>
+              </div>
+              <div id="requests-list" style="max-height:400px; overflow-y:auto; padding-right:10px;"></div>
+          </div>
+      </div>
   </div>
 
   <div id="modalCorreo" class="modal">
@@ -1178,6 +1306,7 @@
     let paginaActual = 1;
     const juegosPorPagina = 24;
     let usuarioActual = null;
+    let userData = null; // Datos extendidos (badges)
     let currentUserRole = "user"; // cache local
     let esAdmin = false;
     let esDios = false; 
@@ -1192,6 +1321,16 @@
     let allUsersCache = []; 
     let respondingToId = null;
     let currentCommentLimit = 30; // PAGINACION COMENTARIOS
+
+    // NIVELES DE INSIGNIAS
+    const BADGE_LEVELS = [
+        { count: 10, color: '#cd7f32', name: 'Novato' }, // Bronce
+        { count: 50, color: '#c0c0c0', name: 'Casual' }, // Plata
+        { count: 100, color: 'yellow', name: 'Explorador' }, // Oro
+        { count: 250, color: 'orange', name: 'Veterano' },
+        { count: 500, color: 'red', name: 'Maestro' },
+        { count: 1000, color: 'purple', name: 'Leyenda' }
+    ];
 
     const malasPalabras = ["tonto", "estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo"];
 
@@ -1208,6 +1347,16 @@
     const genresPopup = document.getElementById('genresListPopup');
     const searchInput = document.getElementById('searchInput');
     const autocompleteList = document.getElementById('autocomplete-list');
+
+    // --- TOAST NOTIFICATIONS ---
+    window.showToast = (msg, type = 'info') => {
+        const container = document.getElementById('toast-container');
+        const div = document.createElement('div');
+        div.className = `toast ${type}`;
+        div.innerHTML = type === 'success' ? `<i class="fa-solid fa-check-circle"></i> ${msg}` : `<i class="fa-solid fa-info-circle"></i> ${msg}`;
+        container.appendChild(div);
+        setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(), 300); }, 3000);
+    };
 
     // --- LOADING ICONS & WORDS ---
     const iconosPosibles = ['fa-gamepad', 'fa-desktop', 'fa-ghost', 'fa-dragon', 'fa-chess-knight', 'fa-puzzle-piece', 'fa-headset', 'fa-microchip', 'fa-bolt', 'fa-fire'];
@@ -1271,6 +1420,11 @@
     }
 
     document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.body.classList.remove('no-scroll'); }
+        if (e.key === "/" && !document.querySelector('input:focus')) { e.preventDefault(); document.getElementById('searchInput').focus(); }
+        if (e.key === "ArrowRight" && !document.getElementById('btnNextPage').disabled) document.getElementById('btnNextPage').click();
+        if (e.key === "ArrowLeft" && !document.getElementById('btnPrevPage').disabled) document.getElementById('btnPrevPage').click();
+        
         if(e.altKey) {
             if(e.key.toLowerCase() === 'n') {
                 if(esAdmin || esDios) window.abrirModalAgregar();
@@ -1313,7 +1467,6 @@
     };
 
     onAuthStateChanged(auth, async (user) => {
-        // Simular carga de 3 segundos siempre al inicio si se detecta usuario
         setTimeout(async () => {
             if (user) {
                 esInvitado = false;
@@ -1322,9 +1475,8 @@
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
-                    loginScreen.style.display = 'none'; // Asegurar que login no se vea
+                    loginScreen.style.display = 'none'; 
                     appContent.style.display = 'block';
-                    // PUSH DONACION
                     setTimeout(() => {
                         const push = document.getElementById('push-donation');
                         push.classList.add('show');
@@ -1347,21 +1499,20 @@
                     const userDoc = await getDoc(doc(db, "usuarios", user.uid));
                     if (userDoc.exists()) {
                         const data = userDoc.data();
+                        userData = data; // Guardamos datos completos (badges, etc)
                         currentUserRole = data.rol || "user";
                         
                         if (data.rol === "dios") {
-                            esDios = true;
-                            esAdmin = true;
+                            esDios = true; esAdmin = true;
                             document.getElementById('btnFloatingAdd').style.display = 'flex';
+                            document.getElementById('btnAdminTools').style.display = 'block';
                             document.getElementById('spam-warning').style.display = 'none';
                         } else if (data.rol === "admin") {
-                            esAdmin = true;
-                            esDios = false;
+                            esAdmin = true; esDios = false;
                             document.getElementById('btnFloatingAdd').style.display = 'flex';
                             document.getElementById('spam-warning').style.display = 'none';
                         } else {
-                            esAdmin = false;
-                            esDios = false;
+                            esAdmin = false; esDios = false;
                             document.getElementById('btnFloatingAdd').style.display = 'none';
                             document.getElementById('spam-warning').style.display = 'block';
                         }
@@ -1369,16 +1520,24 @@
                         if (data.baneado) {
                             usuarioBaneado = true;
                             document.getElementById('btnApelar').style.display = 'block';
-                            alert("Has sido baneado por mal comportamiento.");
+                            showToast("Has sido baneado por mal comportamiento.", "error");
                         } else {
                             usuarioBaneado = false;
                             document.getElementById('btnApelar').style.display = 'none';
                         }
+
+                        // Inicializar datos si faltan
+                        if(!userData.visitedGames) await updateDoc(doc(db, "usuarios", user.uid), { visitedGames: 0, badges: [] });
+                        checkAchievements(); // Chequear medallas al login
+
+                    } else {
+                        // Crear perfil inicial
+                        await setDoc(doc(db, "usuarios", user.uid), { email: user.email, rol: "user", insultos: 0, baneado: false, visitedGames: 0, badges: [] });
+                        userData = { visitedGames: 0, badges: [] };
                     }
                 } catch (e) {}
                 cargarJuegos();
             } else if (!esInvitado) {
-                // No hay usuario, ocultamos loading y mostramos login
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
@@ -1390,7 +1549,7 @@
                 esAdmin = false;
                 esDios = false;
             }
-        }, 3000); // 3 segundos forzados de loading
+        }, 3000); 
     });
 
     let modoRegistro = false;
@@ -1401,12 +1560,12 @@
         try {
             if(modoRegistro) {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "usuarios", cred.user.uid), { email, rol: "user", insultos: 0, baneado: false });
-                alert("¡Bienvenido! Cuenta creada.");
+                await setDoc(doc(db, "usuarios", cred.user.uid), { email, rol: "user", insultos: 0, baneado: false, visitedGames: 0, badges: [] });
+                showToast("¡Bienvenido! Cuenta creada.", "success");
             } else {
                 await signInWithEmailAndPassword(auth, email, pass);
             }
-        } catch(e) { alert(e.message); }
+        } catch(e) { showToast(e.message, 'error'); }
     });
 
     document.getElementById('toggle-auth').onclick = () => {
@@ -1420,16 +1579,12 @@
             const res = await signInWithPopup(auth, googleProvider);
             const ref = doc(db, "usuarios", res.user.uid);
             const snap = await getDoc(ref);
-            if(!snap.exists()) await setDoc(ref, { email: res.user.email, rol: "user", insultos: 0, baneado: false });
+            if(!snap.exists()) await setDoc(ref, { email: res.user.email, rol: "user", insultos: 0, baneado: false, visitedGames: 0, badges: [] });
         } catch(e) { console.error(e); }
     };
 
     document.getElementById('btnLogout').onclick = () => {
-        if(esInvitado) {
-            window.location.reload(); 
-        } else {
-            signOut(auth);
-        }
+        if(esInvitado) window.location.reload(); else signOut(auth);
     };
 
     window.toggleMenu = (btn, id) => {
@@ -1502,6 +1657,11 @@
 
     document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', () => window.aplicarFiltrosGlobales()));
     
+    // SLIDER DE AÑO UI
+    window.actualizarSliderAnio = (val) => {
+        document.getElementById('year-disp').innerText = val == 2025 ? "Todos" : `<= ${val}`;
+    }
+
     searchInput.addEventListener('input', function() {
         const val = normalizarTexto(this.value);
         window.aplicarFiltrosGlobales();
@@ -1541,6 +1701,7 @@
         const texto = normalizarTexto(document.getElementById('searchInput').value);
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
         const sortMode = document.getElementById('sortSelect').value;
+        const maxYear = document.getElementById('yearSlider').value;
 
         juegosFiltrados = juegos.filter(j => {
             const matchText = normalizarTexto(j.titulo).includes(texto);
@@ -1551,7 +1712,15 @@
                 const gameGenres = (j.generos || []).map(g => g.toLowerCase());
                 matchGenres = selectedGenres.every(sel => gameGenres.includes(sel));
             }
-            return matchText && matchReq && matchGenres;
+            
+            // Filtro Año
+            let matchYear = true;
+            if(maxYear != 2025) {
+                const y = new Date(j.fechaSalida || 0).getFullYear();
+                matchYear = y <= maxYear;
+            }
+
+            return matchText && matchReq && matchGenres && matchYear;
         });
 
         if (sortMode === 'rating') {
@@ -1570,15 +1739,21 @@
             juegosFiltrados.sort((a, b) => b.titulo.localeCompare(a.titulo));
         }
 
-        // NO RESETEAR PAGINA SI NO CAMBIA CRITERIO (PARA PAGINACION CON FILTROS)
         renderizarJuegos();
     };
 
     async function cargarJuegos() {
         const snap = await getDocs(collection(db, "juegos"));
         juegos = [];
-        snap.forEach(d => juegos.push({id: d.id, ...d.data()}));
-        juegos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+        snap.forEach(d => {
+            const data = d.data();
+            // PAPELERA: Si tiene softDeleted, no mostrar
+            if(!data.softDeleted) juegos.push({id: d.id, ...data});
+        });
+        
+        // Esto ordena del más NUEVO al más VIEJO (Descendente)
+juegos.sort((a,b) => new Date(b.fechaSalida || b.fecha) - new Date(a.fechaSalida || a.fecha));
+        
         juegosFiltrados = [...juegos];
         renderizarJuegos();
     }
@@ -1610,6 +1785,7 @@
             const heartClass = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
             const rating = getAvgRating(juego);
             const fechaFormateada = formatearFecha(juego.fechaSalida || juego.fecha);
+            const views = juego.views || 0;
 
             card.onclick = (e) => { if(!e.target.closest('.heart')) abrirDescargas(juego); };
             
@@ -1629,7 +1805,12 @@
                 }
             };
 
-            let ratingHtml = rating > 0 ? `<div class="card-rating"><i class="fa-solid fa-star"></i> ${rating}</div>` : '';
+            let ratingHtml = rating > 0 ? 
+                `<div class="card-rating">
+                    <i class="fa-solid fa-star"></i> ${rating}
+                    <div class="view-count-icon"><i class="fa-solid fa-eye"></i> ${views}</div>
+                 </div>` 
+                : `<div class="card-rating"><div class="view-count-icon" style="margin-left:0"><i class="fa-solid fa-eye"></i> ${views}</div></div>`;
 
             card.innerHTML = `
                 <img src="${juego.imagen}" alt="${juego.titulo}" onerror="this.src='https://via.placeholder.com/220x320?text=Sin+Imagen'">
@@ -1657,8 +1838,13 @@
         contextMenu.style.display = 'none';
         if(accion === 'editar') window.abrirEditar(juegoSeleccionadoId);
         else if(accion === 'borrar') {
-            if(confirm("¿Seguro que quieres borrar este juego?")) {
-                try { await deleteDoc(doc(db, "juegos", juegoSeleccionadoId)); cargarJuegos(); } catch(e) { alert("Error"); }
+            if(confirm("¿Mover a papelera? (Se borrará en 30 días)")) {
+                // SOFT DELETE
+                try { 
+                    await updateDoc(doc(db, "juegos", juegoSeleccionadoId), { softDeleted: true, deletedAt: new Date().toISOString() }); 
+                    showToast("Juego movido a papelera", "success");
+                    cargarJuegos(); 
+                } catch(e) { alert("Error"); }
             }
         }
     };
@@ -1803,23 +1989,23 @@
         // CENSURA AUTOMÁTICA
         const textoFinal = censurarTexto(text);
 
+        // OBTENER INSIGNIAS EQUIPADAS
+        const myBadgesFull = (userData.equippedBadges || []).map(name => BADGE_LEVELS.find(b => b.name === name));
+
         try {
             await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
                 user: usuarioActual.displayName || "Usuario",
                 uid: usuarioActual.uid,
-                role: currentUserRole, // GUARDAMOS EL ROL AQUI
+                role: currentUserRole, 
                 photo: usuarioActual.photoURL || null,
                 text: textoFinal,
                 date: new Date().toISOString(),
                 parentId: respondingToId || null,
-                anclado: false
+                anclado: false,
+                userBadges: myBadgesFull, // Guardar medallas
+                reactions: {}
             });
             document.getElementById('new-comment-text').value = "";
-            
-            // NO CANCELAMOS RESPUESTA PARA QUE PUEDA SEGUIR ESCRIBIENDO SI QUIERE
-            // PERO SI FUE RESPUESTA, SE DEBE QUEDAR EN EL HILO
-            // POR UX, LO DEJAMOS ABIERTO
-            // window.cancelarRespuesta(); 
             
             cargarComentarios(currentGameOpen.id);
         } catch(e) { console.error(e); }
@@ -1834,7 +2020,6 @@
     async function cargarComentarios(gameId, highlightId = null) {
         const list = document.getElementById('comments-list');
         const btnMore = document.getElementById('btn-load-more-comments');
-        // Si no es "ver mas", resetea
         if(currentCommentLimit === 30) list.innerHTML = "<p style='color:#888'>Cargando...</p>";
         
         const q = query(collection(db, "juegos", gameId, "comentarios"));
@@ -1847,7 +2032,6 @@
             let allComments = [];
             snap.forEach(d => allComments.push({id: d.id, ...d.data()}));
             
-            // Ordenar: Anclados primero, luego fecha.
             allComments.sort((a, b) => {
                 if (a.anclado && !b.anclado) return -1;
                 if (!a.anclado && b.anclado) return 1;
@@ -1856,7 +2040,6 @@
 
             const parents = allComments.filter(c => !c.parentId);
             
-            // PAGINACION CLIENT SIDE (SLICE)
             const visibleParents = parents.slice(0, currentCommentLimit);
             
             if(parents.length > currentCommentLimit) {
@@ -1866,10 +2049,8 @@
             }
 
             visibleParents.forEach(p => {
-                // Render Parent
                 renderCommentItem(list, p, gameId, false, highlightId === p.id);
                 
-                // Check replies (Respuestas no cuentan para el límite de 30)
                 const replies = allComments.filter(r => r.parentId === p.id);
                 if (replies.length > 0) {
                     const toggleBtn = document.createElement('div');
@@ -1879,13 +2060,9 @@
                     const repliesContainer = document.createElement('div');
                     repliesContainer.className = "replies-container";
                     
-                    // Render children
                     replies.forEach(r => renderCommentItem(repliesContainer, r, gameId, true, highlightId === r.id));
                     
-                    // Si el destacado es una respuesta, abrir automáticamente
                     let shouldOpen = replies.some(r => r.id === highlightId);
-                    
-                    // SI ESTAMOS RESPONDIENDO A ESTE PADRE, DEJAR ABIERTO
                     if(respondingToId === p.id) shouldOpen = true;
 
                     toggleBtn.onclick = () => {
@@ -1904,7 +2081,6 @@
                 }
             });
 
-            // Scroll al destacado si existe
             if(highlightId) {
                 setTimeout(() => {
                     const el = document.getElementById(`comment-${highlightId}`);
@@ -1922,20 +2098,17 @@
         div.id = `comment-${c.id}`;
         
         let actions = "";
-        // PERMISOS
         if (esDios || isMine) {
             actions += `<button class="btn-mini-action" onclick="editarComentario('${gameId}', '${c.id}', '${c.text.replace(/'/g, "\\'")}')" style="background:#009ee3; margin-right:3px;"><i class="fa-solid fa-pen"></i></button>`;
             actions += `<button class="btn-mini-action" onclick="borrarComentario('${gameId}', '${c.id}')" style="background:#ff4444;"><i class="fa-solid fa-trash"></i></button>`;
         }
         
-        // ANCLAR (Solo Admin/Dios y no es respuesta)
         if ((esAdmin || esDios) && !isReply) {
             const iconPin = c.anclado ? "fa-thumbtack-slash" : "fa-thumbtack";
             const colorPin = c.anclado ? "#777" : "var(--gold)";
             actions += `<button class="btn-mini-action" onclick="anclarComentario('${gameId}', '${c.id}', ${!c.anclado})" style="background:transparent; color:${colorPin}; border:1px solid ${colorPin}; margin-left:3px;"><i class="fa-solid ${iconPin}"></i></button>`;
         }
 
-        // REPORTAR (Cualquiera logueado)
         if (usuarioActual && !isMine) {
             actions += `<button class="btn-mini-action" onclick="reportarComentario('${gameId}', '${c.id}', '${c.text.replace(/'/g, "\\'")}')" style="background:transparent; color:#ff4444; border:1px solid #ff4444; margin-left:3px; font-size:0.6rem;" title="Reportar"><i class="fa-solid fa-flag"></i></button>`;
         }
@@ -1943,16 +2116,24 @@
         const avatarUrl = c.photo || "https://ui-avatars.com/api/?name=" + c.user + "&background=random";
         const pinIcon = c.anclado ? `<i class="fa-solid fa-thumbtack pinned-icon"></i>` : '';
 
-        // Role Badge
         let roleBadge = "";
         if (c.role === 'dios') roleBadge = `<span class="role-tag dios">DIOS</span>`;
         else if (c.role === 'admin') roleBadge = `<span class="role-tag admin">ADMIN</span>`;
         else roleBadge = `<span class="role-tag user">USER</span>`;
 
-        // Boton Responder Texto
+        // BADGES DISPLAY
+        let badgesHtml = "";
+        if(c.userBadges) {
+            c.userBadges.forEach(b => {
+                badgesHtml += `<span class="badge-icon" style="background:${b.color}; border-color:${b.color === 'yellow' ? 'gold' : b.color}; color:${['yellow','orange'].includes(b.color)?'black':'white'}">★</span>`;
+            });
+        }
+
+        // REACTIONS
+        const isLiked = (c.reactions || {})[usuarioActual?.uid] === 'like';
+
         let replyLink = "";
         if (usuarioActual && !isReply) {
-            // SI ES PADRE, pasamos su ID. SI YA ES HIJO (isReply), NO MOSTRAMOS RESPONDER (solo 1 nivel)
             replyLink = `<span class="reply-link" onclick="responderComentario('${c.id}', '${c.user}')">Responder</span>`;
         }
 
@@ -1964,16 +2145,29 @@
                     <img src="${avatarUrl}" class="user-avatar" alt="av">
                     <span class="user-name-span" style="color:var(--primary); font-weight:bold; cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${c.user}</span>
                     ${roleBadge}
+                    ${badgesHtml}
                 </div>
                 <span>${new Date(c.date).toLocaleDateString()}</span>
             </div>
             <div class="comment-body" id="comment-body-${c.id}">${c.text}</div>
+            <div class="comment-reactions">
+                <button class="reaction-btn ${isLiked?'active':''}" onclick="reactToComment('${gameId}', '${c.id}', 'like')"><i class="fa-solid fa-thumbs-up"></i></button>
+                <button class="reaction-btn" onclick="reactToComment('${gameId}', '${c.id}', 'mushroom')">🍄</button>
+                <button class="reaction-btn" onclick="reactToComment('${gameId}', '${c.id}', 'sword')">⚔️</button>
+            </div>
             ${replyLink}
         `;
         container.appendChild(div);
     }
 
-    // --- FUNCIONES COMENTARIOS EXTRA ---
+    // --- REACCIONES LOGICA ---
+    window.reactToComment = async (gId, cId, type) => {
+        if(!usuarioActual) return showToast("Login requerido", "error");
+        const ref = doc(db, "juegos", gId, "comentarios", cId);
+        await updateDoc(ref, { [`reactions.${usuarioActual.uid}`]: type });
+        cargarComentarios(gId);
+    };
+
     window.responderComentario = (id, user) => {
         if(esInvitado) return alert("Invitado no puede responder.");
         respondingToId = id;
@@ -1997,20 +2191,7 @@
     window.borrarComentario = async (gameId, commentId) => {
         if(!confirm("¿Borrar comentario?")) return;
         try {
-            // 1. Delete the comment
             await deleteDoc(doc(db, "juegos", gameId, "comentarios", commentId));
-
-            // 2. Delete associated reports (Best effort)
-            try {
-                const qReports = query(collection(db, "reportes"), where("commentId", "==", commentId));
-                const snapReports = await getDocs(qReports);
-                snapReports.forEach(async (d) => {
-                    await deleteDoc(doc(db, "reportes", d.id));
-                });
-            } catch(err) {
-                console.log("No se pudieron borrar los reportes (quizás falta de permisos):", err);
-            }
-
             cargarComentarios(gameId); 
         } catch(e) { 
             console.error(e);
@@ -2019,7 +2200,6 @@
     };
 
     window.reportarComentario = async (gameId, commentId, texto) => {
-        // VERIFICAR TIEMPO (1 HORA) SOLO SI NO ES ADMIN/DIOS
         if (!esAdmin && !esDios) {
             const lastReport = localStorage.getItem('last_report_time');
             if (lastReport && (Date.now() - parseInt(lastReport)) < 3600000) {
@@ -2041,10 +2221,7 @@
             if (!esAdmin && !esDios) {
                 localStorage.setItem('last_report_time', Date.now().toString());
             }
-        } catch(e) { 
-            console.error(e);
-            alert("Error al reportar: " + e.message); 
-        }
+        } catch(e) { alert("Error al reportar: " + e.message); }
     };
 
     window.editarComentario = (gameId, commentId, textoActual) => {
@@ -2098,6 +2275,132 @@
             alert("Apelación enviada al administrador.");
             document.getElementById('modalApelacion').style.display = 'none';
         } catch(e) { alert("Error al enviar apelación."); }
+    };
+
+    // --- LOGROS / INSIGNIAS / PERFIL ---
+    window.checkAchievements = async () => {
+        if(!usuarioActual || esInvitado || !userData) return;
+        const visited = userData.visitedGames || 0;
+        
+        // Calcular nivel/insignia actual
+        let highestBadge = null;
+        for(let b of BADGE_LEVELS) {
+            if(visited >= b.count) highestBadge = b;
+        }
+
+        if(highestBadge) {
+            const hasBadge = (userData.badges || []).find(b => b.name === highestBadge.name);
+            if(!hasBadge) {
+                // Nuevo logro
+                await updateDoc(doc(db, "usuarios", usuarioActual.uid), {
+                    badges: arrayUnion({ name: highestBadge.name, color: highestBadge.color, date: new Date().toISOString() })
+                });
+                showToast(`¡Nueva Insignia Desbloqueada: ${highestBadge.name}!`, "success");
+                userData.badges.push({ name: highestBadge.name, color: highestBadge.color });
+            }
+        }
+    };
+
+    window.abrirModalPersonalizar = () => {
+        document.getElementById('profileDropdown').style.display='none';
+        const modal = document.getElementById('modalPersonalizar');
+        document.getElementById('visited-count').innerText = userData.visitedGames || 0;
+        
+        // Render Badges
+        const grid = document.getElementById('user-badges-grid');
+        grid.innerHTML = "";
+        const myBadges = userData.badges || [];
+        const equipped = userData.equippedBadges || [];
+
+        BADGE_LEVELS.forEach(def => {
+            const owned = myBadges.find(b => b.name === def.name);
+            const isEquipped = equipped.includes(def.name);
+            const div = document.createElement('div');
+            div.className = `badge-card ${owned ? 'unlocked' : ''} ${isEquipped ? 'equipped' : ''}`;
+            div.style.color = def.color;
+            div.innerHTML = `<i class="fa-solid fa-medal"></i><div>${def.name}</div><div style="font-size:0.7rem">${def.count} Visitas</div>`;
+            if(owned) {
+                div.onclick = () => toggleEquipBadge(def.name);
+            }
+            grid.appendChild(div);
+        });
+
+        if(esDios) document.getElementById('admin-badge-controls').style.display = 'block';
+        modal.style.display = 'flex';
+    };
+
+    window.toggleEquipBadge = async (badgeName) => {
+        let equipped = userData.equippedBadges || [];
+        if(equipped.includes(badgeName)) {
+            equipped = equipped.filter(b => b !== badgeName);
+        } else {
+            if(equipped.length >= 3) return showToast("Máximo 3 insignias visibles", "error");
+            equipped.push(badgeName);
+        }
+        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { equippedBadges: equipped });
+        userData.equippedBadges = equipped;
+        abrirModalPersonalizar(); // Re-render
+    };
+
+    window.addXpManual = async () => {
+        if(!esDios) return;
+        await updateDoc(doc(db, "usuarios", usuarioActual.uid), { visitedGames: increment(100) });
+        userData.visitedGames = (userData.visitedGames || 0) + 100;
+        checkAchievements();
+        abrirModalPersonalizar();
+    };
+
+    // --- MURO DE PETICIONES ---
+    window.abrirMuroPeticiones = async () => {
+        document.getElementById('modalPeticiones').style.display='flex';
+        const list = document.getElementById('requests-list');
+        list.innerHTML = "Cargando...";
+        const snap = await getDocs(collection(db, "peticiones"));
+        list.innerHTML = "";
+        
+        const reqs = [];
+        snap.forEach(d => reqs.push({id: d.id, ...d.data()}));
+        // Ordenar por votos
+        reqs.sort((a,b) => (b.votes?.length || 0) - (a.votes?.length || 0));
+
+        reqs.forEach(r => {
+            const hasVoted = (r.votes || []).includes(usuarioActual?.uid);
+            const div = document.createElement('div');
+            div.className = "request-item";
+            div.innerHTML = `
+                <div><strong>${r.game}</strong> <small>por ${r.user}</small></div>
+                <button class="vote-btn ${hasVoted?'voted':''}" onclick="votarPeticion('${r.id}')">
+                    <i class="fa-solid fa-caret-up"></i> ${r.votes?.length || 0}
+                </button>
+            `;
+            list.appendChild(div);
+        });
+    };
+
+    window.crearPeticion = async () => {
+        if(!usuarioActual) return showToast("Login requerido", "error");
+        const val = document.getElementById('req-game-input').value;
+        if(!val) return;
+        await addDoc(collection(db, "peticiones"), {
+            game: val,
+            user: usuarioActual.displayName || "Anon",
+            votes: [usuarioActual.uid]
+        });
+        document.getElementById('req-game-input').value = "";
+        abrirMuroPeticiones();
+    };
+
+    window.votarPeticion = async (reqId) => {
+        if(!usuarioActual) return showToast("Login requerido", "error");
+        const ref = doc(db, "peticiones", reqId);
+        const snap = await getDoc(ref);
+        const votes = snap.data().votes || [];
+        if(votes.includes(usuarioActual.uid)) {
+            await updateDoc(ref, { votes: arrayRemove(usuarioActual.uid) });
+        } else {
+            await updateDoc(ref, { votes: arrayUnion(usuarioActual.uid) });
+        }
+        abrirMuroPeticiones();
     };
 
     // --- PANEL UNIFICADO LOGICA ---
@@ -2400,6 +2703,14 @@
         // BLOQUEAR SCROLL FONDO
         document.body.classList.add('no-scroll');
 
+        // Incrementar Vistas y XP (Visitado)
+        if(usuarioActual && !esInvitado) {
+            updateDoc(doc(db, "juegos", juego.id), { views: increment(1) });
+            updateDoc(doc(db, "usuarios", usuarioActual.uid), { visitedGames: increment(1) });
+            userData.visitedGames = (userData.visitedGames || 0) + 1;
+            checkAchievements();
+        }
+
         if(esInvitado) {
             commentInputWrapper.style.display = 'none';
         } else {
@@ -2474,6 +2785,7 @@
                 links.forEach(l => {
                     const a = document.createElement('a');
                     a.href = l.url; a.target = "_blank";
+                    a.className = "dl-link-item"; // Para "Copiar Todo"
                     a.innerHTML = `<i class="fa-solid fa-link"></i> ${l.nota || "Descargar Here"}`;
                     panel.appendChild(a);
                 });
@@ -2500,6 +2812,12 @@
         modal.style.display = 'none';
         trailerContent.innerHTML = ''; 
         document.body.classList.remove('no-scroll');
+    };
+
+    // COPIAR TODOS LOS LINKS
+    window.copiarTodosLinks = () => {
+        const links = Array.from(document.querySelectorAll('.dl-link-item')).map(a => a.href).join('\n');
+        navigator.clipboard.writeText(links).then(() => showToast("Enlaces copiados al portapapeles", "success"));
     };
 
     // --- ADMIN ---
@@ -2552,11 +2870,12 @@
             generos: getGens('chk-genre'),
             enlaces: getLinks('new-links-container'),
             fecha: new Date().toISOString(),
-            puntuaciones: {}
+            puntuaciones: {},
+            views: 0
         };
         try {
             await addDoc(collection(db, "juegos"), newGame);
-            alert("¡Juego Publicado!");
+            showToast("¡Juego Publicado!", "success");
             document.getElementById('modalAdmin').style.display = 'none';
             cargarJuegos();
         } catch(e) { alert("Error: " + e.message); }
@@ -2598,7 +2917,7 @@
         };
         try {
             await updateDoc(doc(db, "juegos", id), upd);
-            alert("Editado correctamente");
+            showToast("Editado correctamente", "success");
             document.getElementById('modalEdit').style.display = 'none';
             cargarJuegos();
         } catch(e) { alert(e.message); }
@@ -2681,4 +3000,3 @@
   </script>
 </body>
 </html>
-

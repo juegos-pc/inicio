@@ -33,6 +33,7 @@
       display: flex; flex-direction: column; min-height: 100vh;
     }
 
+    /* CLASE PARA BLOQUEAR SCROLL DE FONDO */
     body.no-scroll { overflow: hidden !important; }
 
     body.light {
@@ -76,7 +77,7 @@
         animation: pulseText 1.5s infinite alternate;
         background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px;
     }
-    @keyframes pulseText { from { opacity: 0.8; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
+    @keyframes pulseText { from { opacity: 0.8; transform: scale(1); } to { transform: scale(1.1); } }
     
     .floating-element {
         position: absolute; color: rgba(255,255,255,0.15);
@@ -498,6 +499,12 @@
     .comment-meta { font-size: 0.75rem; color: #aaa; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: center; }
     .comment-body { font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap; }
     
+    /* Colores de nombre de usuario */
+    .username-role { font-weight: bold; margin-right: 5px; }
+    .username-role.dios { color: var(--gold); } 
+    .username-role.admin { color: #9d00ff; } 
+    .username-role.user { color: green; }
+
     .comment-actions {
         position: absolute; top: 5px; right: 5px; display: none; gap: 5px;
     }
@@ -507,10 +514,6 @@
         border-radius: 3px; padding: 2px 5px; cursor: pointer; font-size: 0.7rem; 
     }
     .btn-mini-action:hover { background: white; color: black; }
-
-    .comment-reactions { margin-top: 5px; display: flex; gap: 10px; }
-    .reaction-btn { background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 15px; padding: 2px 8px; font-size: 0.8rem; cursor: pointer; color: #aaa; transition: 0.2s; }
-    .reaction-btn:hover, .reaction-btn.active { background: var(--primary); color: black; border-color: var(--primary); }
 
     .comment-input-box {
         width: 100%; background: #111; border: 1px solid #444; color: white;
@@ -525,9 +528,22 @@
     .pinned-icon { color: var(--gold); margin-right: 5px; font-size: 0.8rem; }
 
     .role-tag { font-size: 0.7rem; padding: 1px 4px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-transform: uppercase; border: 1px solid transparent;}
-    .role-tag.dios { background: var(--god-color); color: white; box-shadow: 0 0 5px var(--god-color); border-color: var(--gold); } /* Dios: Dorado */
-    .role-tag.admin { background: var(--secondary); color: white; border-color: var(--god-color); } /* Admin: Morado (god-color) */
-    .role-tag.user { background: #444; color: #ccc; border-color: green; } /* Usuario: Verde */
+    /* Roles con Bordes de rareza */
+    .role-tag.dios { 
+        background: var(--god-color); color: white; 
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* Brillo Dorado */
+        border-color: var(--gold); 
+    } 
+    .role-tag.admin { 
+        background: var(--secondary); color: white; 
+        border-color: #9d00ff; /* Morado/Violeta */
+        box-shadow: 0 0 5px #9d00ff;
+    }
+    .role-tag.user { 
+        background: #444; color: #ccc; 
+        border-color: green; /* Verde */
+        box-shadow: 0 0 3px green;
+    }
 
     .reply-link { 
         font-size: 0.75rem; color: #aaa; cursor: pointer; margin-top: 5px; display: inline-block; font-weight: bold; 
@@ -751,22 +767,25 @@
             <div class="genres-dropdown-container">
                 <div class="btn-genres-toggle" id="btnGenresToggle" onclick="toggleGenresPopup()">Géneros <i class="fa-solid fa-chevron-down"></i></div>
                 <div class="genres-list-popup" id="genresListPopup">
-                    <label><input type="checkbox" value="Acción" class="filter-genre-chk"> Acción</label>
-                  <label><input type="checkbox" value="Supervivencia" class="filter-genre-chk"> Supervivencia</label>
-                  <label><input type="checkbox" value="Zombies" class="filter-genre-chk"> Zombies</label>
-                  <label><input type="checkbox" value="Anime" class="filter-genre-chk"> Anime</label>
-                  <label><input type="checkbox" value="Guerra" class="filter-genre-chk"> Guerra</label>
-                    <label><input type="checkbox" value="Aventura" class="filter-genre-chk"> Aventura</label>
-                    <label><input type="checkbox" value="Terror" class="filter-genre-chk"> Terror</label>
-                    <label><input type="checkbox" value="Carreras" class="filter-genre-chk"> Carreras</label>
-                    <label><input type="checkbox" value="Deportes" class="filter-genre-chk"> Deportes</label>
-                    <label><input type="checkbox" value="Estrategia" class="filter-genre-chk"> Estrategia</label>
-                    <label><input type="checkbox" value="Rol/RPG" class="filter-genre-chk"> Rol/RPG</label>
-                    <label><input type="checkbox" value="Shooter" class="filter-genre-chk"> Shooter</label>
-                    <label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> MundoAbierto</label>
-                    <label><input type="checkbox" value="Multijugador" class="filter-genre-chk" style="accent-color:#00ff00"> Multijugador</label>
-                    <label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label>
-                    <label><input type="checkbox" value="2D" class="filter-genre-chk"> 2D</label>
+                    <div class="genre-item"><label><input type="checkbox" value="Indie" class="filter-genre-chk"> Indie</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Peleas" class="filter-genre-chk"> Peleas</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Plataformas" class="filter-genre-chk"> Plataformas</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Acción" class="filter-genre-chk"> Acción</label></div>
+                  <div class="genre-item"><label><input type="checkbox" value="Supervivencia" class="filter-genre-chk"> Supervivencia</label></div>
+                  <div class="genre-item"><label><input type="checkbox" value="Zombies" class="filter-genre-chk"> Zombies</label></div>
+                  <div class="genre-item"><label><input type="checkbox" value="Anime" class="filter-genre-chk"> Anime</label></div>
+                  <div class="genre-item"><label><input type="checkbox" value="Guerra" class="filter-genre-chk"> Guerra</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Aventura" class="filter-genre-chk"> Aventura</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Terror" class="filter-genre-chk"> Terror</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Carreras" class="filter-genre-chk"> Carreras</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Deportes" class="filter-genre-chk"> Deportes</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="filter-genre-chk"> Estrategia</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="filter-genre-chk"> Rol/RPG</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Shooter" class="filter-genre-chk"> Shooter</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> MundoAbierto</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="filter-genre-chk" style="accent-color:#00ff00"> Multijugador</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="2D" class="filter-genre-chk"> 2D</label></div>
                 </div>
             </div>
             
@@ -893,6 +912,9 @@
             <label style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Géneros</label>
             <div class="genre-container">
                 <div class="genre-grid">
+                    <div class="genre-item"><label><input type="checkbox" value="Indie" class="chk-genre"> Indie</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Peleas" class="chk-genre"> Peleas</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Plataformas" class="chk-genre"> Plataformas</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Acción" class="chk-genre"> Acción</label></div>
                   <div class="genre-item"><label><input type="checkbox" value="Supervivencia" class="chk-genre"> Supervivencia</label></div>
                   <div class="genre-item"><label><input type="checkbox" value="Zombies" class="chk-genre"> Zombies</label></div>
@@ -963,6 +985,9 @@
             <label style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Géneros</label>
             <div class="genre-container">
                 <div class="genre-grid">
+                    <div class="genre-item"><label><input type="checkbox" value="Indie" class="chk-genre-edit"> Indie</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Peleas" class="chk-genre-edit"> Peleas</label></div>
+                    <div class="genre-item"><label><input type="checkbox" value="Plataformas" class="chk-genre-edit"> Plataformas</label></div>
                     <div class="genre-item"><label><input type="checkbox" value="Acción" class="chk-genre-edit"> Acción</label></div>
                   <div class="genre-item"><label><input type="checkbox" value="Supervivencia" class="chk-genre-edit"> Supervivencia</label></div>
                   <div class="genre-item"><label><input type="checkbox" value="Zombies" class="chk-genre-edit"> Zombies</label></div>
@@ -1006,18 +1031,18 @@
         <div class="modal-game-grid">
             <div class="game-col-left">
                 
+                <h2 id="download-title" style="color: var(--primary); font-size: 2.5rem; margin: 10px 0; text-transform: uppercase;"></h2>
+                
+                <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px; color: #ccc;"></div>
+
                 <div id="trailer-btn-container" style="display:none; margin-bottom:20px;">
                     <button id="btn-trailer-toggle" class="accordion-btn" style="border-left-color: var(--secondary);">
-                        <i class="fa-brands fa-youtube" style="color: red;"></i> Ver Trailer
+                        <i class="fa-brands fa-youtube" style="color: red;"></i> Toca para desplegar y ver tráiler
                         <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>
                     </button>
                     <div id="trailer-content" class="video-container" style="display:none; margin-top:10px; border:1px solid #333;"></div>
                 </div>
                 
-                <h2 id="download-title" style="color: var(--primary); font-size: 2.5rem; margin: 10px 0; text-transform: uppercase;"></h2>
-                
-                <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px; color: #ccc;"></div>
-
                 <div class="vote-corner" style="position:relative; right:auto; top:auto; justify-content:flex-start; margin-bottom:20px;">
                     <div class="stars" id="star-rating-display">
                         <i class="fa-regular fa-star" onclick="preVote(1)"></i>
@@ -1139,6 +1164,9 @@
             <button class="sidebar-btn god-btn" id="tab-btn-admins" onclick="cambiarTabPanel('admins')" style="display:none;">
                 <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Gestión Admins
             </button>
+            <button class="sidebar-btn" id="tab-btn-trash" onclick="cambiarTabPanel('trash')">
+                <i class="fa-solid fa-trash-can" style="margin-right:8px;"></i> Papelera Juegos
+            </button>
             <button class="sidebar-btn" onclick="document.getElementById('modalPanelUnificado').style.display='none'" style="margin-top:auto; color:#ff4444;">
                 <i class="fa-solid fa-xmark" style="margin-right:8px;"></i> Cerrar Panel
             </button>
@@ -1172,6 +1200,13 @@
                 <h3 style="margin-bottom:10px;">Lista de Administradores</h3>
                 <div id="admin-list-container" style="max-height:300px; overflow-y:auto;">
                     Cargando...
+                </div>
+            </div>
+            
+            <div id="view-trash" class="panel-content" style="display:none;">
+                <h2 style="color:orange; margin-bottom:20px;">Papelera de Juegos (Eliminados)</h2>
+                <div id="trash-list-container">
+                    <p style="color:#aaa;">Cargando...</p>
                 </div>
             </div>
         </div>
@@ -1362,8 +1397,8 @@
         loadingScreen.style.opacity = '0';
         loginScreen.style.opacity = '0';
         setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            loginScreen.style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'none';
             appContent.style.display = 'block';
         }, 500);
 
@@ -1385,8 +1420,8 @@
                 
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    loginScreen.style.display = 'none'; 
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('login-screen').style.display = 'none'; 
                     appContent.style.display = 'block';
                     setTimeout(() => {
                         const push = document.getElementById('push-donation');
@@ -1452,9 +1487,9 @@
             } else if (!esInvitado) {
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    loginScreen.style.display = 'flex';
-                    loginScreen.style.opacity = '1';
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('login-screen').style.display = 'flex';
+                    document.getElementById('login-screen').style.opacity = '1';
                     appContent.style.display = 'none';
                 }, 500);
                 usuarioActual = null;
@@ -2010,7 +2045,8 @@
         else if (c.role === 'admin') roleBadge = `<span class="role-tag admin">ADMIN</span>`;
         else roleBadge = `<span class="role-tag user">USUARIO</span>`;
 
-        const isLiked = (c.reactions || {})[usuarioActual?.uid] === 'like';
+        // NUEVO: Definición del nombre con la clase de color
+        const usernameDisplay = `<span class="username-role ${c.role}">${c.user}</span>`;
 
         let replyLink = "";
         if (usuarioActual && !isReply) {
@@ -2023,7 +2059,7 @@
                 <div style="display:flex; align-items:center;">
                     ${pinIcon}
                     <img src="${avatarUrl}" class="user-avatar" alt="av">
-                    <span class="user-name-span" style="color:var(--primary); font-weight:bold; cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${c.user}</span>
+                    <span class="user-name-span" style="cursor:pointer;" oncontextmenu="abrirContextoUsuario(event, '${c.uid}')">${usernameDisplay}</span>
                     ${roleBadge}
                 </div>
                 <span>${new Date(c.date).toLocaleDateString()}</span>
@@ -2035,12 +2071,7 @@
         container.appendChild(div);
     }
 
-    window.reactToComment = async (gId, cId, type) => {
-        if(!usuarioActual) return showToast("Login requerido", "error");
-        const ref = doc(db, "juegos", gId, "comentarios", cId);
-        await updateDoc(ref, { [`reactions.${usuarioActual.uid}`]: type });
-        cargarComentarios(gId);
-    };
+    // ELIMINADA la función reactToComment por solicitud.
 
     window.responderComentario = (id, user) => {
         if(esInvitado) return alert("Invitado no puede responder.");
@@ -2291,10 +2322,11 @@
         }
     };
 
-    window.cambiarTabPanel = (tab) => {
+    window.cambiarTabPanel = async (tab) => {
         document.getElementById('view-banned').style.display = 'none';
         document.getElementById('view-reports').style.display = 'none';
         document.getElementById('view-admins').style.display = 'none';
+        document.getElementById('view-trash').style.display = 'none';
         document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
 
         if(tab === 'banned') {
@@ -2309,6 +2341,10 @@
             document.getElementById('view-admins').style.display = 'block';
             document.getElementById('tab-btn-admins').classList.add('active');
             cargarListaAdmins();
+        } else if (tab === 'trash') {
+            document.getElementById('view-trash').style.display = 'block';
+            document.getElementById('tab-btn-trash').classList.add('active');
+            cargarPapeleraJuegos();
         }
     };
 
@@ -2511,6 +2547,59 @@
         }
     };
 
+    async function cargarPapeleraJuegos() {
+        const list = document.getElementById('trash-list-container');
+        list.innerHTML = "Cargando...";
+        
+        const q = query(collection(db, "juegos"), where("softDeleted", "==", true));
+        const snap = await getDocs(q);
+        list.innerHTML = "";
+        
+        if(snap.empty) {
+            list.innerHTML = "No hay juegos en la papelera.";
+            return;
+        }
+
+        snap.forEach(d => {
+            const j = d.data();
+            const div = document.createElement('div');
+            div.className = 'banned-item';
+            div.style.borderLeft = '3px solid orange';
+            
+            const deletedDate = new Date(j.deletedAt).toLocaleDateString();
+
+            div.innerHTML = `
+                <div class="banned-header">
+                    <span class="banned-email" style="color:orange;">[ELIMINADO] ${j.titulo}</span>
+                    <small style="color:#aaa;">Borrado el: ${deletedDate}</small>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button onclick="restaurarJuego('${d.id}')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Restaurar</button>
+                    <button onclick="borrarJuegoPermanentemente('${d.id}', '${j.titulo}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Borrar Permanentemente</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    window.restaurarJuego = async (gameId) => {
+        if(confirm("¿Restaurar este juego?")) {
+            await updateDoc(doc(db, "juegos", gameId), { softDeleted: deleteField(), deletedAt: deleteField() });
+            showToast("Juego restaurado.", "success");
+            cargarJuegos();
+            cargarPapeleraJuegos();
+        }
+    };
+
+    window.borrarJuegoPermanentemente = async (gameId, title) => {
+        if(confirm(`ADVERTENCIA: ¿Eliminar PERMANENTEMENTE el juego "${title}"? Esta acción no se puede deshacer.`)) {
+            await deleteDoc(doc(db, "juegos", gameId));
+            showToast(`Juego ${title} eliminado permanentemente.`, "error");
+            cargarJuegos();
+            cargarPapeleraJuegos();
+        }
+    };
+    
     function mostrarSimilares(juego) {
         const container = document.getElementById('similar-games-section');
         const list = document.getElementById('similar-games-list');
@@ -2590,7 +2679,10 @@
             btnTrailerToggle.onclick = () => {
                 const isHidden = trailerContent.style.display === 'none';
                 trailerContent.style.display = isHidden ? 'block' : 'none';
+                document.getElementById('btn-trailer-toggle').innerHTML = `<i class="fa-brands fa-youtube" style="color: red;"></i> ${isHidden ? 'Ocultar Tráiler' : 'Toca para desplegar y ver tráiler'} <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>`;
             };
+            document.getElementById('btn-trailer-toggle').innerHTML = `<i class="fa-brands fa-youtube" style="color: red;"></i> Toca para desplegar y ver tráiler <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>`;
+
         } else {
             trailerBtnContainer.style.display = 'none';
             trailerContent.innerHTML = '';

@@ -100,7 +100,7 @@
         box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         animation: fadeIn 0.8s ease;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { transform: translateY(0); opacity: 1; } }
 
     .login-box h1 { color: var(--primary); margin-bottom: 5px; letter-spacing: 2px; text-transform: uppercase; }
     .login-box p { color: #aaa; margin-bottom: 30px; font-size: 0.9rem; }
@@ -204,9 +204,6 @@
       background: transparent; border: none; color: white;
       padding: 5px 10px; width: 180px; font-size: 1rem; outline: none;
     }
-
-    .year-slider-container { display: flex; align-items: center; gap: 5px; color: #ccc; font-size: 0.8rem; margin-left: 10px; border-left: 1px solid #444; padding-left: 10px; }
-    .year-slider-container input[type=range] { width: 100px; accent-color: var(--primary); }
 
     .sort-select {
         background: #252525; color: #ccc; border: 1px solid #555;
@@ -527,10 +524,10 @@
     .user-avatar { width: 25px; height: 25px; border-radius: 50%; vertical-align: middle; margin-right: 8px; object-fit: cover; }
     .pinned-icon { color: var(--gold); margin-right: 5px; font-size: 0.8rem; }
 
-    .role-tag { font-size: 0.7rem; padding: 1px 4px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-transform: uppercase; }
-    .role-tag.admin { background: var(--secondary); color: white; }
-    .role-tag.dios { background: var(--god-color); color: white; box-shadow: 0 0 5px var(--god-color); }
-    .role-tag.user { background: #444; color: #ccc; }
+    .role-tag { font-size: 0.7rem; padding: 1px 4px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-transform: uppercase; border: 1px solid transparent;}
+    .role-tag.dios { background: var(--god-color); color: white; box-shadow: 0 0 5px var(--god-color); border-color: var(--gold); } /* Dios: Dorado */
+    .role-tag.admin { background: var(--secondary); color: white; border-color: var(--god-color); } /* Admin: Morado (god-color) */
+    .role-tag.user { background: #444; color: #ccc; border-color: green; } /* Usuario: Verde */
 
     .reply-link { 
         font-size: 0.75rem; color: #aaa; cursor: pointer; margin-top: 5px; display: inline-block; font-weight: bold; 
@@ -749,11 +746,6 @@
             <i class="fa-solid fa-magnifying-glass" style="color: #888;"></i>
             <input type="text" id="searchInput" placeholder="Buscar título..." autocomplete="off" />
             
-            <div class="year-slider-container">
-                <span>Año: <span id="year-disp">Todos</span></span>
-                <input type="range" id="yearSlider" min="1990" max="2025" step="1" value="2025" oninput="actualizarSliderAnio(this.value)" onchange="aplicarFiltrosGlobales()">
-            </div>
-
             <div id="autocomplete-list"></div>
 
             <div class="genres-dropdown-container">
@@ -1575,10 +1567,6 @@
     };
 
     document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', () => window.aplicarFiltrosGlobales()));
-    
-    window.actualizarSliderAnio = (val) => {
-        document.getElementById('year-disp').innerText = val == 2025 ? "Todos" : `<= ${val}`;
-    }
 
     searchInput.addEventListener('input', function() {
         const val = normalizarTexto(this.value);
@@ -1619,7 +1607,6 @@
         const texto = normalizarTexto(document.getElementById('searchInput').value);
         const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
         const sortMode = document.getElementById('sortSelect').value;
-        const maxYear = document.getElementById('yearSlider').value;
 
         juegosFiltrados = juegos.filter(j => {
             const matchText = normalizarTexto(j.titulo).includes(texto);
@@ -1631,13 +1618,7 @@
                 matchGenres = selectedGenres.every(sel => gameGenres.includes(sel));
             }
             
-            let matchYear = true;
-            if(maxYear != 2025) {
-                const y = new Date(j.fechaSalida || 0).getFullYear();
-                matchYear = y <= maxYear;
-            }
-
-            return matchText && matchReq && matchGenres && matchYear;
+            return matchText && matchReq && matchGenres;
         });
 
         if (sortMode === 'rating') {
@@ -2048,11 +2029,7 @@
                 <span>${new Date(c.date).toLocaleDateString()}</span>
             </div>
             <div class="comment-body" id="comment-body-${c.id}">${c.text}</div>
-            <div class="comment-reactions">
-                <button class="reaction-btn ${isLiked?'active':''}" onclick="reactToComment('${gameId}', '${c.id}', 'like')"><i class="fa-solid fa-thumbs-up"></i></button>
-                <button class="reaction-btn" onclick="reactToComment('${gameId}', '${c.id}', 'mushroom')">🍄</button>
-                <button class="reaction-btn" onclick="reactToComment('${gameId}', '${c.id}', 'sword')">⚔️</button>
-            </div>
+            
             ${replyLink}
         `;
         container.appendChild(div);
@@ -2584,8 +2561,16 @@
         document.body.classList.add('no-scroll');
 
         if(usuarioActual && !esInvitado) {
-            updateDoc(doc(db, "juegos", juego.id), { views: increment(1) });
-            updateDoc(doc(db, "usuarios", usuarioActual.uid), { visitedGames: increment(1) });
+            
+            if(!userData.juegosVistos || !userData.juegosVistos.includes(juego.id)) {
+                 updateDoc(doc(db, "juegos", juego.id), { views: increment(1) });
+                 updateDoc(doc(db, "usuarios", usuarioActual.uid), { 
+                     juegosVistos: arrayUnion(juego.id) 
+                 });
+                 
+                 if(!userData.juegosVistos) userData.juegosVistos = [];
+                 userData.juegosVistos.push(juego.id);
+            }
         }
 
         if(esInvitado) {

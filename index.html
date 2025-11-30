@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zona Gamer OS - Ultimate</title>
+  <title>Zona Gamer</title>
   <link rel="icon" type="image/x-icon" href="zona gamer.png" />
   <script src="https://kit.fontawesome.com/3846a067f2.js" crossorigin="anonymous"></script>
 
@@ -735,8 +735,8 @@
 
   <div id="login-screen">
     <div class="login-box">
-      <h1>Zona Gamer OS</h1>
-      <p>inicia sesion o crea cuenta para desbloquear logros y descargas</p>
+      <h1>Zona Gamer</h1>
+      <p>inicia sesion o crea cuenta</p>
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
       </button>
@@ -864,11 +864,11 @@
   <div id="contextMenu">
       <div id="ctx-game-actions" style="display:none;">
           <button onclick="accionContexto('editar')"><i class="fa-solid fa-pen"></i> Editar</button>
-          <button onclick="accionContexto('borrar')" style="color:#ff4444;"><i class="fa-solid fa-trash"></i> Mover a Papelera (30 días)</button>
+          <button onclick="accionContexto('borrar')" style="color:#ff4444;"><i class="fa-solid fa-trash"></i> Mover a Papelera</button>
       </div>
       <div id="ctx-global-actions" style="display:none;">
-          <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar Nuevo Juego</button>
-          <button onclick="abrirPanelAdmin()" style="color:var(--gold); border-top:1px solid #444;"><i class="fa-solid fa-sliders"></i> Panel Admin/Dios</button>
+          <button onclick="abrirModalAgregar()"><i class="fa-solid fa-plus"></i> Agregar Juego</button>
+          <button onclick="abrirPanelAdmin()" style="color:var(--gold); border-top:1px solid #444;"><i class="fa-solid fa-sliders"></i> Panel</button>
       </div>
       <div id="ctx-user-actions" style="display:none;">
           <button onclick="accionUsuario('banear')" style="color:orange;"><i class="fa-solid fa-ban"></i> Banear Usuario</button>
@@ -879,7 +879,7 @@
   <div id="modalAdmin" class="modal">
     <div class="modal-content-wide">
       <span class="close" onclick="cerrarModalConConfirmacion('modalAdmin')">&times;</span>
-      <div class="modal-header"><h2>Agregar Nuevo Juego</h2></div>
+      <div class="modal-header"><h2>Agregar Juego</h2></div>
       <form id="form-add-game" style="display:contents;">
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <div class="input-group">
@@ -897,7 +897,7 @@
                     <input type="date" id="new-date" title="Fecha Salida">
                 </div>
                 <div class="input-group" style="flex:1">
-                    <input type="text" id="new-size" placeholder="Peso (GB)">
+                    <input type="text" id="new-size" placeholder="Peso">
                 </div>
             </div>
             
@@ -945,7 +945,7 @@
             </div>
         </div>
         <div class="modal-footer full-width">
-            <button type="submit">PUBLICAR JUEGO</button>
+            <button type="submit">SUBIR JUEGO</button>
         </div>
       </form>
     </div>
@@ -1056,7 +1056,7 @@
                         <i class="fa-regular fa-star" onclick="preVote(9)"></i>
                         <i class="fa-regular fa-star" onclick="preVote(10)"></i>
                     </div>
-                    <button id="btn-send-vote" class="btn-send-vote" onclick="submitVote()">Manda</button>
+                    <button id="btn-send-vote" class="btn-send-vote" onclick="submitVote()">VOTAR</button>
                     <div style="font-size:0.9rem; color:#888; margin-left:10px;">
                         <span id="rating-score" style="color:var(--gold); font-weight:bold;">0.0</span> 
                         <span id="rating-count">(0)</span>
@@ -1135,7 +1135,7 @@
             <div id="contact-autocomplete-list" style="position:absolute; top:100%; left:0; width:100%; background:#222; z-index:10; border:1px solid #444; display:none; border-radius:0 0 8px 8px;"></div>
         </div>
         <span class="contact-label">Detalle</span>
-        <textarea name="mensaje" placeholder="Describe el problema o tu pedido..." rows="4" style="width:100%; background:#121212; border:1px solid #444; color:white; padding:10px; border-radius:8px; margin-bottom:15px;"></textarea>
+        <textarea name="mensaje" placeholder="Describe el problema, pedido o si la pagina tiene algun error..." rows="4" style="width:100%; background:#121212; border:1px solid #444; color:white; padding:10px; border-radius:8px; margin-bottom:15px;"></textarea>
         <button type="submit">ENVIAR MENSAJE</button>
       </form>
     </div>
@@ -1162,7 +1162,7 @@
                 <i class="fa-solid fa-flag" style="margin-right:8px;"></i> Reportes
             </button>
             <button class="sidebar-btn god-btn" id="tab-btn-admins" onclick="cambiarTabPanel('admins')" style="display:none;">
-                <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Gestión Admins
+                <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Gestión
             </button>
             <button class="sidebar-btn" id="tab-btn-trash" onclick="cambiarTabPanel('trash')">
                 <i class="fa-solid fa-trash-can" style="margin-right:8px;"></i> Papelera Juegos
@@ -1204,7 +1204,7 @@
             </div>
             
             <div id="view-trash" class="panel-content" style="display:none;">
-                <h2 style="color:orange; margin-bottom:20px;">Papelera de Juegos (Eliminados)</h2>
+                <h2 style="color:orange; margin-bottom:20px;">Papelera</h2>
                 <div id="trash-list-container">
                     <p style="color:#aaa;">Cargando...</p>
                 </div>
@@ -1281,7 +1281,7 @@
     let respondingToId = null;
     let currentCommentLimit = 30; 
 
-    const malasPalabras = ["tonto", "estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo"];
+    const malasPalabras = ["estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo", "pelotudo","tarado","berga",];
 
     const gameList = document.getElementById('gameList');
     const loginScreen = document.getElementById('login-screen');
@@ -1309,7 +1309,7 @@
     };
 
     const iconosPosibles = ['fa-gamepad', 'fa-desktop', 'fa-ghost', 'fa-dragon', 'fa-chess-knight', 'fa-puzzle-piece', 'fa-headset', 'fa-microchip', 'fa-bolt', 'fa-fire'];
-    const palabrasRandom = ["GAME OVER", "PRESS START", "LEVEL UP", "FATALITY", "WINS", "LOADING...", "INSERT COIN"];
+    const palabrasRandom = ["GAME OVER", "PRESS START", "LEVEL UP", "FATALITY", "WINS", "LOADING...", "INSERT COIN","codigo konami"];
     
     for(let i=0; i<20; i++) {
         const icon = document.createElement('i');
@@ -1847,7 +1847,7 @@
     }
 
     window.preVote = (val) => {
-        if(esInvitado) return alert("Invitados no pueden votar. Inicia sesión.");
+        if(esInvitado) return alert("LosInvitados no pueden votar. Inicia sesión.");
         pendingVote = val;
         renderStars(val);
         document.getElementById('btn-send-vote').style.display = 'block';
@@ -1902,7 +1902,7 @@
     }
 
     window.enviarComentario = async () => {
-        if(esInvitado) return alert("Modo invitado: No puedes comentar.");
+        if(esInvitado) return alert("No puedes comentar en Modo invitado .");
         if(!usuarioActual) { alert("Inicia sesión para comentar."); return; }
         
         const userRef = doc(db, "usuarios", usuarioActual.uid);
@@ -2945,3 +2945,4 @@
   </script>
 </body>
 </html>
+

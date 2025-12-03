@@ -385,26 +385,30 @@
       align-items: center; justify-content: center;
     }
     .modal-content-wide {
-      background-color: rgba(30, 30, 30, 0.95); /* Fondo un poco más sólido */
-      margin: 2vh auto; /* Menos margen arriba/abajo para aprovechar la altura */
-      padding: 50px; /* Más espacio interno (antes era 40px) */
-      border-radius: 25px; /* Bordes un poco más redondeados */
-      width: 96%; /* Ocupa casi todo el ancho de la pantalla */
-      max-width: 1400px; /* AUMENTADO: De 1000px a 1400px */
-      min-height: 85vh; /* AUMENTADO: Fuerza al modal a ser alto */
+      background-color: rgba(30, 30, 30, 0.95);
+      margin: 2vh auto; 
+      padding: 50px;
+      border-radius: 25px;
+      width: 96%;
+      max-width: 1400px;
+      
+      /* --- CAMBIOS AQUÍ --- */
+      min-height: 85vh;   /* Antes era 85vh. Pon 'auto' para que se ajuste a lo que tiene dentro */
+      max-height: 100vh;   /* Esto evita que el modal sea más alto que tu pantalla */
+      overflow-y: auto;   /* Habilita scroll interno solo si es necesario */
+      /* -------------------- */
       
       color: #fff;
       position: relative;
       border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 0 60px rgba(0, 229, 255, 0.2); /* Sombra más grande */
+      box-shadow: 0 0 60px rgba(0, 229, 255, 0.2);
       animation: zoomIn 0.3s ease;
       
-      /* Grid Layout */
       display: grid;
-      grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
-      gap: 40px; /* Más separación entre las columnas */
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
       backdrop-filter: blur(15px);
-      align-content: start; /* Alinea el contenido al inicio */
+      align-content: start;
     }
     @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 
@@ -416,7 +420,7 @@
 
     .input-group { position: relative; margin-bottom: 20px; }
     .input-group input, .input-group select, .input-group textarea {
-        width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #444; /* Más padding */
+        width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; /* Más padding */
         background: #121212; color: white; font-size: 16px; outline: none; transition: 0.2s; /* Más grande */
     }
     .input-group input:focus, .input-group textarea:focus { border-color: var(--primary); }
@@ -437,13 +441,13 @@
 
     /* Contenedor de enlaces con Scroll */
     .links-scroll-container {
-        max-height: 550px; /* Altura máxima para el scroll */
+        max-height: 400px; /* Altura máxima para el scroll */
         overflow-y: auto; /* Habilitar scroll vertical */
         padding-right: 15px; /* Espacio para el scrollbar */
     }
 
     .links-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px solid #333; height: fit-content; }
-    .link-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; } /* Más margen */
+    .link-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; } /* Más margen */
     .link-row input, .link-row select { padding: 8px; font-size: 0.95rem; } /* Más grande */
     .btn-remove { background: #ff4444 !important; width: 45px !important; height: 45px; margin-top: 0 !important; display: flex; align-items: center; justify-content: center; } /* Más grande */
     
@@ -1044,7 +1048,7 @@
   <div id="modalEdit" class="modal">
     <div class="modal-content-wide">
       <span class="close" onclick="cerrarModalConConfirmacion('modalEdit')">&times;</span>
-      <div class="modal-header"><h2>Editar Juego</h2></div>
+      
       <form id="form-edit-game" style="display:contents;">
         <input type="hidden" id="edit-id">
         <div style="display: flex; flex-direction: column; gap: 5px;">
@@ -1072,7 +1076,7 @@
                     <option value="altos">Altos</option>
                 </select>
             </div>
-            <label style="color:#aaa; font-size:1rem; margin-bottom:5px;">Géneros</label>
+            
             <div class="genre-container">
                 <div class="genre-grid">
                     <div class="genre-item"><label><input type="checkbox" value="Indie" class="chk-genre-edit"> Indie</label></div>
@@ -1917,6 +1921,7 @@
     };
     
     window.abrirModalAgregar = () => {
+        document.body.classList.add('no-scroll'); // <--- AGREGA ESTO AQUÍ
         document.getElementById('modalAdmin').style.display = 'flex';
         document.getElementById('form-add-game').reset();
         document.getElementById('new-links-container').innerHTML = '';
@@ -2956,6 +2961,7 @@
     window.abrirEditar = (id) => {
         const j = juegos.find(x => x.id === id);
         if(!j) return;
+        document.body.classList.add('no-scroll'); // <--- AGREGA ESTO AQUÍ TAMBIÉN
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-title').value = j.titulo;
         document.getElementById('edit-image').value = j.imagen;

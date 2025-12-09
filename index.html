@@ -115,7 +115,9 @@
         </div>
         <div style="height: 20px;"></div>
         
-        <button onclick="irAlInicio()" title="Inicio (Pagina 1)"><i class="fa-solid fa-house"></i></button>
+        <button onclick="window.location.href='#'" title="Inicio">
+            <i class="fa-solid fa-house"></i>
+        </button>
         <button id="btnFavs" onclick="toggleMostrarFavoritos(this)" title="Mis Favoritos"><i class="fa-solid fa-heart"></i></button>
         <button id="btnLupa" onclick="toggleBuscador(this)" title="Buscar Juegos"><i class="fa-solid fa-search"></i></button>
         
@@ -137,6 +139,7 @@
       <div class="bottom-icons">
           <a target="_blank" href="https://www.instagram.com/pcjuegoss2025" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
       </div>
+    </div>
     </div>
 
     <button id="btnSubir" title="Subir" onclick="window.scrollTo({top:0,behavior:'smooth'})">
@@ -526,4 +529,5 @@
 
   <script type="module" src="script.js"></script>
 </body>
+
 </html>

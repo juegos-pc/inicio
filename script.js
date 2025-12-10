@@ -1942,6 +1942,7 @@ window.toggleFav = (t, btn) => {
 };
 
 // REEMPLAZAR TODA LA FUNCION
+// REEMPLAZAR TODA LA FUNCION
 window.toggleMostrarFavoritos = (btn) => {
     // 1. Comprobar si ya estamos en modo favoritos, si es asi, salir.
     if (isViewingFavs) {
@@ -1957,8 +1958,13 @@ window.toggleMostrarFavoritos = (btn) => {
         return;
     }
 
-    // Guardar la pagina actual del modo normal antes de cambiar
+    // Guarda la pagina actual del modo normal antes de cambiar
     paginaGuardadaAntesDeFavs = paginaActual;
+    
+    // *********************************************************
+    // IMPORTANTE: Forzar página 1 inmediatamente al entrar a la nueva vista
+    paginaActual = 1; 
+    // *********************************************************
 
     // Limpiar busqueda y filtros visuales (menos el orden)
     document.getElementById('searchInput').value = "";
@@ -1973,8 +1979,7 @@ window.toggleMostrarFavoritos = (btn) => {
     // Aplicar filtros para mostrar solo favoritos
     window.aplicarFiltrosGlobales(); 
 
-    // Resetear pagina a 1 y re-renderizar
-    paginaActual = 1;
+    // Solo necesitamos el scroll, el renderizado lo hace aplicarFiltrosGlobales
     window.scrollTo(0,0);
 
     showToast("Viendo solo favoritos");

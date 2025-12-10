@@ -95,6 +95,12 @@
             <button class="filtro-btn" onclick="toggleReq(this, 'bajos')">Bajos</button>
             <button class="filtro-btn" onclick="toggleReq(this, 'medios')">Medios</button>
             <button class="filtro-btn" onclick="toggleReq(this, 'altos')">Altos</button>
+            
+            <div id="favs-exit-container" style="display:none; margin-left:15px;">
+                <button class="filtro-btn" id="btnSalirFavs" onclick="salirDeFavoritos()">
+                    <i class="fa-solid fa-xmark"></i> Salir de Favoritos
+                </button>
+            </div>
         </div>
     </div>
 
@@ -115,9 +121,6 @@
         </div>
         <div style="height: 20px;"></div>
         
-        <button onclick="window.location.href='#'" title="Inicio">
-            <i class="fa-solid fa-house"></i>
-        </button>
         <button id="btnFavs" onclick="toggleMostrarFavoritos(this)" title="Mis Favoritos"><i class="fa-solid fa-heart"></i></button>
         <button id="btnLupa" onclick="toggleBuscador(this)" title="Buscar Juegos"><i class="fa-solid fa-search"></i></button>
         

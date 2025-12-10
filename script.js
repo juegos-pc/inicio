@@ -1981,6 +1981,7 @@ window.toggleMostrarFavoritos = (btn) => {
 };
 
 // ASEGURATE QUE ESTA FUNCION EXISTA EN TU SCRIPT.JS
+// REEMPLAZAR TODA LA FUNCION
 window.salirDeFavoritos = () => {
     const btnFavs = document.getElementById('btnFavs');
     
@@ -1988,13 +1989,25 @@ window.salirDeFavoritos = () => {
     if (btnFavs) btnFavs.classList.remove('active-menu');
     isViewingFavs = false;
     
-    // 2. Restaurar la pagina donde estaba antes de entrar a favoritos
-    paginaActual = paginaGuardadaAntesDeFavs;
-    if (paginaActual < 1) paginaActual = 1; 
+    // 2. Ocultar el boton de salida de favoritos
+    favsExitContainer.style.display = 'none';
+
+    // 3. Limpiar todos los filtros y busqueda (Visual y de estado)
+    document.getElementById('searchInput').value = "";
+    document.querySelectorAll('.filter-genre-chk').forEach(c => c.checked = false);
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+    activeReqFilter = null;
     
-    // 3. Aplicar los filtros para volver a la lista normal de juegos
+    // 4. FORZAR EL ORDEN A "LANZAMIENTO (NUEVOS)"
+    document.getElementById('sortSelect').value = 'date_release_new'; 
+
+    // 5. Restaurar la pagina donde estaba antes de entrar a favoritos
+    paginaActual = paginaGuardadaAntesDeFavs;
+    if (paginaActual < 1) paginaActual = 1; // Seguridad
+    
+    // 6. Aplicar los cambios y volver a renderizar la lista normal
     window.aplicarFiltrosGlobales(); 
-    window.scrollTo(0,0);
+    window.scrollTo({top:0, behavior:'smooth'});
     
     showToast("Volviendo a la lista de juegos");
 };

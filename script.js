@@ -38,6 +38,8 @@ let allUsersCache = [];
 let respondingToId = null;
 let currentCommentLimit = 30; 
 let paginaGuardadaAntesDeBusqueda = 1; 
+let paginaGuardadaAntesDeFavs = 1; // NUEVA variable para guardar la pagina actual antes de entrar a Favs
+let isViewingFavs = false; // NUEVA bandera para saber si estamos viendo favoritos
 
 const malasPalabras = ["estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo", "pelotudo","tarado","berga",];
 
@@ -57,6 +59,7 @@ const searchInput = document.getElementById('searchInput');
 const autocompleteList = document.getElementById('autocomplete-list');
 const reqGameInput = document.getElementById('req-game-input');
 const reqStatusMessage = document.getElementById('req-status-message');
+const favsExitContainer = document.getElementById('favs-exit-container'); // Nuevo elemento DOM
 
 // NOTIFICACIONES
 window.showToast = (msg, type = 'info') => {
@@ -483,25 +486,23 @@ searchInput.addEventListener('input', function() {
 });
 
 window.irAlInicio = () => {
+    // ESTA FUNCION SE MANTIENE PARA LIMPIAR FILTROS Y BUSQUEDA, PERO SE HA ELIMINADO EL BOTON DE INICIO
     // 1. Limpiar el buscador y filtros visuales
     document.getElementById('searchInput').value = "";
     document.querySelectorAll('.filter-genre-chk').forEach(c => c.checked = false);
     activeReqFilter = null;
     document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
 
-    // 2. APAGAR MODO FAVORITOS (Esto es lo que faltaba)
+    // 2. APAGAR MODO FAVORITOS
     const btnFavs = document.getElementById('btnFavs');
-    const gameList = document.getElementById('gameList');
-    
-    // Quita el color rosa del botón corazón
     if (btnFavs) btnFavs.classList.remove('active-menu');
-    // Quita la marca interna de que estamos viendo favoritos
-    if (gameList) gameList.classList.remove('solo-favs');
+    isViewingFavs = false;
+    favsExitContainer.style.display = 'none';
 
     // 3. Forzar orden por "Lanzamiento (Nuevos)"
     document.getElementById('sortSelect').value = 'date_release_new'; 
 
-    // 4. Resetear paginación a la 1
+    // 4. Resetear paginacion a la 1
     paginaActual = 1;
     paginaGuardadaAntesDeBusqueda = 1;
     
@@ -526,7 +527,9 @@ window.aplicarFiltrosGlobales = () => {
     const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
     const sortMode = document.getElementById('sortSelect').value;
 
-    juegosFiltrados = juegos.filter(j => {
+    let juegosBase = isViewingFavs ? juegos.filter(j => favoritos.includes(j.titulo)) : juegos;
+
+    juegosFiltrados = juegosBase.filter(j => {
         const matchText = normalizarTexto(j.titulo).includes(texto);
         let matchReq = true;
         if (activeReqFilter) matchReq = (j.requisito || "").includes(activeReqFilter);
@@ -1916,85 +1919,86 @@ document.getElementById('form-edit-game').addEventListener('submit', async (e) =
     } catch(e) { showToast(e.message, "error"); }
 });
 
+// REEMPLAZAR TODA LA FUNCION
 window.toggleFav = (t, btn) => {
+    let mensaje = "";
     if(favoritos.includes(t)) {
         favoritos = favoritos.filter(f => f !== t);
-        if(btn) {
-            const icon = btn.querySelector('i');
-            if(icon) {
-                icon.classList.remove('fav', 'fa-solid');
-                icon.classList.add('fa-regular');
-            }
-        }
-        showToast("Quitado de favoritos");
+        mensaje = "Quitado de favoritos";
     } else {
         favoritos.push(t);
-        if(btn) {
-            const icon = btn.querySelector('i');
-            if(icon) {
-                icon.classList.remove('fa-regular');
-                icon.classList.add('fav', 'fa-solid');
-            }
-        }
-        showToast("Agregado a favoritos", "success");
+        mensaje = "Agregado a favoritos";
     }
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
     
-    // Si estamos en la vista de solo favoritos, refrescar
-    const btnFavs = document.getElementById('btnFavs');
-    if(btnFavs && btnFavs.classList.contains('active-menu')) {
-        juegosFiltrados = juegos.filter(j => favoritos.includes(j.titulo));
-        renderizarJuegos();
-    }
-};
-
-window.toggleMostrarFavoritos = (btn) => {
-    // 1. Comprobar si el botón YA tiene la clase de activo
-    const estaEnFavoritos = btn.classList.contains('active-menu');
-
-    if (estaEnFavoritos) {
-        // ----------------------------------------------------
-        // CASO 1: YA ESTOY EN FAVORITOS -> QUIERO SALIR (OFF)
-        // ----------------------------------------------------
-        
-        // 1. Quitar el color al botón
-        btn.classList.remove('active-menu');
-        
-        // 2. Volver a la pagina 1
-        paginaActual = 1;
-
-        // 3. ESTO ES LO IMPORTANTE:
-        // Llamamos a la funcion de filtros globales.
-        // Como 'juegos' (la variable maestra) tiene TODOS los juegos,
-        // esta funcion volvera a llenar 'juegosFiltrados' con todo.
+    // Si estamos en modo favoritos, forzar la actualizacion
+    if(isViewingFavs) {
         window.aplicarFiltrosGlobales(); 
-
-        showToast("Viendo todos los juegos");
-
     } else {
-        // ----------------------------------------------------
-        // CASO 2: NO ESTOY EN FAVORITOS -> QUIERO ENTRAR (ON)
-        // ----------------------------------------------------
-
-        // 1. Poner el color al botón
-        btn.classList.add('active-menu');
-
-        // 2. Filtrar manualmente solo los que coinciden con el array de favoritos
-        // Usamos 'juegos' (la lista completa) como base
-        juegosFiltrados = juegos.filter(j => favoritos.includes(j.titulo));
-
-        // 3. Resetear pagina y mostrar
-        paginaActual = 1;
+        // Solo para refrescar el icono en la tarjeta si no estamos en modo favoritos
         renderizarJuegos();
-
-        // Mensaje opcional
-        if(juegosFiltrados.length === 0) {
-            showToast("Aún no tienes favoritos guardados.", "info");
-        } else {
-            showToast("Viendo solo favoritos");
-        }
     }
+    showToast(mensaje, favoritos.includes(t) ? "success" : "info");
 };
+
+// REEMPLAZAR TODA LA FUNCION
+window.toggleMostrarFavoritos = (btn) => {
+    // 1. Comprobar si ya estamos en modo favoritos, si es asi, salir.
+    if (isViewingFavs) {
+        window.salirDeFavoritos();
+        return;
+    }
+    
+    // 2. Si no estamos en favoritos, ENTRAR:
+    
+    // Si no hay favoritos guardados, no entrar al modo
+    if (favoritos.length === 0) {
+        showToast("Aun no tienes favoritos guardados.", "error");
+        return;
+    }
+
+    // Guardar la pagina actual del modo normal antes de cambiar
+    paginaGuardadaAntesDeFavs = paginaActual;
+
+    // Limpiar busqueda y filtros visuales (menos el orden)
+    document.getElementById('searchInput').value = "";
+    document.querySelectorAll('.filter-genre-chk').forEach(c => c.checked = false);
+    activeReqFilter = null;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+    
+    // Poner el color al boton y activar la bandera
+    btn.classList.add('active-menu');
+    isViewingFavs = true;
+
+    // Aplicar filtros para mostrar solo favoritos
+    window.aplicarFiltrosGlobales(); 
+
+    // Resetear pagina a 1 y re-renderizar
+    paginaActual = 1;
+    window.scrollTo(0,0);
+
+    showToast("Viendo solo favoritos");
+};
+
+// ASEGURATE QUE ESTA FUNCION EXISTA EN TU SCRIPT.JS
+window.salirDeFavoritos = () => {
+    const btnFavs = document.getElementById('btnFavs');
+    
+    // 1. Quitar el color al boton y desactivar la bandera
+    if (btnFavs) btnFavs.classList.remove('active-menu');
+    isViewingFavs = false;
+    
+    // 2. Restaurar la pagina donde estaba antes de entrar a favoritos
+    paginaActual = paginaGuardadaAntesDeFavs;
+    if (paginaActual < 1) paginaActual = 1; 
+    
+    // 3. Aplicar los filtros para volver a la lista normal de juegos
+    window.aplicarFiltrosGlobales(); 
+    window.scrollTo(0,0);
+    
+    showToast("Volviendo a la lista de juegos");
+};
+
 
 window.toggleBuscador = (btn) => {
     const bar = document.getElementById('buscadorExpandido');

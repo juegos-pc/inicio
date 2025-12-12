@@ -288,28 +288,6 @@ onAuthStateChanged(auth, async (user) => {
     }, 3000); 
 });
 
-let modoRegistro = false;
-document.getElementById('btn-auth-submit').addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    try {
-        if(modoRegistro) {
-            const cred = await createUserWithEmailAndPassword(auth, email, pass);
-            await setDoc(doc(db, "usuarios", cred.user.uid), { email, rol: "user", insultos: 0, baneado: false, visitedGames: 0 });
-            showToast("Bienvenido! Cuenta creada.", "success");
-        } else {
-            await signInWithEmailAndPassword(auth, email, pass);
-        }
-    } catch(e) { showToast(e.message, 'error'); }
-});
-
-document.getElementById('toggle-auth').onclick = () => {
-    modoRegistro = !modoRegistro;
-    document.getElementById('toggle-auth').innerText = modoRegistro ? "Ya tienes cuenta? Inicia Sesion" : "No tienes cuenta? Registrate gratis";
-    document.getElementById('btn-auth-submit').innerText = modoRegistro ? "CREAR CUENTA" : "INGRESAR";
-};
-
 document.getElementById('btn-google-login').onclick = async () => {
     try {
         const res = await signInWithPopup(auth, googleProvider);

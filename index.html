@@ -27,9 +27,18 @@
   </div>
 
   <div id="login-screen">
+    
+    <div class="login-side-text left-side">
+        <h2>Bienvenido</h2>
+        <p>Explora cientos de juegos seleccionados para ti. Sin publicidad molesta, enlaces directos y la mejor comunidad.</p>
+        <br>
+        <i class="fa-solid fa-gamepad" style="font-size:3rem; color:var(--primary);"></i>
+    </div>
+
     <div class="login-box">
       <h1>Zona Gamer</h1>
-      <p>Inicia sesion o crea una cuenta</p>
+      <p>Elige una opción para entrar</p>
+      
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
       </button>
@@ -37,15 +46,15 @@
       <button class="btn-guest" id="btn-guest-login">
         <i class="fa-solid fa-user-secret"></i> Entrar como Invitado
       </button>
-
-      <div class="divider">O USA TU EMAIL</div>
-      <form id="auth-form">
-        <input type="email" id="email" placeholder="Correo electronico" required>
-        <input type="password" id="password" placeholder="Contrasena" required>
-        <button type="submit" id="btn-auth-submit">INGRESAR</button>
-      </form>
-      <span class="toggle-link" id="toggle-auth">No tienes cuenta? Registrate</span>
     </div>
+
+    <div class="login-side-text right-side">
+        <h2>Novedades</h2>
+        <p>Actualizamos el catálogo semanalmente. Guarda tus favoritos en la nube iniciando sesión con Google.</p>
+        <br>
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size:3rem; color:var(--secondary);"></i>
+    </div>
+
   </div>
 
   <div id="app-content" style="display:none;">

@@ -136,53 +136,6 @@ function censurarTexto(texto) {
     return textoLimpio;
 }
 
-// CONTROL DE ESTADO DEL SITIO (MANTENIMIENTO)
-onSnapshot(doc(db, "configuracion", "general"), (docSnap) => {
-    if(docSnap.exists()) {
-        const data = docSnap.data();
-        if(data.modoMantenimiento) {
-            // SI ESTA ACTIVO MANTENIMIENTO
-            if(!esAdmin && !esDios) {
-                // Si tienes maintenanceScreen en HTML, descomentar:
-                // maintenanceScreen.style.display = 'flex';
-                appContent.style.display = 'none';
-                loginScreen.style.display = 'none';
-            }
-        } else {
-            // maintenanceScreen.style.display = 'none';
-            if(usuarioActual || esInvitado) appContent.style.display = 'block';
-            else loginScreen.style.display = 'flex';
-        }
-        // Actualizar texto boton admin
-        const btnToggle = document.getElementById('btn-toggle-site');
-        if(btnToggle) {
-            btnToggle.innerText = data.modoMantenimiento ? "ABRIR PAGINA (Quitar Mantenimiento)" : "CERRAR PAGINA (Activar Mantenimiento)";
-            btnToggle.style.background = data.modoMantenimiento ? "green" : "red";
-            btnToggle.style.color = "white";
-        }
-    } else {
-        // CREAR DOC SI NO EXISTE
-        setDoc(doc(db, "configuracion", "general"), { modoMantenimiento: false });
-    }
-});
-
-window.toggleEstadoSitio = async () => {
-    const btn = document.getElementById('btn-toggle-site');
-    const actualText = btn.innerText;
-    const nuevoEstado = actualText.includes("CERRAR"); // Si dice cerrar, vamos a true
-     
-    try {
-        await updateDoc(doc(db, "configuracion", "general"), { modoMantenimiento: nuevoEstado });
-        showToast(nuevoEstado ? "Sitio puesto en Mantenimiento." : "Sitio Abierto al publico.", "success");
-    } catch(e) { showToast("Error al cambiar estado", "error"); }
-};
-
-window.mostrarLoginMantenimiento = () => {
-    // maintenanceScreen.style.display = 'none';
-    loginScreen.style.display = 'flex';
-    loginScreen.style.opacity = '1';
-};
-
 document.addEventListener('keydown', (e) => {
     if (e.key === "Escape") { 
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
@@ -274,6 +227,15 @@ onAuthStateChanged(auth, async (user) => {
                     userData = data; 
                     currentUserRole = data.rol || "user";
                     
+                    // --- NUEVO: CARGAR FAVORITOS DESDE LA NUBE ---
+                    // Si el usuario tiene favoritos en la base de datos, los cargamos
+                    // y actualizamos el localStorage para que se vean de inmediato.
+                    if (data.favoritos && Array.isArray(data.favoritos)) {
+                        favoritos = data.favoritos;
+                        localStorage.setItem("favoritos", JSON.stringify(favoritos));
+                    }
+                    // ----------------------------------------------
+                    
                     document.getElementById('user-role-display').innerText = currentUserRole.toUpperCase();
 
                     if (data.rol === "dios") {
@@ -301,12 +263,16 @@ onAuthStateChanged(auth, async (user) => {
 
                     if(!userData.visitedGames) await updateDoc(doc(db, "usuarios", user.uid), { visitedGames: 0 });
                 } else {
+                    // Crea el usuario nuevo si no existe
                     await setDoc(doc(db, "usuarios", user.uid), { email: user.email, rol: "user", insultos: 0, baneado: false, visitedGames: 0 });
                     userData = { visitedGames: 0 };
                     document.getElementById('user-role-display').innerText = "USUARIO";
                 }
             } catch (e) {console.error(e)}
+            
+            // Refrescamos los juegos para que se pinten los corazones correctos
             cargarJuegos();
+            
         } else if (!esInvitado) {
             loadingScreen.style.opacity = '0';
             setTimeout(() => {
@@ -1919,30 +1885,42 @@ document.getElementById('form-edit-game').addEventListener('submit', async (e) =
     } catch(e) { showToast(e.message, "error"); }
 });
 
-// REEMPLAZAR TODA LA FUNCION
-window.toggleFav = (t, btn) => {
-    let mensaje = "";
+window.toggleFav = async (t, btn) => {
+    // 1. Lógica local (Visual inmediata)
+    let action = ""; // 'add' o 'remove'
     if(favoritos.includes(t)) {
         favoritos = favoritos.filter(f => f !== t);
-        mensaje = "Quitado de favoritos";
+        action = 'remove';
+        showToast("Quitado de favoritos", "info");
     } else {
         favoritos.push(t);
-        mensaje = "Agregado a favoritos";
+        action = 'add';
+        showToast("Agregado a favoritos", "success");
     }
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
-    
-    // Si estamos en modo favoritos, forzar la actualizacion
+
+    // 2. Actualizar UI
     if(isViewingFavs) {
         window.aplicarFiltrosGlobales(); 
     } else {
-        // Solo para refrescar el icono en la tarjeta si no estamos en modo favoritos
         renderizarJuegos();
     }
-    showToast(mensaje, favoritos.includes(t) ? "success" : "info");
+
+    // 3. Lógica Nube (Firebase)
+    if (usuarioActual) {
+        try {
+            const userRef = doc(db, "usuarios", usuarioActual.uid);
+            if (action === 'add') {
+                await updateDoc(userRef, { favoritos: arrayUnion(t) });
+            } else {
+                await updateDoc(userRef, { favoritos: arrayRemove(t) });
+            }
+        } catch (e) {
+            console.error("Error al sincronizar favoritos:", e);
+        }
+    }
 };
 
-// REEMPLAZAR TODA LA FUNCION
-// REEMPLAZAR TODA LA FUNCION
 window.toggleMostrarFavoritos = (btn) => {
     // 1. Comprobar si ya estamos en modo favoritos, si es asi, salir.
     if (isViewingFavs) {

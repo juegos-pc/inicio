@@ -419,6 +419,10 @@ searchInput.addEventListener('input', function() {
     }
     
     if(val.length === 0) {
+        // --- NUEVO: Forzar orden por Lanzamiento (Nuevos) al borrar ---
+        document.getElementById('sortSelect').value = 'date_release_new'; 
+        // -------------------------------------------------------------
+
         // Restaurar pagina si borra lo que decia
         if(paginaGuardadaAntesDeBusqueda !== 1) {
             paginaActual = paginaGuardadaAntesDeBusqueda;
@@ -430,6 +434,7 @@ searchInput.addEventListener('input', function() {
 
     window.aplicarFiltrosGlobales();
     if (!val) { autocompleteList.style.display = 'none'; return; }
+    // ... (el resto del código de autocompletado sigue igual) ...
     const matches = juegos.filter(j => normalizarTexto(j.titulo).includes(val)).slice(0, 5);
     autocompleteList.innerHTML = '';
     if (matches.length > 0) {
@@ -1999,9 +2004,22 @@ window.salirDeFavoritos = () => {
 window.toggleBuscador = (btn) => {
     const bar = document.getElementById('buscadorExpandido');
     if(bar.classList.contains('visible')) {
+        // --- AL CERRAR (SALIR) ---
         bar.classList.remove('visible');
         btn.classList.remove('active-menu');
+        
+        // 1. Limpiar el texto
+        document.getElementById('searchInput').value = "";
+        // 2. Forzar orden por Lanzamiento (Nuevos)
+        document.getElementById('sortSelect').value = 'date_release_new';
+        // 3. Ocultar autocompletado si quedó abierto
+        autocompleteList.style.display = 'none';
+        
+        // 4. Aplicar los cambios para recargar la lista
+        window.aplicarFiltrosGlobales();
+
     } else {
+        // --- AL ABRIR ---
         bar.classList.add('visible');
         btn.classList.add('active-menu');
         setTimeout(() => document.getElementById('searchInput').focus(), 100);

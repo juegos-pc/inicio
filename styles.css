@@ -21,7 +21,9 @@ body {
     overflow-x: hidden;
     display: flex; flex-direction: column; min-height: 100vh;
     font-size: 17px;
+    zoom: 0.7;
 }
+
 
 body.no-scroll { overflow: hidden !important; }
 
@@ -806,4 +808,45 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     .modal-game-details { height: auto; min-height: 90vh; display: block; }
     .panel-container { flex-direction: column; height: auto; }
     .panel-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
+}
+
+
+/* --- CORRECCIONES FINALES (ZOOM 0.7 + MODALES ALTOS) --- */
+
+/* 1. Modales y Pantallas de Carga (Fondo completo) */
+#loading-screen,
+#login-screen,
+.modal {
+    height: 143vh !important;
+    width: 143vw !important;
+}
+
+/* 2. Menú Lateral (Solo altura) */
+#menuClosed {
+    height: 143vh !important;
+}
+
+/* 3. Buscador Expandido (Ancho completo) */
+#buscadorExpandido {
+    width: 143vw !important;
+}
+
+/* 4. TAMAÑO INTERNO (Zoom interno para que no se vea minúsculo) */
+.modal-content-wide,
+.modal-content-small,
+.modal-game-details,
+.login-box {
+    zoom: 0.9; 
+}
+
+/* 5. HACER LOS MODALES MÁS ALTOS (NUEVO) */
+/* Esto estira la ventana de detalles del juego y el admin */
+.modal-game-details {
+    height: 150vh !important; /* Ocupa el 96% de la altura disponible */
+    margin-top: 2vh !important; /* Lo sube un poco para centrarlo */
+}
+
+.modal-content-wide {
+    min-height: 150vh !important; /* Fuerza al panel de admin a ser alto */
+    margin-top: 2vh !important;
 }

@@ -1695,6 +1695,8 @@ function abrirDescargas(juego) {
             else if(srvLower.includes("mega")) icon = "fa-cloud";
             else if(srvLower.includes("drive") || srvLower.includes("google")) icon = "fa-google-drive";
             else if(srvLower.includes("torrent")) icon = "fa-magnet";
+            else if(srvLower.includes("update")) icon = "fa-rotate";
+            else if(srvLower.includes("fix")) icon = "fa-wrench";
 
             const btn = document.createElement('button');
             btn.className = "accordion-btn";
@@ -1780,6 +1782,8 @@ window.agregarInputLink = (contId, srv='Mediafire', url='', nota='') => {
             <option value="Mega" ${srv==='Mega'?'selected':''}>Mega</option>
             <option value="Google Drive" ${srv==='Google Drive'?'selected':''}>Google Drive</option>
             <option value="Torrent" ${srv==='Torrent'?'selected':''}>Torrent</option>
+            <option value="Update" ${srv==='Update'?'selected':''}>Update</option>
+            <option value="Fix" ${srv==='Fix'?'selected':''}>Fix online</option>
             <option value="Otro" ${!['Mediafire','Mega','Google Drive','Torrent'].includes(srv)?'selected':''}>Otro</option>
         </select>
         <input type="text" placeholder="Etiqueta" class="note-in" style="width:20%" value="${nota}">

@@ -1776,6 +1776,19 @@ window.pegarEnInput = async (btn) => {
 window.agregarInputLink = (contId, srv='Mediafire', url='', nota='') => {
     const div = document.createElement('div');
     div.className = "link-row";
+    div.draggable = true; // <--- ESTO ES CLAVE
+    div.style.cursor = "grab"; // Para que se vea la manito
+
+    // Eventos para arrastrar (Drag & Drop nativo)
+    div.addEventListener('dragstart', (e) => {
+        div.classList.add('dragging'); // Le ponemos una clase al que movemos
+    });
+
+    div.addEventListener('dragend', () => {
+        div.classList.remove('dragging');
+    });
+    
+    // ... el resto de tu código HTML (select, inputs, etc) ...
     div.innerHTML = `
         <select class="srv-in" style="width:30%">
             <option value="Mediafire" ${srv==='Mediafire'?'selected':''}>Mediafire</option>
@@ -2072,3 +2085,34 @@ document.getElementById('contact-game-name').addEventListener('input', function(
         list.style.display = 'none';
     }
 });
+function enableDragSort(containerId) {
+    const container = document.getElementById(containerId);
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Necesario para permitir el drop
+        const afterElement = getDragAfterElement(container, e.clientY);
+        const draggable = document.querySelector('.dragging');
+        if (afterElement == null) {
+            container.appendChild(draggable);
+        } else {
+            container.insertBefore(draggable, afterElement);
+        }
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.link-row:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// Activamos la magia en los dos contenedores de links
+enableDragSort('new-links-container');
+enableDragSort('edit-links-container');

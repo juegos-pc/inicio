@@ -112,12 +112,12 @@
           
           <div class="filters-wrapper">
               
-              <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-genres-list').style.display='none', 200)">
+              <div class="custom-multi-select">
                   <div class="select-box" onclick="toggleMultiSelect('adv-genres-list')">Generos <i class="fa-solid fa-chevron-down"></i></div>
                   <div class="select-options" id="adv-genres-list"></div>
               </div>
               
-              <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-reqs-list').style.display='none', 200)">
+              <div class="custom-multi-select">
                   <div class="select-box" onclick="toggleMultiSelect('adv-reqs-list')">Requisitos <i class="fa-solid fa-chevron-down"></i></div>
                   <div class="select-options" id="adv-reqs-list">
                       <label><input type="checkbox" value="bajos" class="adv-req-chk" onchange="aplicarFiltrosGlobales()"> Bajos</label>
@@ -126,7 +126,7 @@
                   </div>
               </div>
 
-              <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-sort-list').style.display='none', 200)">
+              <div class="custom-multi-select">
                   <div class="select-box" onclick="toggleMultiSelect('adv-sort-list')">Orden / Lanzamiento <i class="fa-solid fa-chevron-down"></i></div>
                   <div class="select-options" id="adv-sort-list">
                       <label><input type="radio" name="adv_sort" value="date_release_new" onchange="aplicarFiltrosGlobales()" checked> Lanzamiento (Nuevos)</label>
@@ -136,7 +136,7 @@
                       <label><input type="radio" name="adv_sort" value="alpha_az" onchange="aplicarFiltrosGlobales()"> Nombre (A-Z)</label>
                       <label><input type="radio" name="adv_sort" value="alpha_za" onchange="aplicarFiltrosGlobales()"> Nombre (Z-A)</label>
                       <label><input type="radio" name="adv_sort" value="rating" onchange="aplicarFiltrosGlobales()"> Mayor Puntaje</label>
-                  </div>
+                      <label><input type="radio" name="adv_sort" value="views" onchange="aplicarFiltrosGlobales()"> Más Vistas</label> </div>
               </div>
               
               <div id="favs-exit-container" style="display:none; align-items:center;">

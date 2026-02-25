@@ -26,7 +26,7 @@ let userData = null;
 let currentUserRole = "user"; 
 let esAdmin = false;
 let esDios = false; 
-let esInvitado = false;
+let esInvitado = sessionStorage.getItem('modoInvitado') === 'true';
 let usuarioBaneado = false;
 let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
 let juegoSeleccionadoId = null; 
@@ -69,9 +69,20 @@ window.showToast = (msg, type = 'info') => {
     setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(), 300); }, 3000);
 };
 
+// MANEJO DEL HISTORIAL DEL NAVEGADOR (BOTÓN ATRÁS Y ADELANTE)
 window.onpopstate = (event) => {
-    if (event.state && event.state.page) {
-        paginaActual = event.state.page;
+    if (event.state && event.state.view === 'game' && event.state.gameId) {
+        const targetGame = juegos.find(j => j.id === event.state.gameId);
+        if (targetGame) {
+            window.abrirDescargas(targetGame, false);
+        }
+    } else {
+        if (event.state && event.state.page) {
+            paginaActual = event.state.page;
+        } else {
+            paginaActual = 1;
+        }
+        window.cerrarGameDetails(false);
         renderizarJuegos();
     }
 };
@@ -142,10 +153,10 @@ document.addEventListener('keydown', (e) => {
     if (e.key === "/" && !document.querySelector('input:focus') && !document.querySelector('textarea:focus')) { e.preventDefault(); document.getElementById('searchInput').focus(); }
     if (e.key === "ArrowRight" && document.getElementById('app-content').style.display !== 'none') {
         const total = Math.ceil(juegosFiltrados.length / juegosPorPagina);
-        if(paginaActual < total) { paginaActual++; renderizarJuegos(); window.scrollTo(0,0); }
+        if(paginaActual < total) { paginaActual++; history.pushState({view: 'home', page: paginaActual}, "", `?page=${paginaActual}`); renderizarJuegos(); window.scrollTo(0,0); }
     }
     if (e.key === "ArrowLeft" && document.getElementById('app-content').style.display !== 'none') {
-        if(paginaActual > 1) { paginaActual--; renderizarJuegos(); window.scrollTo(0,0); }
+        if(paginaActual > 1) { paginaActual--; history.pushState({view: 'home', page: paginaActual}, "", `?page=${paginaActual}`); renderizarJuegos(); window.scrollTo(0,0); }
     }
 });
 
@@ -157,6 +168,7 @@ document.getElementById('new-comment-text').addEventListener('keydown', (e) => {
 });
 
 document.getElementById('btn-guest-login').onclick = () => {
+    sessionStorage.setItem('modoInvitado', 'true');
     esInvitado = true;
     usuarioActual = null;
     esAdmin = false;
@@ -185,6 +197,7 @@ onAuthStateChanged(auth, async (user) => {
     setTimeout(async () => {
         if (user) {
             esInvitado = false;
+            sessionStorage.removeItem('modoInvitado');
             usuarioActual = user;
             
             loadingScreen.style.opacity = '0';
@@ -271,8 +284,11 @@ onAuthStateChanged(auth, async (user) => {
             usuarioActual = null;
             esAdmin = false;
             esDios = false;
+        } else {
+            // Entrar como invitado si viene desde otra pestaña (con sessionStorage)
+            document.getElementById('btn-guest-login').click();
         }
-    }, 3000); 
+    }, 1500); 
 });
 
 document.getElementById('btn-google-login').onclick = async () => {
@@ -285,7 +301,12 @@ document.getElementById('btn-google-login').onclick = async () => {
 };
 
 document.getElementById('btnLogout').onclick = () => {
-    if(esInvitado) window.location.reload(); else signOut(auth);
+    if(esInvitado) {
+        sessionStorage.removeItem('modoInvitado');
+        window.location.reload(); 
+    } else {
+        signOut(auth);
+    }
 };
 
 window.toggleMenu = (btn, id) => {
@@ -314,6 +335,11 @@ window.onclick = (e) => {
     if (!e.target.closest('#contextMenu')) contextMenu.style.display = 'none';
     if (!e.target.closest('.search-input-wrapper')) autocompleteList.style.display = 'none';
     
+    // Cierra los menus desplegables si haces click afuera
+    if (!e.target.closest('.custom-multi-select')) {
+        document.querySelectorAll('.select-options').forEach(opt => opt.style.display = 'none');
+    }
+
     document.getElementById('contact-autocomplete-list').style.display = 'none';
     document.getElementById('admin-autocomplete-list').style.display = 'none';
     
@@ -389,7 +415,7 @@ searchInput.addEventListener('input', function() {
             div.className = 'autocomplete-item';
             div.innerText = j.titulo;
             div.onclick = () => {
-                abrirDescargas(j);
+                window.abrirDescargas(j);
                 autocompleteList.style.display = 'none';
             };
             autocompleteList.appendChild(div);
@@ -435,6 +461,8 @@ window.aplicarFiltrosGlobales = () => {
 
     if (sortMode === 'rating') {
         juegosFiltrados.sort((a, b) => parseFloat(getAvgRating(b)) - parseFloat(getAvgRating(a)));
+    } else if (sortMode === 'views') {
+        juegosFiltrados.sort((a, b) => (b.views || 0) - (a.views || 0));
     } else if (sortMode === 'date_new') {
         juegosFiltrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
     } else if (sortMode === 'date_old') {
@@ -451,7 +479,6 @@ window.aplicarFiltrosGlobales = () => {
 
     renderizarJuegos();
 };
-
 
 async function cargarGenerosGlobales() {
     try {
@@ -553,12 +580,16 @@ async function cargarJuegos() {
     juegosFiltrados = [...juegos];
     renderizarJuegos();
 
+    // Revisa si la URL mandó a abrir un juego directo
     const gameId = urlParams.get('game');
     if(gameId) {
         const targetGame = juegos.find(j => j.id === gameId);
         if(targetGame) {
-            setTimeout(() => abrirDescargas(targetGame), 500);
+            history.replaceState({view: 'game', gameId: targetGame.id}, "", "?game=" + targetGame.id);
+            setTimeout(() => window.abrirDescargas(targetGame, false), 500);
         }
+    } else {
+        history.replaceState({view: 'home', page: paginaActual}, "", window.location.pathname + (paginaActual > 1 ? "?page=" + paginaActual : ""));
     }
 }
 
@@ -591,7 +622,7 @@ function renderizarJuegos() {
         const fechaFormateada = formatearFecha(juego.fechaSalida || juego.fecha);
         const views = juego.views || 0;
 
-        card.onclick = (e) => { if(!e.target.closest('.heart')) abrirDescargas(juego); };
+        card.onclick = (e) => { if(!e.target.closest('.heart')) window.abrirDescargas(juego); };
         
         card.oncontextmenu = (e) => {
             if(esAdmin) {
@@ -649,7 +680,7 @@ function renderPaginationControls() {
         btnPrev.style.opacity = "0.5"; 
         btnPrev.style.cursor="not-allowed";
     } else {
-        btnPrev.onclick = () => { paginaActual--; history.pushState({page: paginaActual}, "", `?page=${paginaActual}`); renderizarJuegos(); window.scrollTo(0,0); };
+        btnPrev.onclick = () => { paginaActual--; history.pushState({view: 'home', page: paginaActual}, "", `?page=${paginaActual}`); renderizarJuegos(); window.scrollTo(0,0); };
     }
     container.appendChild(btnPrev);
 
@@ -681,7 +712,7 @@ function renderPaginationControls() {
         } else {
             btn.onclick = () => {
                 paginaActual = p;
-                history.pushState({page: p}, "", `?page=${p}`);
+                history.pushState({view: 'home', page: p}, "", `?page=${p}`);
                 window.scrollTo(0,0);
                 renderizarJuegos();
             };
@@ -696,7 +727,7 @@ function renderPaginationControls() {
         btnNext.style.opacity="0.5"; 
         btnNext.style.cursor="not-allowed";
     } else {
-        btnNext.onclick = () => { paginaActual++; history.pushState({page: paginaActual}, "", `?page=${paginaActual}`); renderizarJuegos(); window.scrollTo(0,0); };
+        btnNext.onclick = () => { paginaActual++; history.pushState({view: 'home', page: paginaActual}, "", `?page=${paginaActual}`); renderizarJuegos(); window.scrollTo(0,0); };
     }
     container.appendChild(btnNext);
 }
@@ -765,7 +796,7 @@ window.cargarNotificaciones = () => {
     ultimos.forEach(j => {
         const div = document.createElement('div');
         div.className = "notif-item";
-        div.onclick = () => abrirDescargas(j);
+        div.onclick = () => window.abrirDescargas(j);
         const fecha = formatearFecha(j.fecha);
         div.innerHTML = `<div style="font-weight:bold;">${j.titulo}</div><span class="notif-date"> ${fecha}</span>`;
         lista.appendChild(div);
@@ -775,7 +806,7 @@ window.cargarNotificaciones = () => {
 window.abrirJuegoAleatorio = () => {
     if(juegos.length === 0) return showToast("Cargando juegos...", "error");
     const random = juegos[Math.floor(Math.random() * juegos.length)];
-    abrirDescargas(random);
+    window.abrirDescargas(random);
 };
 
 function getYoutubeId(url) {
@@ -1426,7 +1457,7 @@ window.verComentarioReportado = async (gameId, commentId) => {
     document.getElementById('modalPanelUnificado').style.display = 'none';
     const game = juegos.find(j => j.id === gameId);
     if(game) {
-        abrirDescargas(game);
+        window.abrirDescargas(game, false);
         setTimeout(() => {
             cargarComentarios(gameId, commentId);
         }, 500);
@@ -1633,7 +1664,7 @@ function mostrarSimilares(juego) {
                 return;
             }
             if(!e.target.closest('.heart')) {
-                abrirDescargas(j); 
+                window.abrirDescargas(j); 
             }
         };
 
@@ -1717,8 +1748,12 @@ function iniciarCarruselAutomatico(list) {
     }, 3000);
 }
 
-// LOGICA DE PÁGINA FULL SCREEN AL ABRIR UN JUEGO
-function abrirDescargas(juego) {
+// LOGICA DE PÁGINA FULL SCREEN AL ABRIR UN JUEGO CON HISTORIAL
+window.abrirDescargas = function(juego, pushState = true) {
+    if (pushState) {
+        history.pushState({view: 'game', gameId: juego.id}, "", "?game=" + juego.id);
+    }
+    
     currentGameOpen = juego;
     currentCommentLimit = 30; 
     
@@ -1842,12 +1877,18 @@ function abrirDescargas(juego) {
     }
 }
 
-// LOGICA PARA VOLVER A INICIO DESDE LA PÁGINA DEL JUEGO
-window.cerrarGameDetails = () => {
-    clearInterval(window.carouselInterval); // Corta el carrusel para no consumir recursos
+// LOGICA PARA VOLVER A INICIO (CON HISTORIAL O BOTÓN)
+window.cerrarGameDetails = (pushState = true) => {
+    clearInterval(window.carouselInterval); 
     document.getElementById('game-details-page').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    document.getElementById('btnSubir').style.display = 'block';
     document.body.classList.remove('no-scroll');
-    document.getElementById('trailer-content').innerHTML = ''; // Corta el video de yt si estaba reproduciendose
+    document.getElementById('trailer-content').innerHTML = ''; 
+    
+    if (pushState) {
+        history.pushState({view: 'home', page: paginaActual}, "", window.location.pathname + (paginaActual > 1 ? "?page=" + paginaActual : ""));
+    }
 };
 
 window.copiarContrasena = () => {
@@ -2094,7 +2135,6 @@ window.toggleMostrarFavoritos = (btn) => {
     
     btn.classList.add('active-menu');
     isViewingFavs = true;
-    document.getElementById('favs-exit-container').style.display = 'flex';
 
     window.aplicarFiltrosGlobales(); 
     window.scrollTo(0,0);
@@ -2106,8 +2146,6 @@ window.salirDeFavoritos = () => {
     if (btnFavs) btnFavs.classList.remove('active-menu');
     isViewingFavs = false;
     
-    document.getElementById('favs-exit-container').style.display = 'none';
-
     document.getElementById('searchInput').value = "";
     document.querySelectorAll('.adv-genre-chk').forEach(c => c.checked = false);
     document.querySelectorAll('.adv-req-chk').forEach(c => c.checked = false);

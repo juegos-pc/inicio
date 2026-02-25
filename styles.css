@@ -487,14 +487,14 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 }
 .accordion-btn:hover { background: #333; color: var(--primary); padding-left: 30px; }
 
-/* CAJA DE LINKS: VERTICAL, NO ESTIRA LA PAGINA, BARRA SCROLL EN > 3 */
+/* CAJA DE LINKS: VERTICAL, NO ESTIRA LA PAGINA, BARRA SCROLL EN > 7 LINKS */
 .accordion-panel { 
     padding: 0; 
     display: none; /* JS lo cambia a flex para abrir */
     flex-direction: column; /* Apila los links verticalmente */
     background: #1a1a1a; 
     border-top: 1px solid #333; 
-    max-height: 180px; /* Aprox 3 enlaces antes del scroll */
+    max-height: 380px; /* 7 ENLACES APROX ANTES DEL SCROLL */
     overflow-y: auto; /* BARRA DE SCROLL VERTICAL */
 }
 .accordion-panel a { 

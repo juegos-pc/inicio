@@ -114,8 +114,7 @@
               
               <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-genres-list').style.display='none', 200)">
                   <div class="select-box" onclick="toggleMultiSelect('adv-genres-list')">Generos <i class="fa-solid fa-chevron-down"></i></div>
-                  <div class="select-options" id="adv-genres-list">
-                      </div>
+                  <div class="select-options" id="adv-genres-list"></div>
               </div>
               
               <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-reqs-list').style.display='none', 200)">
@@ -153,8 +152,96 @@
       
       <div class="pagination-controls" id="pagination-wrapper"></div>
     </main>
-
   </div>
+
+
+  <div id="game-details-page" style="display:none;">
+      
+      <div class="details-top-bar">
+          <button class="btn-back-home" onclick="cerrarGameDetails()">
+              <i class="fa-solid fa-arrow-left"></i> Volver al Inicio
+          </button>
+      </div>
+
+      <div class="details-content-wrapper">
+          
+          <div class="game-details-3col">
+              
+              <div class="col-cover">
+                  <img id="game-detail-cover" src="" style="width: 100%; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.6); object-fit: cover;">
+                  <div id="trailer-content" class="video-container" style="display:none; margin-top:20px; border:1px solid #333;"></div>
+              </div>
+
+              <div class="col-info">
+                  <h2 id="download-title" style="color: var(--primary); font-size: 3rem; margin-top: 0; margin-bottom: 25px; text-transform: uppercase; word-wrap: break-word;"></h2>
+
+                  <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-bottom: 25px; color: #ccc; font-size:1.1rem; border: 1px solid #333;"></div>
+
+                  <div class="vote-corner" style="display:flex; align-items:center; gap:10px; margin-bottom:25px; flex-wrap:wrap;">
+                      <div class="stars" id="star-rating-display">
+                          <i class="fa-regular fa-star" onclick="preVote(1)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(2)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(3)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(4)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(5)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(6)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(7)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(8)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(9)"></i>
+                          <i class="fa-regular fa-star" onclick="preVote(10)"></i>
+                      </div>
+                      <button id="btn-send-vote" class="btn-send-vote" onclick="submitVote()">VOTAR</button>
+                      
+                      <button onclick="compartirJuego()" style="background:transparent; border:1px solid #555; color:#aaa; padding:8px 12px; border-radius:50%; margin-left:auto; cursor:pointer;" title="Copiar Enlace">
+                          <i class="fa-solid fa-share-nodes"></i>
+                      </button>
+
+                      <div style="font-size:1rem; color:#888; margin-left:10px;">
+                          <span id="rating-score" style="color:var(--gold); font-weight:bold;">0.0/10</span> 
+                          <span id="rating-count">(0 votos)</span>
+                      </div>
+                  </div>
+
+                  <div class="download-section-wrapper" style="border-top: 1px solid #444;">
+                      <h3 style="color:white; padding-bottom:10px; margin-top:20px; font-size:1.4rem;">
+                          Descargas 
+                      </h3>
+                      <div id="download-password-display" class="password-display-group" style="display:none; margin-top: 10px;">
+                          <i class="fa-solid fa-key" style="color:var(--primary)"></i>
+                          <strong style="padding: 10px;">Contrasena:</strong>
+                          <span class="password-text" id="password-text-value"></span>
+                          <button id="btn-copy-password" onclick="copiarContrasena()">Copiar</button>
+                      </div>
+                      
+                      <div id="download-buttons-container" class="accordion-container"></div>
+                  </div>
+              </div>
+
+              <div class="col-comments">
+                  <div class="comments-header" style="border-radius: 10px 10px 0 0; background: #202020;"><h3 style="margin:0; color:var(--secondary);">Comentarios</h3></div>
+                  <div id="comments-list" class="comments-list-container"></div>
+                  <button id="btn-load-more-comments" class="btn-load-more-comments" style="display:none; margin: 10px; width: calc(100% - 20px);">Ver mas comentarios</button>
+                  <div class="comments-input-container" id="comments-input-wrapper" style="border-radius: 0 0 10px 10px; background: #202020;">
+                      <div id="replying-to-bar" class="replying-bar">
+                          <span id="reply-target-text">Respondiendo a...</span>
+                          <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="cancelarRespuesta()"></i>
+                      </div>
+                      <textarea id="new-comment-text" class="comment-input-box" rows="2" placeholder="Escribe un mensaje... (Shift+Enter para salto de linea)"></textarea>
+                      <small id="spam-warning" style="display:block; color:#777; margin-top:5px; font-size:0.8rem;">No se permite SPAM. Los administradores pueden banear.</small>
+                      <button onclick="enviarComentario()" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
+                  </div>
+              </div>
+
+          </div>
+
+          <div class="similar-games-section" id="similar-games-section" style="display:none; margin-top: 50px; padding-top: 30px; border-top: 2px solid #333;">
+              <h3 style="color:var(--primary); margin-bottom:20px; font-size: 1.5rem;">Tambien te podria gustar...</h3>
+              <div class="similar-grid" id="similar-games-list"></div>
+          </div>
+
+      </div>
+  </div>
+
 
   <div id="contextMenu">
       <div id="ctx-game-actions" style="display:none;">
@@ -206,8 +293,7 @@
             </div>
             <label style="color:#aaa; font-size:1rem; margin-bottom:5px;">Generos</label>
             <div class="genre-container">
-                <div class="genre-grid" id="add-genre-grid">
-                    </div>
+                <div class="genre-grid" id="add-genre-grid"></div>
             </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -248,8 +334,7 @@
                 </select>
             </div>
             <div class="genre-container">
-                <div class="genre-grid" id="edit-genre-grid">
-                    </div>
+                <div class="genre-grid" id="edit-genre-grid"></div>
             </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -263,84 +348,6 @@
         </div>
         <div class="modal-footer full-width"><button type="submit">GUARDAR CAMBIOS</button></div>
       </form>
-    </div>
-  </div>
-
-  <div id="modalDownloads" class="modal">
-    <div class="modal-game-details">
-        <span class="close" onclick="cerrarModalDownloads()" style="z-index:20; right:20px; top:20px;">&times;</span>
-        
-        <div class="modal-game-grid">
-            <div class="game-col-left">
-                <h2 id="download-title" style="color: var(--primary); font-size: 2.5rem; margin: 10px 0; text-transform: uppercase;"></h2>
-                
-                <div id="trailer-btn-container" style="display:none; margin-bottom:25px;">
-                    <button id="btn-trailer-toggle" class="accordion-btn" style="border-left-color: var(--secondary);">
-                        <i class="fa-brands fa-youtube" style="color: red;"></i> Ver Trailer
-                        <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>
-                    </button>
-                    <div id="trailer-content" class="video-container" style="display:none; margin-top:15px; border:1px solid #333;"></div>
-                </div>
-                
-                <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 25px; color: #ccc; font-size:1rem;"></div>
-
-                <div class="vote-corner" style="position:relative; right:auto; top:auto; justify-content:flex-start; margin-bottom:25px;">
-                    <div class="stars" id="star-rating-display">
-                        <i class="fa-regular fa-star" onclick="preVote(1)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(2)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(3)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(4)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(5)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(6)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(7)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(8)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(9)"></i>
-                        <i class="fa-regular fa-star" onclick="preVote(10)"></i>
-                    </div>
-                    <button id="btn-send-vote" class="btn-send-vote" onclick="submitVote()">VOTAR</button>
-                    
-                    <button onclick="compartirJuego()" style="background:transparent; border:1px solid #555; color:#aaa; padding:8px 12px; border-radius:50%; margin-left:auto; cursor:pointer;" title="Copiar Enlace">
-                        <i class="fa-solid fa-share-nodes"></i>
-                    </button>
-
-                    <div style="font-size:1rem; color:#888; margin-left:15px;">
-                        <span id="rating-score" style="color:var(--gold); font-weight:bold;">0.0/10</span> 
-                        <span id="rating-count">(0 votos)</span>
-                    </div>
-                </div>
-
-                <h3 style="color:white; border-bottom:1px solid #444; padding-bottom:10px; margin-top:20px; display:flex; justify-content:space-between; font-size:1.3rem;">
-                    Descargas 
-                </h3>
-                <div id="download-password-display" class="password-display-group" style="display:none;">
-                    <i class="fa-solid fa-key" style="color:var(--primary)"></i>
-                    <strong style="padding: 10px;">Contrasena:</strong>
-                    <span class="password-text" id="password-text-value"></span>
-                    <button id="btn-copy-password" onclick="copiarContrasena()">Copiar</button>
-                </div>
-                <div id="download-buttons-container" class="accordion-container"></div>
-
-                <div class="similar-games-section" id="similar-games-section" style="display:none;">
-                    <h4 style="color:var(--primary); margin-bottom:15px;">Tambien te podria gustar...</h4>
-                    <div class="similar-grid" id="similar-games-list"></div>
-                </div>
-            </div>
-
-            <div class="game-col-right">
-                <div class="comments-header"><h3 style="margin:0; color:var(--secondary);">Comentarios</h3></div>
-                <div id="comments-list" class="comments-list-container"></div>
-                <button id="btn-load-more-comments" class="btn-load-more-comments" style="display:none;">Ver mas comentarios</button>
-                <div class="comments-input-container" id="comments-input-wrapper">
-                    <div id="replying-to-bar" class="replying-bar">
-                        <span id="reply-target-text">Respondiendo a...</span>
-                        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="cancelarRespuesta()"></i>
-                    </div>
-                    <textarea id="new-comment-text" class="comment-input-box" rows="2" placeholder="Escribe un mensaje... (Shift+Enter para salto de linea)"></textarea>
-                    <small id="spam-warning" style="display:block; color:#777; margin-top:5px; font-size:0.8rem;">No se permite SPAM. Los administradores pueden banear.</small>
-                    <button onclick="enviarComentario()" class="btn-send-comment"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </div>
     </div>
   </div>
 

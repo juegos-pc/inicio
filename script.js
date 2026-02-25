@@ -41,6 +41,10 @@ let paginaGuardadaAntesDeFavs = 1;
 let isViewingFavs = false;
 let listaGeneros = []; 
 
+// Para el carrusel y su evento de arrastre
+window.carouselInterval = null;
+window.isDraggingCarousel = false;
+
 const malasPalabras = ["estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo", "pelotudo","tarado","berga",];
 
 const gameList = document.getElementById('gameList');
@@ -131,14 +135,16 @@ function censurarTexto(texto) {
 document.addEventListener('keydown', (e) => {
     if (e.key === "Escape") { 
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
-        document.body.classList.remove('no-scroll'); 
+        if (document.getElementById('game-details-page').style.display === 'block') {
+            window.cerrarGameDetails();
+        }
     }
     if (e.key === "/" && !document.querySelector('input:focus') && !document.querySelector('textarea:focus')) { e.preventDefault(); document.getElementById('searchInput').focus(); }
-    if (e.key === "ArrowRight") {
+    if (e.key === "ArrowRight" && document.getElementById('app-content').style.display !== 'none') {
         const total = Math.ceil(juegosFiltrados.length / juegosPorPagina);
         if(paginaActual < total) { paginaActual++; renderizarJuegos(); window.scrollTo(0,0); }
     }
-    if (e.key === "ArrowLeft") {
+    if (e.key === "ArrowLeft" && document.getElementById('app-content').style.display !== 'none') {
         if(paginaActual > 1) { paginaActual--; renderizarJuegos(); window.scrollTo(0,0); }
     }
 });
@@ -317,8 +323,6 @@ window.onclick = (e) => {
                 e.target.style.display = 'none';
                 document.body.classList.remove('no-scroll');
             }
-        } else if (e.target.id === 'modalDownloads') {
-            window.cerrarModalDownloads();
         } else {
             e.target.style.display = 'none';
             document.body.classList.remove('no-scroll');
@@ -1588,6 +1592,7 @@ window.borrarJuegoPermanentemente = async (gameId, title) => {
     }
 };
 
+// ACA HACEMOS LA MAGIA DEL CARRUSEL ARRASTRABLE CON EL MOUSE
 function mostrarSimilares(juego) {
     const container = document.getElementById('similar-games-section');
     const list = document.getElementById('similar-games-list');
@@ -1604,39 +1609,133 @@ function mostrarSimilares(juego) {
         .filter(j => j.matchCount > 0);
 
     matches.sort((a, b) => b.matchCount - a.matchCount);
-    const topCandidates = matches.slice(0, 15);
-    const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 3);
+    const topCandidates = matches.slice(0, 20);
+    const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 10);
     if(selected.length === 0) { container.style.display = 'none'; return; }
     
     container.style.display = 'block';
     list.innerHTML = "";
+    
     selected.forEach(j => {
         const div = document.createElement('div');
-        div.className = "similar-card";
-        div.onclick = () => {
-            abrirDescargas(j);
-            document.querySelector('.modal-game-details').scrollTop = 0;
+        div.className = "game"; 
+        
+        const esFav = favoritos.includes(j.titulo);
+        const heartClass = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
+        const rating = getAvgRating(j);
+        const views = j.views || 0;
+
+        div.onclick = (e) => { 
+            // Si el usuario estaba arrastrando la fila, no abrimos el juego
+            if(window.isDraggingCarousel) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            if(!e.target.closest('.heart')) {
+                abrirDescargas(j); 
+            }
         };
-        div.innerHTML = `<img src="${j.imagen}" loading="lazy"><div class="similar-title">${j.titulo}</div>`;
+
+        let ratingHtml = rating > 0 ? 
+            `<div class="card-rating"><i class="fa-solid fa-star"></i> ${rating}<div class="view-count-icon"><i class="fa-solid fa-eye"></i> ${views}</div></div>` 
+            : `<div class="card-rating"><div class="view-count-icon" style="margin-left:0"><i class="fa-solid fa-eye"></i> ${views}</div></div>`;
+
+        div.innerHTML = `
+            <img src="${j.imagen}" loading="lazy" onerror="this.src='https://via.placeholder.com/220x320?text=Sin+Imagen'">
+            ${ratingHtml}
+            <div class="top-icons"><div class="heart" onclick="window.toggleFav('${j.titulo}', this); event.stopPropagation();"><i class="${heartClass}"></i></div></div>
+            <div class="title-overlay">
+                <div>${j.titulo}</div>
+                <div style="font-size:0.9rem; color:#aaa; margin-top:3px; font-weight:normal;">${formatearFecha(j.fechaSalida || j.fecha)}</div>
+            </div>
+        `;
         list.appendChild(div);
     });
+
+    // --- EVENTOS DEL MOUSE PARA ARRASTRAR EL CARRUSEL ---
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let dragDesactivoCarrusel = false;
+
+    list.addEventListener('mousedown', (e) => {
+        isDown = true;
+        window.isDraggingCarousel = false; 
+        dragDesactivoCarrusel = false; // reinicia el estado
+        list.classList.add('active');
+        startX = e.pageX - list.offsetLeft;
+        scrollLeft = list.scrollLeft;
+        clearInterval(window.carouselInterval); // pausa auto-scroll al hacer click
+    });
+
+    list.addEventListener('mouseleave', () => {
+        isDown = false;
+        list.classList.remove('active');
+        // Solo reanuda si el usuario NUNCA arrastró
+        if (!dragDesactivoCarrusel) {
+            iniciarCarruselAutomatico(list);
+        }
+    });
+
+    list.addEventListener('mouseup', () => {
+        isDown = false;
+        list.classList.remove('active');
+        // Pequeño delay para no gatillar el onclick de la tarjeta
+        setTimeout(() => { window.isDraggingCarousel = false; }, 50);
+        // Solo reanuda si el usuario NUNCA arrastró
+        if (!dragDesactivoCarrusel) {
+            iniciarCarruselAutomatico(list);
+        }
+    });
+
+    list.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault(); // Previene comportamientos raros del navegador
+        const x = e.pageX - list.offsetLeft;
+        const walk = (x - startX) * 1.5; // Velocidad del arrastre
+        if (Math.abs(walk) > 10) {
+            window.isDraggingCarousel = true; 
+            dragDesactivoCarrusel = true; // El usuario arrastró, matamos el auto-scroll para siempre
+            clearInterval(window.carouselInterval); // Aseguramos que quede apagado
+        }
+        list.scrollLeft = scrollLeft - walk;
+    });
+
+    iniciarCarruselAutomatico(list);
 }
 
+function iniciarCarruselAutomatico(list) {
+    clearInterval(window.carouselInterval);
+    window.carouselInterval = setInterval(() => {
+        if(!list) return;
+        if(list.scrollLeft + list.clientWidth >= list.scrollWidth - 10) {
+            list.scrollTo({left: 0, behavior: 'smooth'});
+        } else {
+            list.scrollBy({left: 270, behavior: 'smooth'});
+        }
+    }, 3000);
+}
+
+// LOGICA DE PÁGINA FULL SCREEN AL ABRIR UN JUEGO
 function abrirDescargas(juego) {
     currentGameOpen = juego;
     currentCommentLimit = 30; 
     
-    const modal = document.getElementById('modalDownloads');
+    // Mostramos la página y bloqueamos el scroll del fondo
+    document.body.classList.add('no-scroll');
+    const page = document.getElementById('game-details-page');
+    page.style.display = 'block';
+    
+    // Hacer scroll de la página nueva hacia arriba de todo
+    setTimeout(() => { page.scrollTop = 0; }, 10);
+    
     const containerLinks = document.getElementById('download-buttons-container');
     const passDisplay = document.getElementById('download-password-display');
     const passTextValue = document.getElementById('password-text-value'); 
     const meta = document.getElementById('game-meta-info');
-    const trailerBtnContainer = document.getElementById('trailer-btn-container');
     const trailerContent = document.getElementById('trailer-content');
-    const btnTrailerToggle = document.getElementById('btn-trailer-toggle');
     const commentInputWrapper = document.getElementById('comments-input-wrapper');
-
-    document.body.classList.add('no-scroll');
 
     if(usuarioActual && !esInvitado) {
         if(!userData.juegosVistos || !userData.juegosVistos.includes(juego.id)) {
@@ -1657,22 +1756,15 @@ function abrirDescargas(juego) {
     }
 
     document.getElementById('download-title').innerText = juego.titulo;
+    document.getElementById('game-detail-cover').src = juego.imagen;
     
+    // Trailer Directo (sin botón)
     const ytId = juego.trailerUrl ? getYoutubeId(juego.trailerUrl) : null;
     if (ytId) {
-        trailerBtnContainer.style.display = 'block';
-        trailerContent.style.display = 'none'; 
+        trailerContent.style.display = 'block'; 
         trailerContent.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0" frameborder="0" allowfullscreen></iframe>`;
-        
-        btnTrailerToggle.onclick = () => {
-            const isHidden = trailerContent.style.display === 'none';
-            trailerContent.style.display = isHidden ? 'block' : 'none';
-            document.getElementById('btn-trailer-toggle').innerHTML = `<i class="fa-brands fa-youtube" style="color: red;"></i> ${isHidden ? 'Ocultar Trailer' : 'Ver trailer'} <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>`;
-        };
-        document.getElementById('btn-trailer-toggle').innerHTML = `<i class="fa-brands fa-youtube" style="color: red;"></i> Ver trailer <i class="fa-solid fa-chevron-down" style="margin-left:auto"></i>`;
-
     } else {
-        trailerBtnContainer.style.display = 'none';
+        trailerContent.style.display = 'none';
         trailerContent.innerHTML = '';
     }
     
@@ -1736,9 +1828,11 @@ function abrirDescargas(juego) {
             });
 
             btn.onclick = () => {
-                const open = panel.style.display === "block";
+                const isOpen = panel.style.display === "flex";
+                // Cerramos todos
                 document.querySelectorAll('.accordion-panel').forEach(p => p.style.display='none');
-                panel.style.display = open ? "none" : "block";
+                // Abrimos el clickeado si no estaba abierto
+                panel.style.display = isOpen ? "none" : "flex";
             };
 
             item.appendChild(btn);
@@ -1746,9 +1840,15 @@ function abrirDescargas(juego) {
             containerLinks.appendChild(item);
         }
     }
-
-    modal.style.display = 'flex';
 }
+
+// LOGICA PARA VOLVER A INICIO DESDE LA PÁGINA DEL JUEGO
+window.cerrarGameDetails = () => {
+    clearInterval(window.carouselInterval); // Corta el carrusel para no consumir recursos
+    document.getElementById('game-details-page').style.display = 'none';
+    document.body.classList.remove('no-scroll');
+    document.getElementById('trailer-content').innerHTML = ''; // Corta el video de yt si estaba reproduciendose
+};
 
 window.copiarContrasena = () => {
     const passText = document.getElementById('password-text-value').innerText;
@@ -1779,11 +1879,7 @@ window.compartirJuego = () => {
 };
 
 window.cerrarModalDownloads = () => {
-    const modal = document.getElementById('modalDownloads');
-    const trailerContent = document.getElementById('trailer-content');
-    modal.style.display = 'none';
-    trailerContent.innerHTML = ''; 
-    document.body.classList.remove('no-scroll');
+    window.cerrarGameDetails();
 };
 
 window.pegarEnInput = async (btn) => {
@@ -1955,6 +2051,15 @@ window.toggleFav = async (t, btn) => {
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
 
     window.aplicarFiltrosGlobales(); 
+
+    // ESTO ACTUALIZA LOS CORAZONES SI ESTAMOS EN LA PAGINA FULL SCREEN DEL JUEGO
+    if (document.getElementById('game-details-page').style.display === 'block') {
+        const esFav = favoritos.includes(t);
+        const corazonEnModal = document.querySelector('#game-details-page .heart i');
+        if (corazonEnModal) {
+            corazonEnModal.className = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
+        }
+    }
 
     if (usuarioActual) {
         try {

@@ -31,37 +31,31 @@ let usuarioBaneado = false;
 let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
 let juegoSeleccionadoId = null; 
 let usuarioSeleccionadoUid = null;
-let activeReqFilter = null;
 let currentGameOpen = null; 
 let pendingVote = 0;
 let allUsersCache = []; 
 let respondingToId = null;
 let currentCommentLimit = 30; 
 let paginaGuardadaAntesDeBusqueda = 1; 
-let paginaGuardadaAntesDeFavs = 1; // NUEVA variable para guardar la pagina actual antes de entrar a Favs
-let isViewingFavs = false; // NUEVA bandera para saber si estamos viendo favoritos
+let paginaGuardadaAntesDeFavs = 1;
+let isViewingFavs = false;
+let listaGeneros = []; 
 
 const malasPalabras = ["estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo", "pelotudo","tarado","berga",];
 
-// ELEMENTOS DOM
 const gameList = document.getElementById('gameList');
 const loginScreen = document.getElementById('login-screen');
 const loadingScreen = document.getElementById('loading-screen');
 const appContent = document.getElementById('app-content');
 const btnProfile = document.getElementById('btnProfile');
 const profileDropdown = document.getElementById('profileDropdown');
-const buscadorExpandido = document.getElementById('buscadorExpandido');
 const contextMenu = document.getElementById('contextMenu');
 const notifDropdown = document.getElementById('notifDropdown');
 const btnNotif = document.getElementById('btnNotif');
-const genresPopup = document.getElementById('genresListPopup');
 const searchInput = document.getElementById('searchInput');
 const autocompleteList = document.getElementById('autocomplete-list');
-const reqGameInput = document.getElementById('req-game-input');
-const reqStatusMessage = document.getElementById('req-status-message');
-const favsExitContainer = document.getElementById('favs-exit-container'); // Nuevo elemento DOM
+const favsExitContainer = document.getElementById('favs-exit-container');
 
-// NOTIFICACIONES
 window.showToast = (msg, type = 'info') => {
     const container = document.getElementById('toast-container');
     const div = document.createElement('div');
@@ -71,7 +65,6 @@ window.showToast = (msg, type = 'info') => {
     setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(), 300); }, 3000);
 };
 
-// SOPORTE HISTORIAL NAVEGADOR
 window.onpopstate = (event) => {
     if (event.state && event.state.page) {
         paginaActual = event.state.page;
@@ -79,7 +72,6 @@ window.onpopstate = (event) => {
     }
 };
 
-// Animacion de carga
 const iconosPosibles = ['fa-gamepad', 'fa-desktop', 'fa-ghost', 'fa-dragon', 'fa-chess-knight', 'fa-puzzle-piece', 'fa-headset', 'fa-microchip', 'fa-bolt', 'fa-fire'];
 const palabrasRandom = ["GAME OVER", "PRESS START", "LEVEL UP", "FATALITY", "WINS", "LOADING...", "INSERT COIN","codigo konami"];
 
@@ -141,22 +133,13 @@ document.addEventListener('keydown', (e) => {
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
         document.body.classList.remove('no-scroll'); 
     }
-    if (e.key === "/" && !document.querySelector('input:focus')) { e.preventDefault(); document.getElementById('searchInput').focus(); }
+    if (e.key === "/" && !document.querySelector('input:focus') && !document.querySelector('textarea:focus')) { e.preventDefault(); document.getElementById('searchInput').focus(); }
     if (e.key === "ArrowRight") {
         const total = Math.ceil(juegosFiltrados.length / juegosPorPagina);
         if(paginaActual < total) { paginaActual++; renderizarJuegos(); window.scrollTo(0,0); }
     }
     if (e.key === "ArrowLeft") {
         if(paginaActual > 1) { paginaActual--; renderizarJuegos(); window.scrollTo(0,0); }
-    }
-    
-    if(e.altKey) {
-        if(e.key.toLowerCase() === 'n') {
-            if(esAdmin || esDios) window.abrirModalAgregar();
-        }
-        if(e.key.toLowerCase() === 'l') { 
-            if(esAdmin || esDios) window.abrirPanelAdmin();
-        }
     }
 });
 
@@ -187,6 +170,7 @@ document.getElementById('btn-guest-login').onclick = () => {
     document.getElementById('contact-user-info').innerText = "Modo Invitado (Sin envio)";
     document.getElementById('btnApelar').style.display = 'none';
     document.getElementById('btnAdminTools').style.display = 'none';
+    document.getElementById('btnAdminNotes').style.display = 'none';
     
     cargarJuegos();
 };
@@ -227,28 +211,27 @@ onAuthStateChanged(auth, async (user) => {
                     userData = data; 
                     currentUserRole = data.rol || "user";
                     
-                    // --- NUEVO: CARGAR FAVORITOS DESDE LA NUBE ---
-                    // Si el usuario tiene favoritos en la base de datos, los cargamos
-                    // y actualizamos el localStorage para que se vean de inmediato.
                     if (data.favoritos && Array.isArray(data.favoritos)) {
                         favoritos = data.favoritos;
                         localStorage.setItem("favoritos", JSON.stringify(favoritos));
                     }
-                    // ----------------------------------------------
                     
                     document.getElementById('user-role-display').innerText = currentUserRole.toUpperCase();
 
                     if (data.rol === "dios") {
                         esDios = true; esAdmin = true;
                         document.getElementById('btnAdminTools').style.display = 'block';
+                        document.getElementById('btnAdminNotes').style.display = 'block';
                         document.getElementById('spam-warning').style.display = 'none';
                     } else if (data.rol === "admin") {
                         esAdmin = true; esDios = false;
                         document.getElementById('btnAdminTools').style.display = 'block';
+                        document.getElementById('btnAdminNotes').style.display = 'block';
                         document.getElementById('spam-warning').style.display = 'none';
                     } else {
                         esAdmin = false; esDios = false;
                         document.getElementById('btnAdminTools').style.display = 'none';
+                        document.getElementById('btnAdminNotes').style.display = 'none';
                         document.getElementById('spam-warning').style.display = 'block';
                     }
 
@@ -263,14 +246,12 @@ onAuthStateChanged(auth, async (user) => {
 
                     if(!userData.visitedGames) await updateDoc(doc(db, "usuarios", user.uid), { visitedGames: 0 });
                 } else {
-                    // Crea el usuario nuevo si no existe
                     await setDoc(doc(db, "usuarios", user.uid), { email: user.email, rol: "user", insultos: 0, baneado: false, visitedGames: 0 });
                     userData = { visitedGames: 0 };
                     document.getElementById('user-role-display').innerText = "USUARIO";
                 }
             } catch (e) {console.error(e)}
             
-            // Refrescamos los juegos para que se pinten los corazones correctos
             cargarJuegos();
             
         } else if (!esInvitado) {
@@ -324,13 +305,9 @@ window.onclick = (e) => {
         document.querySelectorAll('.profile-dropdown, .notif-dropdown').forEach(d => d.style.display='none');
         document.querySelectorAll('#menuClosed button').forEach(b => b.classList.remove('active-menu'));
     }
-    if (!e.target.closest('#buscadorExpandido') && !e.target.closest('#btnLupa')) {
-        buscadorExpandido.classList.remove('visible');
-        document.getElementById('btnLupa').classList.remove('active-menu');
-    }
     if (!e.target.closest('#contextMenu')) contextMenu.style.display = 'none';
-    if (!e.target.closest('.genres-dropdown-container')) genresPopup.style.display = 'none';
-    autocompleteList.style.display = 'none';
+    if (!e.target.closest('.search-input-wrapper')) autocompleteList.style.display = 'none';
+    
     document.getElementById('contact-autocomplete-list').style.display = 'none';
     document.getElementById('admin-autocomplete-list').style.display = 'none';
     
@@ -349,7 +326,6 @@ window.onclick = (e) => {
     }
 };
 
-// MENÚ CONTEXTUAL GLOBAL (FONDO) Y JUEGO
 document.addEventListener('contextmenu', (e) => {
     if(e.target.classList.contains('user-name-span')) return;
 
@@ -383,12 +359,6 @@ window.cerrarModalConConfirmacion = (id) => {
     }
 };
 
-window.toggleGenresPopup = () => {
-    genresPopup.style.display = genresPopup.style.display === 'grid' ? 'none' : 'grid';
-};
-
-document.querySelectorAll('.filter-genre-chk').forEach(chk => chk.addEventListener('change', () => window.aplicarFiltrosGlobales()));
-
 searchInput.addEventListener('input', function() {
     const val = normalizarTexto(this.value);
     
@@ -397,14 +367,9 @@ searchInput.addEventListener('input', function() {
     }
     
     if(val.length === 0) {
-        // --- NUEVO: Forzar orden por Lanzamiento (Nuevos) al borrar ---
-        document.getElementById('sortSelect').value = 'date_release_new'; 
-        // -------------------------------------------------------------
-
-        // Restaurar pagina si borra lo que decia
         if(paginaGuardadaAntesDeBusqueda !== 1) {
             paginaActual = paginaGuardadaAntesDeBusqueda;
-            paginaGuardadaAntesDeBusqueda = 1; // reset
+            paginaGuardadaAntesDeBusqueda = 1; 
         }
     } else {
         paginaActual = 1;
@@ -412,7 +377,6 @@ searchInput.addEventListener('input', function() {
 
     window.aplicarFiltrosGlobales();
     if (!val) { autocompleteList.style.display = 'none'; return; }
-    // ... (el resto del código de autocompletado sigue igual) ...
     const matches = juegos.filter(j => normalizarTexto(j.titulo).includes(val)).slice(0, 5);
     autocompleteList.innerHTML = '';
     if (matches.length > 0) {
@@ -421,9 +385,7 @@ searchInput.addEventListener('input', function() {
             div.className = 'autocomplete-item';
             div.innerText = j.titulo;
             div.onclick = () => {
-                searchInput.value = j.titulo;
-                paginaActual = 1;
-                window.aplicarFiltrosGlobales();
+                abrirDescargas(j);
                 autocompleteList.style.display = 'none';
             };
             autocompleteList.appendChild(div);
@@ -434,61 +396,37 @@ searchInput.addEventListener('input', function() {
     }
 });
 
-window.irAlInicio = () => {
-    // ESTA FUNCION SE MANTIENE PARA LIMPIAR FILTROS Y BUSQUEDA, PERO SE HA ELIMINADO EL BOTON DE INICIO
-    // 1. Limpiar el buscador y filtros visuales
-    document.getElementById('searchInput').value = "";
-    document.querySelectorAll('.filter-genre-chk').forEach(c => c.checked = false);
-    activeReqFilter = null;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
 
-    // 2. APAGAR MODO FAVORITOS
-    const btnFavs = document.getElementById('btnFavs');
-    if (btnFavs) btnFavs.classList.remove('active-menu');
-    isViewingFavs = false;
-    favsExitContainer.style.display = 'none';
-
-    // 3. Forzar orden por "Lanzamiento (Nuevos)"
-    document.getElementById('sortSelect').value = 'date_release_new'; 
-
-    // 4. Resetear paginacion a la 1
-    paginaActual = 1;
-    paginaGuardadaAntesDeBusqueda = 1;
-    
-    // 5. Aplicar los cambios (esto recarga la lista completa de juegos)
-    window.aplicarFiltrosGlobales();
-    window.scrollTo({top:0, behavior:'smooth'});
-};
-
-window.toggleReq = (btn, req) => {
-    const isActive = btn.classList.contains('activo');
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
-    if (isActive) activeReqFilter = null;
-    else {
-        btn.classList.add('activo');
-        activeReqFilter = req;
-    }
-    window.aplicarFiltrosGlobales();
+window.toggleMultiSelect = (id) => {
+    const el = document.getElementById(id);
+    const isVisible = el.style.display === 'flex';
+    document.querySelectorAll('.select-options').forEach(opt => opt.style.display = 'none');
+    if(!isVisible) el.style.display = 'flex';
 };
 
 window.aplicarFiltrosGlobales = () => {
     const texto = normalizarTexto(document.getElementById('searchInput').value);
-    const selectedGenres = Array.from(document.querySelectorAll('.filter-genre-chk:checked')).map(c => c.value.toLowerCase());
-    const sortMode = document.getElementById('sortSelect').value;
+    const selectedGenres = Array.from(document.querySelectorAll('.adv-genre-chk:checked')).map(c => c.value.toLowerCase());
+    const selectedReqs = Array.from(document.querySelectorAll('.adv-req-chk:checked')).map(c => c.value.toLowerCase());
+    const sortMode = document.querySelector('input[name="adv_sort"]:checked')?.value || 'date_release_new';
 
     let juegosBase = isViewingFavs ? juegos.filter(j => favoritos.includes(j.titulo)) : juegos;
 
     juegosFiltrados = juegosBase.filter(j => {
-        const matchText = normalizarTexto(j.titulo).includes(texto);
-        let matchReq = true;
-        if (activeReqFilter) matchReq = (j.requisito || "").includes(activeReqFilter);
+        let matchText = normalizarTexto(j.titulo).includes(texto);
+        
         let matchGenres = true;
         if (selectedGenres.length > 0) {
             const gameGenres = (j.generos || []).map(g => g.toLowerCase());
             matchGenres = selectedGenres.every(sel => gameGenres.includes(sel));
         }
         
-        return matchText && matchReq && matchGenres;
+        let matchReqs = true;
+        if (selectedReqs.length > 0) {
+            matchReqs = selectedReqs.includes((j.requisito || "").toLowerCase());
+        }
+        
+        return matchText && matchGenres && matchReqs;
     });
 
     if (sortMode === 'rating') {
@@ -510,6 +448,90 @@ window.aplicarFiltrosGlobales = () => {
     renderizarJuegos();
 };
 
+
+async function cargarGenerosGlobales() {
+    try {
+        const docRef = doc(db, "config", "generos");
+        const snap = await getDoc(docRef);
+        if(snap.exists() && snap.data().lista) {
+            listaGeneros = snap.data().lista;
+        } else {
+            listaGeneros = ["2D", "Accion", "Anime", "Aventura", "Carreras", "Deportes", "Estrategia", "Guerra", "Indie", "Multijugador", "Pantalla Dividida", "Peleas", "Plataformas", "Rol/RPG", "Shooter", "Supervivencia", "Terror", "Zombies"];
+            await setDoc(docRef, { lista: listaGeneros });
+        }
+        renderizarChecksGenerosAvanzados();
+        renderizarChecksGeneros('new');
+        renderizarChecksGeneros('edit');
+        renderizarListaGenerosAdmin();
+    } catch(e) { console.error(e); }
+}
+
+function renderizarChecksGenerosAvanzados() {
+    const cont = document.getElementById('adv-genres-list');
+    if(!cont) return;
+    cont.innerHTML = "";
+    listaGeneros.forEach(g => {
+        cont.innerHTML += `<label><input type="checkbox" value="${g}" class="adv-genre-chk" onchange="aplicarFiltrosGlobales()"> ${g}</label>`;
+    });
+}
+
+function renderizarChecksGeneros(mode) {
+    const cls = mode === 'new' ? 'chk-genre' : 'chk-genre-edit';
+    const cont = document.getElementById(mode === 'new' ? 'add-genre-grid' : 'edit-genre-grid');
+    if(!cont) return;
+    cont.innerHTML = "";
+    listaGeneros.forEach(g => {
+        const extraStyle = (g === 'Multijugador' || g === 'Pantalla Dividida') ? 'style="accent-color:#00ff00;"' : '';
+        cont.innerHTML += `<div class="genre-item"><label><input type="checkbox" value="${g}" class="${cls}" ${extraStyle}> ${g}</label></div>`;
+    });
+}
+
+function renderizarListaGenerosAdmin() {
+    const cont = document.getElementById('admin-genres-list');
+    if(!cont) return;
+    cont.innerHTML = "";
+    listaGeneros.forEach(g => {
+        cont.innerHTML += `<div style="display:flex; justify-content:space-between; background:#333; padding:10px; border-radius:5px; align-items:center;">
+            <span>${g}</span>
+            <button onclick="borrarGenero('${g}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:3px; color:white; cursor:pointer;">X</button>
+        </div>`;
+    });
+}
+
+window.agregarGeneroNuevo = async () => {
+    const input = document.getElementById('nuevo-genero-input');
+    const val = input.value.trim();
+    if(!val) return;
+    if(listaGeneros.includes(val)) { showToast("El genero ya existe", "error"); return; }
+    
+    listaGeneros.push(val);
+    listaGeneros.sort();
+    
+    try {
+        await updateDoc(doc(db, "config", "generos"), { lista: listaGeneros });
+        input.value = "";
+        showToast("Genero agregado", "success");
+        renderizarChecksGenerosAvanzados();
+        renderizarChecksGeneros('new');
+        renderizarChecksGeneros('edit');
+        renderizarListaGenerosAdmin();
+    } catch(e) { showToast("Error", "error"); }
+};
+
+window.borrarGenero = async (g) => {
+    if(!confirm("Borrar genero " + g + "?")) return;
+    listaGeneros = listaGeneros.filter(x => x !== g);
+    try {
+        await updateDoc(doc(db, "config", "generos"), { lista: listaGeneros });
+        showToast("Genero borrado", "success");
+        renderizarChecksGenerosAvanzados();
+        renderizarChecksGeneros('new');
+        renderizarChecksGeneros('edit');
+        renderizarListaGenerosAdmin();
+    } catch(e) { showToast("Error", "error"); }
+};
+
+
 async function cargarJuegos() {
     const snap = await getDocs(collection(db, "juegos"));
     juegos = [];
@@ -527,7 +549,6 @@ async function cargarJuegos() {
     juegosFiltrados = [...juegos];
     renderizarJuegos();
 
-    // AUTO ABRIR JUEGO SI HAY URL PARAM
     const gameId = urlParams.get('game');
     if(gameId) {
         const targetGame = juegos.find(j => j.id === gameId);
@@ -735,7 +756,6 @@ window.abrirModalAgregar = () => {
 window.cargarNotificaciones = () => {
     const lista = document.getElementById('notif-list');
     lista.innerHTML = "";
-    // Ordenar estrictamente por fecha de subida (fecha) no salida
     const ultimos = [...juegos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 5);
     if(ultimos.length === 0) lista.innerHTML = "<div style='padding:10px; color:#aaa'>No hay novedades.</div>";
     ultimos.forEach(j => {
@@ -1095,18 +1115,18 @@ window.enviarApelacion = async () => {
 
 let peticionesCache = [];
 
-reqGameInput.addEventListener('input', () => {
-    const val = reqGameInput.value.toLowerCase().trim();
+document.getElementById('req-game-input').addEventListener('input', () => {
+    const val = document.getElementById('req-game-input').value.toLowerCase().trim();
     if (val.length >= 3) {
         const exists = peticionesCache.some(p => normalizarTexto(p.game).includes(normalizarTexto(val)));
         if (exists) {
-            reqStatusMessage.innerText = "Este juego ya esta en peticiones.";
-            reqStatusMessage.style.display = 'block';
+            document.getElementById('req-status-message').innerText = "Este juego ya esta en peticiones.";
+            document.getElementById('req-status-message').style.display = 'block';
         } else {
-            reqStatusMessage.style.display = 'none';
+            document.getElementById('req-status-message').style.display = 'none';
         }
     } else {
-        reqStatusMessage.style.display = 'none';
+        document.getElementById('req-status-message').style.display = 'none';
     }
 });
 
@@ -1195,7 +1215,7 @@ window.crearPeticion = async () => {
         votes: [usuarioActual.uid]
     });
     document.getElementById('req-game-input').value = "";
-    reqStatusMessage.style.display = 'none'; 
+    document.getElementById('req-status-message').style.display = 'none'; 
     showToast("Peticion enviada! Gracias por tu sugerencia.", "success");
     abrirMuroPeticiones();
 };
@@ -1240,6 +1260,7 @@ window.cambiarTabPanel = async (tab) => {
     document.getElementById('view-reports').style.display = 'none';
     document.getElementById('view-admins').style.display = 'none';
     document.getElementById('view-trash').style.display = 'none';
+    document.getElementById('view-genres').style.display = 'none';
     document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
 
     if(tab === 'banned') {
@@ -1258,10 +1279,13 @@ window.cambiarTabPanel = async (tab) => {
         document.getElementById('view-trash').style.display = 'block';
         document.getElementById('tab-btn-trash').classList.add('active');
         cargarPapeleraJuegos();
+    } else if (tab === 'genres') {
+        document.getElementById('view-genres').style.display = 'block';
+        document.getElementById('tab-btn-genres').classList.add('active');
+        renderizarListaGenerosAdmin();
     }
 };
 
-// AUTOCOMPLETADO PARA BANEAR
 document.getElementById('manual-ban-input').addEventListener('input', function() {
     const val = this.value.toLowerCase();
     const list = document.getElementById('ban-autocomplete-list');
@@ -1286,12 +1310,10 @@ document.getElementById('manual-ban-input').addEventListener('input', function()
     }
 });
 
-// NUEVA FUNCION DE BANEAR MANUALMENTE POR INPUT
 window.banearUsuarioManual = async () => {
     const email = document.getElementById('manual-ban-input').value;
     if(!email) return showToast("Ingresa un email valido.", "error");
     
-    // Buscar usuario por email
     const usersRef = collection(db, "usuarios");
     const q = query(usersRef, where("email", "==", email));
     const snap = await getDocs(q);
@@ -1748,7 +1770,6 @@ window.copiarContrasena = () => {
     });
 };
 
-// FUNCION COMPARTIR JUEGO
 window.compartirJuego = () => {
     if(!currentGameOpen) return;
     const url = `${window.location.origin}${window.location.pathname}?game=${currentGameOpen.id}`;
@@ -1773,45 +1794,80 @@ window.pegarEnInput = async (btn) => {
     } catch(e) { showToast("No se pudo pegar. Permiso denegado.", "error"); }
 };
 
-window.agregarInputLink = (contId, srv='Mediafire', url='', nota='') => {
+window.verificarServidorPersonalizado = (select) => {
+    const inputCustom = select.parentElement.querySelector('.custom-srv-in');
+    if(select.value === 'Otro') {
+        inputCustom.style.display = 'inline-block';
+    } else {
+        inputCustom.style.display = 'none';
+    }
+};
+
+window.verificarEtiquetaUpdate = (input) => {
+    if(input.value.toLowerCase().includes('update')) {
+        const select = input.parentElement.querySelector('.srv-in');
+        select.value = 'Update';
+        window.verificarServidorPersonalizado(select);
+    }
+};
+
+window.agregarInputLink = (contId, srv='Mediafire', url='', nota='', srvCustom='') => {
     const div = document.createElement('div');
     div.className = "link-row";
-    div.draggable = true; // <--- ESTO ES CLAVE
-    div.style.cursor = "grab"; // Para que se vea la manito
+    div.draggable = true; 
+    div.style.cursor = "grab"; 
 
-    // Eventos para arrastrar (Drag & Drop nativo)
     div.addEventListener('dragstart', (e) => {
-        div.classList.add('dragging'); // Le ponemos una clase al que movemos
+        div.classList.add('dragging'); 
     });
 
     div.addEventListener('dragend', () => {
         div.classList.remove('dragging');
     });
     
-    // ... el resto de tu código HTML (select, inputs, etc) ...
+    const isCustom = !['Mediafire','Mega','Google Drive','Torrent','Update','Fix'].includes(srv);
+    const srvValue = isCustom ? 'Otro' : srv;
+    const actualCustom = isCustom ? srv : srvCustom;
+
     div.innerHTML = `
-        <select class="srv-in" style="width:30%">
-            <option value="Mediafire" ${srv==='Mediafire'?'selected':''}>Mediafire</option>
-            <option value="Mega" ${srv==='Mega'?'selected':''}>Mega</option>
-            <option value="Google Drive" ${srv==='Google Drive'?'selected':''}>Google Drive</option>
-            <option value="Torrent" ${srv==='Torrent'?'selected':''}>Torrent</option>
-            <option value="Update" ${srv==='Update'?'selected':''}>Update</option>
-            <option value="Fix" ${srv==='Fix'?'selected':''}>Fix online</option>
-            <option value="Otro" ${!['Mediafire','Mega','Google Drive','Torrent'].includes(srv)?'selected':''}>Otro</option>
+        <select class="srv-in" style="width:25%" onchange="window.verificarServidorPersonalizado(this)">
+            <option value="Mediafire" ${srvValue==='Mediafire'?'selected':''}>Mediafire</option>
+            <option value="Mega" ${srvValue==='Mega'?'selected':''}>Mega</option>
+            <option value="Google Drive" ${srvValue==='Google Drive'?'selected':''}>Google Drive</option>
+            <option value="Torrent" ${srvValue==='Torrent'?'selected':''}>Torrent</option>
+            <option value="Update" ${srvValue==='Update'?'selected':''}>Update</option>
+            <option value="Fix" ${srvValue==='Fix'?'selected':''}>Fix online</option>
+            <option value="Otro" ${srvValue==='Otro'?'selected':''}>Otro</option>
         </select>
-        <input type="text" placeholder="Etiqueta" class="note-in" style="width:20%" value="${nota}">
-        <input type="url" placeholder="URL" class="url-in" style="width:35%" value="${url}">
+        <input type="text" class="custom-srv-in" placeholder="Nombre srv" style="width:15%; display:${isCustom?'inline-block':'none'};" value="${actualCustom}">
+        
+        <input type="text" placeholder="Etiqueta" class="note-in" style="width:20%" value="${nota}" list="etiquetas-links" oninput="window.verificarEtiquetaUpdate(this)">
+        <datalist id="etiquetas-links">
+            <option value="Juego">
+            <option value="Juego fix online incluido">
+            <option value="Fix online">
+            <option value="Update">
+        </datalist>
+
+        <input type="url" placeholder="URL" class="url-in" style="width:30%" value="${url}">
         <button type="button" class="btn-paste" onclick="pegarEnInput(this)" title="Pegar"><i class="fa-solid fa-paste"></i></button>
         <button type="button" class="btn-remove" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i></button>
     `;
     document.getElementById(contId).appendChild(div);
 };
 
-const getLinks = (id) => Array.from(document.querySelectorAll(`#${id} .link-row`)).map(r => ({
-    servidor: r.querySelector('.srv-in').value,
-    url: r.querySelector('.url-in').value,
-    nota: r.querySelector('.note-in').value
-})).filter(l => l.url);
+const getLinks = (id) => Array.from(document.querySelectorAll(`#${id} .link-row`)).map(r => {
+    let servidor = r.querySelector('.srv-in').value;
+    if(servidor === 'Otro') {
+        const custom = r.querySelector('.custom-srv-in').value.trim();
+        if(custom) servidor = custom;
+    }
+    return {
+        servidor: servidor,
+        url: r.querySelector('.url-in').value,
+        nota: r.querySelector('.note-in').value
+    };
+}).filter(l => l.url);
 
 const getGens = (cls) => Array.from(document.querySelectorAll(`.${cls}:checked`)).map(c => c.value);
 
@@ -1886,8 +1942,7 @@ document.getElementById('form-edit-game').addEventListener('submit', async (e) =
 });
 
 window.toggleFav = async (t, btn) => {
-    // 1. Lógica local (Visual inmediata)
-    let action = ""; // 'add' o 'remove'
+    let action = ""; 
     if(favoritos.includes(t)) {
         favoritos = favoritos.filter(f => f !== t);
         action = 'remove';
@@ -1899,14 +1954,8 @@ window.toggleFav = async (t, btn) => {
     }
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
 
-    // 2. Actualizar UI
-    if(isViewingFavs) {
-        window.aplicarFiltrosGlobales(); 
-    } else {
-        renderizarJuegos();
-    }
+    window.aplicarFiltrosGlobales(); 
 
-    // 3. Lógica Nube (Firebase)
     if (usuarioActual) {
         try {
             const userRef = doc(db, "usuarios", usuarioActual.uid);
@@ -1915,110 +1964,60 @@ window.toggleFav = async (t, btn) => {
             } else {
                 await updateDoc(userRef, { favoritos: arrayRemove(t) });
             }
-        } catch (e) {
-            console.error("Error al sincronizar favoritos:", e);
-        }
+        } catch (e) { }
     }
 };
 
 window.toggleMostrarFavoritos = (btn) => {
-    // 1. Comprobar si ya estamos en modo favoritos, si es asi, salir.
     if (isViewingFavs) {
         window.salirDeFavoritos();
         return;
     }
     
-    // 2. Si no estamos en favoritos, ENTRAR:
-    
-    // Si no hay favoritos guardados, no entrar al modo
     if (favoritos.length === 0) {
         showToast("Aun no tienes favoritos guardados.", "error");
         return;
     }
 
-    // Guarda la pagina actual del modo normal antes de cambiar
     paginaGuardadaAntesDeFavs = paginaActual;
-    
-    // *********************************************************
-    // IMPORTANTE: Forzar página 1 inmediatamente al entrar a la nueva vista
     paginaActual = 1; 
-    // *********************************************************
 
-    // Limpiar busqueda y filtros visuales (menos el orden)
     document.getElementById('searchInput').value = "";
-    document.querySelectorAll('.filter-genre-chk').forEach(c => c.checked = false);
-    activeReqFilter = null;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+    document.querySelectorAll('.adv-genre-chk').forEach(c => c.checked = false);
+    document.querySelectorAll('.adv-req-chk').forEach(c => c.checked = false);
+    document.querySelector('input[name="adv_sort"][value="date_release_new"]').checked = true;
     
-    // Poner el color al boton y activar la bandera
     btn.classList.add('active-menu');
     isViewingFavs = true;
+    document.getElementById('favs-exit-container').style.display = 'flex';
 
-    // Aplicar filtros para mostrar solo favoritos
     window.aplicarFiltrosGlobales(); 
-
-    // Solo necesitamos el scroll, el renderizado lo hace aplicarFiltrosGlobales
     window.scrollTo(0,0);
-
     showToast("Viendo solo favoritos");
 };
 
-// ASEGURATE QUE ESTA FUNCION EXISTA EN TU SCRIPT.JS
-// REEMPLAZAR TODA LA FUNCION
 window.salirDeFavoritos = () => {
     const btnFavs = document.getElementById('btnFavs');
-    
-    // 1. Quitar el color al boton y desactivar la bandera
     if (btnFavs) btnFavs.classList.remove('active-menu');
     isViewingFavs = false;
     
-    // 2. Ocultar el boton de salida de favoritos
-    favsExitContainer.style.display = 'none';
+    document.getElementById('favs-exit-container').style.display = 'none';
 
-    // 3. Limpiar todos los filtros y busqueda (Visual y de estado)
     document.getElementById('searchInput').value = "";
-    document.querySelectorAll('.filter-genre-chk').forEach(c => c.checked = false);
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
-    activeReqFilter = null;
+    document.querySelectorAll('.adv-genre-chk').forEach(c => c.checked = false);
+    document.querySelectorAll('.adv-req-chk').forEach(c => c.checked = false);
     
-    // 4. FORZAR EL ORDEN A "LANZAMIENTO (NUEVOS)"
-    document.getElementById('sortSelect').value = 'date_release_new'; 
-
-    // 5. Restaurar la pagina donde estaba antes de entrar a favoritos
     paginaActual = paginaGuardadaAntesDeFavs;
-    if (paginaActual < 1) paginaActual = 1; // Seguridad
+    if (paginaActual < 1) paginaActual = 1; 
     
-    // 6. Aplicar los cambios y volver a renderizar la lista normal
     window.aplicarFiltrosGlobales(); 
     window.scrollTo({top:0, behavior:'smooth'});
-    
     showToast("Volviendo a la lista de juegos");
 };
 
-
 window.toggleBuscador = (btn) => {
-    const bar = document.getElementById('buscadorExpandido');
-    if(bar.classList.contains('visible')) {
-        // --- AL CERRAR (SALIR) ---
-        bar.classList.remove('visible');
-        btn.classList.remove('active-menu');
-        
-        // 1. Limpiar el texto
-        document.getElementById('searchInput').value = "";
-        // 2. Forzar orden por Lanzamiento (Nuevos)
-        document.getElementById('sortSelect').value = 'date_release_new';
-        // 3. Ocultar autocompletado si quedó abierto
-        autocompleteList.style.display = 'none';
-        
-        // 4. Aplicar los cambios para recargar la lista
-        window.aplicarFiltrosGlobales();
-
-    } else {
-        // --- AL ABRIR ---
-        bar.classList.add('visible');
-        btn.classList.add('active-menu');
-        setTimeout(() => document.getElementById('searchInput').focus(), 100);
-    }
+    window.scrollTo({top:0, behavior:'smooth'});
+    setTimeout(() => document.getElementById('searchInput').focus(), 300);
 };
 
 window.toggleModo = () => {
@@ -2057,38 +2056,11 @@ window.toggleGameInput = () => {
     }
 };
 
-// Autocompletado Contacto
-document.getElementById('contact-game-name').addEventListener('input', function() {
-    const val = normalizarTexto(this.value);
-    const list = document.getElementById('contact-autocomplete-list');
-    list.innerHTML = "";
-    if(!val) { list.style.display = 'none'; return; }
-    
-    const matches = juegos.filter(j => normalizarTexto(j.titulo).includes(val)).slice(0, 5);
-    if(matches.length > 0) {
-        matches.forEach(j => {
-            const div = document.createElement('div');
-            div.style.padding = "10px";
-            div.style.cursor = "pointer";
-            div.style.borderBottom = "1px solid #333";
-            div.onmouseover = () => div.style.background = "#333";
-            div.onmouseout = () => div.style.background = "transparent";
-            div.innerText = j.titulo;
-            div.onclick = () => {
-                document.getElementById('contact-game-name').value = j.titulo;
-                list.style.display = 'none';
-            };
-            list.appendChild(div);
-        });
-        list.style.display = 'block';
-    } else {
-        list.style.display = 'none';
-    }
-});
 function enableDragSort(containerId) {
     const container = document.getElementById(containerId);
+    if(!container) return;
     container.addEventListener('dragover', (e) => {
-        e.preventDefault(); // Necesario para permitir el drop
+        e.preventDefault(); 
         const afterElement = getDragAfterElement(container, e.clientY);
         const draggable = document.querySelector('.dragging');
         if (afterElement == null) {
@@ -2113,6 +2085,56 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// Activamos la magia en los dos contenedores de links
+window.abrirModalNotas = () => {
+    if(!esAdmin && !esDios) return;
+    document.getElementById('modalNotas').style.display = 'flex';
+    cargarNotasAdmin();
+};
+
+async function cargarNotasAdmin() {
+    const cont = document.getElementById('notas-admin-list');
+    cont.innerHTML = "Cargando...";
+    const q = query(collection(db, "notas_admin"), orderBy("fecha", "desc"));
+    const snap = await getDocs(q);
+    cont.innerHTML = "";
+    if(snap.empty) {
+        cont.innerHTML = "No hay notas.";
+        return;
+    }
+    snap.forEach(d => {
+        const data = d.data();
+        const fechaFmt = new Date(data.fecha).toLocaleString();
+        cont.innerHTML += `<div style="background:#222; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #444;">
+            <div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">${data.autor} - ${fechaFmt}</div>
+            <div style="font-size:0.95rem; color:white; white-space:pre-wrap;">${data.texto}</div>
+            <button onclick="borrarNotaAdmin('${d.id}')" style="background:#ff4444; color:white; border:none; padding:3px 8px; border-radius:3px; font-size:0.8rem; margin-top:5px; cursor:pointer;">Borrar</button>
+        </div>`;
+    });
+}
+
+window.guardarNotaAdmin = async () => {
+    const text = document.getElementById('nueva-nota-text').value.trim();
+    if(!text) return;
+    try {
+        await addDoc(collection(db, "notas_admin"), {
+            texto: text,
+            autor: usuarioActual.email,
+            fecha: new Date().toISOString()
+        });
+        document.getElementById('nueva-nota-text').value = "";
+        cargarNotasAdmin();
+    } catch(e) { showToast("Error al guardar", "error"); }
+};
+
+window.borrarNotaAdmin = async (id) => {
+    if(!confirm("Borrar nota?")) return;
+    try {
+        await deleteDoc(doc(db, "notas_admin", id));
+        cargarNotasAdmin();
+    } catch(e) { showToast("Error al borrar", "error"); }
+};
+
 enableDragSort('new-links-container');
 enableDragSort('edit-links-container');
+
+cargarGenerosGlobales();

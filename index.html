@@ -27,7 +27,6 @@
   </div>
 
   <div id="login-screen">
-    
     <div class="login-side-text left-side">
         <h2>Bienvenido</h2>
         <p>Explora cientos de juegos seleccionados para ti. Sin publicidad molesta, enlaces directos y la mejor comunidad.</p>
@@ -37,7 +36,7 @@
 
     <div class="login-box">
       <h1>Zona Gamer</h1>
-      <p>Elige una opción para entrar</p>
+      <p>Elige una opcion para entrar</p>
       
       <button class="btn-google" id="btn-google-login">
         <i class="fa-brands fa-google" style="color: #DB4437; font-size: 1.2rem;"></i> Acceder con Google
@@ -50,68 +49,13 @@
 
     <div class="login-side-text right-side">
         <h2>Novedades</h2>
-        <p>Actualizamos el catálogo semanalmente. Guarda tus favoritos en la nube iniciando sesión con Google.</p>
+        <p>Actualizamos el catalogo semanalmente. Guarda tus favoritos en la nube iniciando sesion con Google.</p>
         <br>
         <i class="fa-solid fa-cloud-arrow-up" style="font-size:3rem; color:var(--secondary);"></i>
     </div>
-
   </div>
 
   <div id="app-content" style="display:none;">
-    
-    <div id="buscadorExpandido">
-        <div class="search-bar-container">
-            <i class="fa-solid fa-magnifying-glass" style="color: #888;"></i>
-            <input type="text" id="searchInput" placeholder="Buscar titulo..." autocomplete="off" />
-            
-            <div id="autocomplete-list"></div>
-
-            <div class="genres-dropdown-container">
-                <div class="btn-genres-toggle" id="btnGenresToggle" onclick="toggleGenresPopup()">Generos <i class="fa-solid fa-chevron-down"></i></div>
-                <div class="genres-list-popup" id="genresListPopup">
-                    <div class="genre-item"><label><input type="checkbox" value="Indie" class="filter-genre-chk"> Indie</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Peleas" class="filter-genre-chk"> Peleas</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Plataformas" class="filter-genre-chk"> Plataformas</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Accion" class="filter-genre-chk"> Accion</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Supervivencia" class="filter-genre-chk"> Supervivencia</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Zombies" class="filter-genre-chk"> Zombies</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Anime" class="filter-genre-chk"> Anime</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Guerra" class="filter-genre-chk"> Guerra</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Aventura" class="filter-genre-chk"> Aventura</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Terror" class="filter-genre-chk"> Terror</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Carreras" class="filter-genre-chk"> Carreras</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Deportes" class="filter-genre-chk"> Deportes</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="filter-genre-chk"> Estrategia</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="filter-genre-chk"> Rol/RPG</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Shooter" class="filter-genre-chk"> Shooter</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="filter-genre-chk"> MundoAbierto</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="filter-genre-chk" style="accent-color:#00ff00"> Multijugador</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="filter-genre-chk" style="accent-color:#00ff00"> PantallaDividida</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="2D" class="filter-genre-chk"> 2D</label></div>
-                </div>
-            </div>
-            
-            <select id="sortSelect" class="sort-select" onchange="aplicarFiltrosGlobales()">
-                <option value="date_release_old">Lanzamiento (Antiguos)</option>
-                <option value="date_release_new">Lanzamiento (Nuevos)</option>
-                <option value="date_new">Agregado (Recientes)</option>
-                <option value="date_old">Agregado (Antiguos)</option>
-                <option value="alpha_az">Nombre (A-Z)</option>
-                <option value="alpha_za">Nombre (Z-A)</option>
-                <option value="rating">Mayor Puntaje</option>
-            </select>
-
-            <button class="filtro-btn" onclick="toggleReq(this, 'bajos')">Bajos</button>
-            <button class="filtro-btn" onclick="toggleReq(this, 'medios')">Medios</button>
-            <button class="filtro-btn" onclick="toggleReq(this, 'altos')">Altos</button>
-            
-            <div id="favs-exit-container" style="display:none; margin-left:15px;">
-                <button class="filtro-btn" id="btnSalirFavs" onclick="salirDeFavoritos()">
-                    <i class="fa-solid fa-xmark"></i> Salir de Favoritos
-                </button>
-            </div>
-        </div>
-    </div>
 
     <div id="menuClosed">
       <div class="menu-buttons">
@@ -124,6 +68,7 @@
                 </div>
                 
                 <button id="btnAdminTools" style="display:none;" onclick="abrirPanelAdmin()"><i class="fa-solid fa-screwdriver-wrench"></i> Admin Panel</button>
+                <button id="btnAdminNotes" style="display:none; color:var(--primary) !important;" onclick="abrirModalNotas()"><i class="fa-solid fa-clipboard"></i> Notas Admin</button>
                 <button id="btnApelar" onclick="abrirModalApelacion()" style="display:none; color: orange !important; font-weight:bold;">⛔ Apelar Ban</button>
                 <button id="btnLogout" style="color: #ff4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</button>
             </div>
@@ -142,9 +87,7 @@
         </div>
 
         <button onclick="abrirJuegoAleatorio()" title="Juego Aleatorio 🎲"><i class="fa-solid fa-dice"></i></button>
-        
         <button id="btnMuroPeticiones" onclick="abrirMuroPeticiones()" title="Muro de Peticiones"><i class="fa-solid fa-bullhorn"></i></button>
-
         <button onclick="abrirModalCorreo()" title="Contacto"><i class="fa-solid fa-envelope"></i></button>
         <button id="btnModo" onclick="toggleModo()" title="Tema"><i class="fa-solid fa-moon"></i></button>
       </div>
@@ -152,17 +95,65 @@
           <a target="_blank" href="https://www.instagram.com/pcjuegoss2025" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
       </div>
     </div>
-    </div>
 
     <button id="btnSubir" title="Subir" onclick="window.scrollTo({top:0,behavior:'smooth'})">
       <i class="fa-solid fa-arrow-up"></i>
     </button>
 
     <main>
+      
+      <div class="top-integrated-bar">
+          
+          <div class="search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass" style="color: #888; font-size: 1.2rem;"></i>
+              <input type="text" id="searchInput" placeholder="Buscar titulo del juego..." autocomplete="off" />
+              <div id="autocomplete-list"></div>
+          </div>
+          
+          <div class="filters-wrapper">
+              
+              <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-genres-list').style.display='none', 200)">
+                  <div class="select-box" onclick="toggleMultiSelect('adv-genres-list')">Generos <i class="fa-solid fa-chevron-down"></i></div>
+                  <div class="select-options" id="adv-genres-list">
+                      </div>
+              </div>
+              
+              <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-reqs-list').style.display='none', 200)">
+                  <div class="select-box" onclick="toggleMultiSelect('adv-reqs-list')">Requisitos <i class="fa-solid fa-chevron-down"></i></div>
+                  <div class="select-options" id="adv-reqs-list">
+                      <label><input type="checkbox" value="bajos" class="adv-req-chk" onchange="aplicarFiltrosGlobales()"> Bajos</label>
+                      <label><input type="checkbox" value="medios" class="adv-req-chk" onchange="aplicarFiltrosGlobales()"> Medios</label>
+                      <label><input type="checkbox" value="altos" class="adv-req-chk" onchange="aplicarFiltrosGlobales()"> Altos</label>
+                  </div>
+              </div>
+
+              <div class="custom-multi-select" tabindex="0" onblur="setTimeout(() => document.getElementById('adv-sort-list').style.display='none', 200)">
+                  <div class="select-box" onclick="toggleMultiSelect('adv-sort-list')">Orden / Lanzamiento <i class="fa-solid fa-chevron-down"></i></div>
+                  <div class="select-options" id="adv-sort-list">
+                      <label><input type="radio" name="adv_sort" value="date_release_new" onchange="aplicarFiltrosGlobales()" checked> Lanzamiento (Nuevos)</label>
+                      <label><input type="radio" name="adv_sort" value="date_release_old" onchange="aplicarFiltrosGlobales()"> Lanzamiento (Antiguos)</label>
+                      <label><input type="radio" name="adv_sort" value="date_new" onchange="aplicarFiltrosGlobales()"> Agregado (Recientes)</label>
+                      <label><input type="radio" name="adv_sort" value="date_old" onchange="aplicarFiltrosGlobales()"> Agregado (Antiguos)</label>
+                      <label><input type="radio" name="adv_sort" value="alpha_az" onchange="aplicarFiltrosGlobales()"> Nombre (A-Z)</label>
+                      <label><input type="radio" name="adv_sort" value="alpha_za" onchange="aplicarFiltrosGlobales()"> Nombre (Z-A)</label>
+                      <label><input type="radio" name="adv_sort" value="rating" onchange="aplicarFiltrosGlobales()"> Mayor Puntaje</label>
+                  </div>
+              </div>
+              
+              <div id="favs-exit-container" style="display:none; align-items:center;">
+                  <button class="filtro-btn" id="btnSalirFavs" onclick="salirDeFavoritos()" style="background:#ff4444; border:none; color:white;">
+                      <i class="fa-solid fa-xmark"></i> Salir de Favoritos
+                  </button>
+              </div>
+
+          </div>
+      </div>
+
       <div class="game-list" id="gameList"></div>
       
       <div class="pagination-controls" id="pagination-wrapper"></div>
     </main>
+
   </div>
 
   <div id="contextMenu">
@@ -179,6 +170,18 @@
           <button onclick="accionUsuario('banear')" style="color:orange;"><i class="fa-solid fa-ban"></i> Banear Usuario</button>
           <button onclick="accionUsuario('desbanear')" style="color:green;"><i class="fa-solid fa-check"></i> Desbanear Usuario</button>
       </div>
+  </div>
+
+  <div id="modalNotas" class="modal">
+    <div class="modal-content-small">
+      <span class="close" onclick="document.getElementById('modalNotas').style.display='none'">&times;</span>
+      <h2 style="color:var(--primary); margin-bottom:15px;"><i class="fa-solid fa-clipboard"></i> Notas de Administradores</h2>
+      <div id="notas-admin-list" style="max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid #444; padding:10px; background:#111; border-radius:8px;">
+          Cargando...
+      </div>
+      <textarea id="nueva-nota-text" rows="3" style="width:100%; padding:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;" placeholder="Escribi una nota..."></textarea>
+      <button onclick="guardarNotaAdmin()" style="margin-top:10px; width:100%; padding:10px; background:var(--primary); color:black; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">GUARDAR NOTA</button>
+    </div>
   </div>
 
   <div id="modalAdmin" class="modal">
@@ -203,27 +206,8 @@
             </div>
             <label style="color:#aaa; font-size:1rem; margin-bottom:5px;">Generos</label>
             <div class="genre-container">
-                <div class="genre-grid">
-                    <div class="genre-item"><label><input type="checkbox" value="Indie" class="chk-genre"> Indie</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Peleas" class="chk-genre"> Peleas</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Plataformas" class="chk-genre"> Plataformas</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Accion" class="chk-genre"> Accion</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Supervivencia" class="chk-genre"> Supervivencia</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Zombies" class="chk-genre"> Zombies</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Anime" class="chk-genre"> Anime</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Guerra" class="chk-genre"> Guerra</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Aventura" class="chk-genre"> Aventura</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Terror" class="chk-genre"> Terror</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Carreras" class="chk-genre"> Carreras</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Deportes" class="chk-genre"> Deportes</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="chk-genre"> Estrategia</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="chk-genre"> Rol/RPG</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Shooter" class="chk-genre"> Shooter</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre"> MundoAbierto</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="chk-genre" style="accent-color:#00ff00;"> Multijugador</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre" style="accent-color:#00ff00;"> PantallaDividida</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="2D" class="chk-genre"> 2D</label></div>
-                </div>
+                <div class="genre-grid" id="add-genre-grid">
+                    </div>
             </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -232,7 +216,7 @@
                 <div id="new-links-scroll-container" class="links-scroll-container">
                     <div id="new-links-container"></div>
                 </div>
-                <button type="button" onclick="window.agregarInputLink('new-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:12px; width:100%; font-size:1rem;">+ Agregar Enlace</button>
+                <button type="button" onclick="window.agregarInputLink('new-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:12px; width:100%; font-size:1rem; color:white; cursor:pointer;">+ Agregar Enlace</button>
             </div>
             <div class="input-group" style="margin-top: 10px;">
                 <input type="text" id="new-password" placeholder="Contrasena del archivo (Opcional)">
@@ -264,27 +248,8 @@
                 </select>
             </div>
             <div class="genre-container">
-                <div class="genre-grid">
-                    <div class="genre-item"><label><input type="checkbox" value="Indie" class="chk-genre-edit"> Indie</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Peleas" class="chk-genre-edit"> Peleas</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Plataformas" class="chk-genre-edit"> Plataformas</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Accion" class="chk-genre-edit"> Accion</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Supervivencia" class="chk-genre-edit"> Supervivencia</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Zombies" class="chk-genre-edit"> Zombies</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Anime" class="chk-genre-edit"> Anime</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Guerra" class="chk-genre-edit"> Guerra</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Aventura" class="chk-genre-edit"> Aventura</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Terror" class="chk-genre-edit"> Terror</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Carreras" class="chk-genre-edit"> Carreras</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Deportes" class="chk-genre-edit"> Deportes</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Estrategia" class="chk-genre-edit"> Estrategia</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Rol/RPG" class="chk-genre-edit"> Rol/RPG</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Shooter" class="chk-genre-edit"> Shooter</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Mundo Abierto" class="chk-genre-edit"> MundoAbierto</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Multijugador" class="chk-genre-edit"> Multijugador</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="Pantalla Dividida" class="chk-genre-edit"> PantallaDividida</label></div>
-                    <div class="genre-item"><label><input type="checkbox" value="2D" class="chk-genre-edit"> 2D</label></div>
-                </div>
+                <div class="genre-grid" id="edit-genre-grid">
+                    </div>
             </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -292,7 +257,7 @@
                 <div id="edit-links-scroll-container" class="links-scroll-container">
                     <div id="edit-links-container"></div>
                 </div>
-                <button type="button" onclick="window.agregarInputLink('edit-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:12px; width:100%; font-size:1rem;">+ Agregar Enlace</button>
+                <button type="button" onclick="window.agregarInputLink('edit-links-container')" style="background:#333; margin-top:15px; border: 1px dashed #666; padding:12px; width:100%; font-size:1rem; color:white; cursor:pointer;">+ Agregar Enlace</button>
             </div>
             <div class="input-group"><input type="text" id="edit-password" placeholder="Contrasena"></div>
         </div>
@@ -447,6 +412,9 @@
             <button class="sidebar-btn god-btn" id="tab-btn-admins" onclick="cambiarTabPanel('admins')" style="display:none;">
                 <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Gestion
             </button>
+            <button class="sidebar-btn" id="tab-btn-genres" onclick="cambiarTabPanel('genres')">
+                <i class="fa-solid fa-tags" style="margin-right:8px;"></i> Generos
+            </button>
             <button class="sidebar-btn" id="tab-btn-trash" onclick="cambiarTabPanel('trash')">
                 <i class="fa-solid fa-trash-can" style="margin-right:8px;"></i> Papelera Juegos
             </button>
@@ -493,6 +461,15 @@
                 <div id="admin-list-container" style="max-height:350px; overflow-y:auto;">
                     Cargando...
                 </div>
+            </div>
+
+            <div id="view-genres" style="display:none;">
+                <h2 style="color:var(--primary); margin-bottom:20px;">Gestionar Generos</h2>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="nuevo-genero-input" placeholder="Nombre del genero..." style="flex:1; padding:10px; background:#111; color:white; border:1px solid #444; border-radius:5px;">
+                    <button onclick="agregarGeneroNuevo()" style="background:var(--primary); color:black; font-weight:bold; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Agregar</button>
+                </div>
+                <div id="admin-genres-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:400px; overflow-y:auto;"></div>
             </div>
             
             <div id="view-trash" class="panel-content" style="display:none;">

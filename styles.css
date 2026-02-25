@@ -24,7 +24,6 @@ body {
     zoom: 0.7;
 }
 
-
 body.no-scroll { overflow: hidden !important; }
 
 body.light {
@@ -77,23 +76,21 @@ body.light {
     z-index: 1; font-weight: bold; user-select: none;
 }
 
-/* MODIFICACION DEL CONTENEDOR PRINCIPAL */
 #login-screen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     z-index: 9999;
-    display: flex; /* Flexbox para poner cosas lado a lado */
+    display: flex; 
     align-items: center; 
     justify-content: center;
-    gap: 40px; /* Espacio entre los textos y la caja */
+    gap: 40px; 
     opacity: 0; transition: opacity 0.5s;
     padding: 20px;
 }
 
-/* ESTILOS DE LOS TEXTOS LATERALES */
 .login-side-text {
-    flex: 1; /* Ocupan el espacio disponible */
-    max-width: 300px; /* Ancho máximo para que no sean muy anchos */
+    flex: 1; 
+    max-width: 300px; 
     color: white;
     text-align: center;
     animation: fadeIn 1.2s ease;
@@ -113,7 +110,6 @@ body.light {
     color: #ddd;
 }
 
-/* RESPONSIVE: En celulares ocultamos los textos laterales */
 @media (max-width: 900px) {
     .login-side-text {
         display: none;
@@ -221,37 +217,45 @@ body.light {
 }
 @keyframes swing { 0% { transform: rotate(0deg); } 20% { transform: rotate(15deg); } 40% { transform: rotate(-10deg); } 60% { transform: rotate(5deg); } 100% { transform: rotate(0deg); } }
 
-#buscadorExpandido {
-    position: fixed; top: 15px; left: 100px; right: 80px; 
-    display: flex; gap: 10px; z-index: 1000;
-    pointer-events: none; opacity: 0; transition: opacity 0.3s;
+/* ---------- BARRA SUPERIOR INTEGRADA (Buscador + Filtros) ---------- */
+.top-integrated-bar {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    flex-wrap: wrap; 
+    gap: 20px;
+    background: rgba(30,30,30,0.95); 
+    padding: 15px 25px; 
+    border-radius: 15px; 
+    margin-bottom: 30px; 
+    border: 1px solid #444;
 }
-#buscadorExpandido.visible { opacity: 1; pointer-events: auto; }
 
-.search-bar-container {
-    background: rgba(30, 30, 30, 0.95); padding: 10px 20px; border-radius: 50px; 
-    border: 1px solid #444; display: flex; align-items: center; gap: 15px; 
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); position: relative;
+.search-input-wrapper {
+    flex: 1; 
+    min-width: 250px; 
+    position: relative; 
+    background: #252525; 
+    border: 1px solid #444; 
+    border-radius: 8px;
+    padding: 15px 20px; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
 }
 
-#buscadorExpandido input {
-    background: transparent; border: none; color: white;
-    padding: 5px 10px; width: 220px; 
-    font-size: 1.05rem; 
+.search-input-wrapper input {
+    width: 100%; 
+    background: transparent; 
+    border: none; 
+    color: white; 
+    font-size: 1.1rem; 
     outline: none;
 }
 
-.sort-select {
-    background: #252525; color: #ccc; border: 1px solid #555;
-    padding: 8px 15px; border-radius: 20px; outline: none; 
-    font-size: 0.95rem; 
-    cursor: pointer;
-}
-.sort-select:hover { background: #333; color: white; }
-
 #autocomplete-list {
-    position: absolute; top: 100%; left: 40px; width: 300px; 
-    background: #252525; border: 1px solid #444; border-radius: 0 0 10px 10px;
+    position: absolute; top: 110%; left: 0; width: 100%; 
+    background: #252525; border: 1px solid #444; border-radius: 8px;
     z-index: 1002; max-height: 250px; overflow-y: auto; display: none; 
 }
 .autocomplete-item {
@@ -259,44 +263,21 @@ body.light {
 }
 .autocomplete-item:hover { background: var(--primary); color: black; }
 
-.filtro-btn {
-    background: #333; color: #ccc; border: 1px solid #555;
-    padding: 8px 18px; border-radius: 20px; cursor: pointer; 
-    font-size: 0.95rem; 
-    transition: 0.3s;
-}
-.filtro-btn:hover { background: #444; color: white; }
-.filtro-btn.activo {
-    background: var(--secondary); color: white; border-color: var(--secondary);
-    box-shadow: 0 0 10px rgba(255, 0, 128, 0.4);
+.filters-wrapper {
+    display: flex; gap: 15px; flex-wrap: wrap; align-items: center;
 }
 
-.genres-dropdown-container { position: relative; }
-.btn-genres-toggle {
-    background: #333; color: var(--primary); border: 1px solid var(--primary);
-    padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold;
-    display: flex; align-items: center; gap: 8px; font-size: 0.95rem; 
-}
-.genres-list-popup {
-    display: none; position: absolute; top: 120%; left: 0; 
-    background: #1a1a1a; border: 1px solid #444;
-    padding: 20px; border-radius: 10px; width: auto; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.9); z-index: 1005;
-    grid-template-columns: 1fr 1fr; gap: 15px;
-}
-.genres-list-popup label {
-    display: flex; flex-direction: row; align-items: center; justify-content: flex-start;
-    gap: 10px; color: #ddd; font-size: 0.95rem; cursor: pointer; 
-    padding: 7px; border-radius: 5px; transition: 0.2s;
-}
-.genres-list-popup label:hover { background: #333; color: var(--primary); }
-.genres-list-popup input[type="checkbox"] { accent-color: var(--primary); margin: 0; width: 22px; height: 22px; } 
+.custom-multi-select { position: relative; display: inline-block; min-width: 200px; outline: none; }
+.select-box { background: #252525; border: 1px solid #444; color: white; padding: 15px 20px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; }
+.select-options { display: none; position: absolute; top: 110%; left: 0; width: 100%; background: #1a1a1a; border: 1px solid #444; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.8); z-index: 1000; max-height: 300px; overflow-y: auto; flex-direction: column; padding: 15px; gap: 12px; }
+.select-options label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; color: #ccc; }
+.select-options label:hover { color: var(--primary); }
+.select-options input[type="checkbox"], .select-options input[type="radio"] { accent-color: var(--primary); width: 20px; height: 20px; margin:0;}
 
 main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction: column; } 
 
 .game-list {
     display: grid; 
-    /* COLUMNAS INDEFINIDAS PERO ANCHO MINIMO 220px */
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 30px; justify-content: center; padding-bottom: 50px; flex-grow: 1; 
 }
@@ -695,7 +676,7 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 }
 .btn-donate-large:hover { transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: white; }
 
-/* PAGINACIÓN NUMÉRICA */
+/* PAGINACION NUMERICA */
 .pagination-controls { display: flex; justify-content: center; gap: 5px; padding: 30px; margin-top: auto; width: 100%; flex-wrap: wrap; }
 .pagination-controls button { background: #333; color: white; border: 1px solid #444; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1rem; min-width: 40px; } 
 .pagination-controls button:hover:not(:disabled) { background: #444; color: white; }
@@ -810,10 +791,8 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     .panel-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
 }
 
-
 /* --- CORRECCIONES FINALES (ZOOM 0.7 + MODALES ALTOS) --- */
 
-/* 1. Modales y Pantallas de Carga (Fondo completo) */
 #loading-screen,
 #login-screen,
 .modal {
@@ -821,17 +800,11 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     width: 143vw !important;
 }
 
-/* 2. Menú Lateral (Solo altura) */
 #menuClosed {
     height: 143vh !important;
 }
 
-/* 3. Buscador Expandido (Ancho completo) */
-#buscadorExpandido {
-    width: 143vw !important;
-}
 
-/* 4. TAMAÑO INTERNO (Zoom interno para que no se vea minúsculo) */
 .modal-content-wide,
 .modal-content-small,
 .modal-game-details,
@@ -839,15 +812,13 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     zoom: 0.9; 
 }
 
-/* 5. HACER LOS MODALES MÁS ALTOS (NUEVO) */
-/* Esto estira la ventana de detalles del juego y el admin */
 .modal-game-details {
-    height: 150vh !important; /* Ocupa el 96% de la altura disponible */
-    margin-top: 2vh !important; /* Lo sube un poco para centrarlo */
+    height: 150vh !important; 
+    margin-top: 2vh !important; 
 }
 
 .modal-content-wide {
-    min-height: 150vh !important; /* Fuerza al panel de admin a ser alto */
+    min-height: 150vh !important; 
     margin-top: 2vh !important;
 }
 .link-row.dragging {

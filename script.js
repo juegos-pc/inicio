@@ -815,34 +815,54 @@ function getYoutubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
+// Buscá y reemplazá estas dos funciones en tu script.js
+
 window.preVote = (val) => {
     if(esInvitado) return showToast("Los invitados no pueden votar.", "error");
+    if(usuarioBaneado) return showToast("Estas baneado, no puedes votar.", "error");
+    
     pendingVote = val;
     renderStars(val);
-    document.getElementById('btn-send-vote').style.display = 'block';
-    document.getElementById('btn-send-vote').innerText = `Manda (${val})`;
+    
+    // Ahora en vez de mostrar un botón, llamamos directamente a submitVote
+    window.submitVote(val); 
 };
 
-window.submitVote = async () => {
-    if(esInvitado) return showToast("Inicia sesion para votar.", "error");
+window.submitVote = async (valorVoto) => {
     if(!usuarioActual) { showToast("Inicia sesion para votar.", "error"); return; }
-    if(usuarioBaneado) { showToast("Estas baneado, no puedes votar.", "error"); return; }
-    if(!currentGameOpen || pendingVote === 0) return;
+    if(!currentGameOpen) return;
+
+    const votoAFijar = valorVoto || pendingVote;
+    if(votoAFijar === 0) return;
+
     const gameRef = doc(db, "juegos", currentGameOpen.id);
     const key = `puntuaciones.${usuarioActual.uid}`;
+    
     try {
-        await updateDoc(gameRef, { [key]: pendingVote });
+        // Bloqueamos las estrellas momentáneamente para que no clickeen mil veces
+        document.getElementById('star-rating-display').style.pointerEvents = 'none';
+        
+        await updateDoc(gameRef, { [key]: votoAFijar });
+        
         const updatedSnap = await getDoc(gameRef);
         const updatedGame = {id: updatedSnap.id, ...updatedSnap.data()};
+        
+        // Actualizamos la lista local
         const idx = juegos.findIndex(j => j.id === currentGameOpen.id);
         if(idx !== -1) juegos[idx] = updatedGame;
+        
         currentGameOpen = updatedGame;
         updateRatingDisplay(updatedGame);
-        document.getElementById('btn-send-vote').innerText = "Guardado!";
-        setTimeout(() => document.getElementById('btn-send-vote').style.display = 'none', 2000);
+        
         renderizarJuegos();
-        showToast("Voto guardado", "success");
-    } catch(e) { console.error(e); }
+        showToast(`¡Votaste ${votoAFijar} estrellas!`, "success");
+    } catch(e) { 
+        console.error(e);
+        showToast("Error al guardar el voto", "error");
+    } finally {
+        // Volvemos a habilitar el click
+        document.getElementById('star-rating-display').style.pointerEvents = 'auto';
+    }
 };
 
 function updateRatingDisplay(juego) {
@@ -883,8 +903,16 @@ window.enviarComentario = async () => {
         return;
     }
 
-    let text = document.getElementById('new-comment-text').value;
+    const textArea = document.getElementById('new-comment-text');
+    const btnSend = document.querySelector('.btn-send-comment');
+    let text = textArea.value;
+    
     if(!text.trim()) return;
+
+    // BLOQUEO: Deshabilitamos el input y el boton para evitar duplicados
+    textArea.disabled = true;
+    btnSend.disabled = true;
+    btnSend.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; // Icono de carga opcional
 
     const textoFinal = censurarTexto(text);
 
@@ -892,7 +920,7 @@ window.enviarComentario = async () => {
         await addDoc(collection(db, "juegos", currentGameOpen.id, "comentarios"), {
             user: usuarioActual.displayName || "Usuario",
             uid: usuarioActual.uid,
-            role: currentUserRole, 
+            role: currentUserRole,
             photo: usuarioActual.photoURL || null,
             text: textoFinal,
             date: new Date().toISOString(),
@@ -900,11 +928,20 @@ window.enviarComentario = async () => {
             anclado: false,
             reactions: {}
         });
-        document.getElementById('new-comment-text').value = "";
+        
+        textArea.value = "";
         cancelarRespuesta();
         cargarComentarios(currentGameOpen.id);
         showToast("Comentario enviado", "success");
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+        console.error(e);
+        showToast("Error al enviar", "error");
+    } finally {
+        // DESBLOQUEO: Volvemos a habilitar todo
+        textArea.disabled = false;
+        btnSend.disabled = false;
+        btnSend.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+    }
 };
 
 document.getElementById('btn-load-more-comments').addEventListener('click', () => {
@@ -1099,13 +1136,20 @@ window.reportarComentario = async (gameId, commentId, texto) => {
 
 window.editarComentario = (gameId, commentId, textoActual) => {
     const bodyDiv = document.getElementById(`comment-body-${commentId}`);
+    
     bodyDiv.innerHTML = `
-        <input type="text" value="${textoActual}" id="edit-input-${commentId}" style="width:100%; background:#111; border:1px solid #444; color:white; padding:5px; border-radius:5px;">
-        <div style="margin-top:5px; text-align:right;">
-            <button onclick="guardarEdicionComentario('${gameId}', '${commentId}')" style="background:green; color:white; border:none; padding:3px 8px; border-radius:3px; cursor:pointer;">Guardar</button>
-            <button onclick="cargarComentarios('${gameId}')" style="background:#555; color:white; border:none; padding:3px 8px; border-radius:3px; cursor:pointer;">Cancelar</button>
+        <div class="edit-comment-container">
+            <textarea class="edit-comment-input" id="edit-input-${commentId}" rows="3">${textoActual}</textarea>
+            <div class="edit-buttons">
+                <button class="btn-cancel-edit" onclick="cargarComentarios('${gameId}')">Cancelar</button>
+                <button class="btn-save-edit" onclick="guardarEdicionComentario('${gameId}', '${commentId}')">Guardar Cambios</button>
+            </div>
         </div>
     `;
+    
+    const input = document.getElementById(`edit-input-${commentId}`);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
 };
 
 window.guardarEdicionComentario = async (gameId, commentId) => {

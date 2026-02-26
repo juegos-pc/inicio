@@ -2137,17 +2137,18 @@ window.toggleFav = async (t, btn) => {
     }
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
 
-    window.aplicarFiltrosGlobales(); 
-
-    // ESTO ACTUALIZA LOS CORAZONES SI ESTAMOS EN LA PAGINA FULL SCREEN DEL JUEGO
-    if (document.getElementById('game-details-page').style.display === 'block') {
-        const esFav = favoritos.includes(t);
-        const corazonEnModal = document.querySelector('#game-details-page .heart i');
-        if (corazonEnModal) {
-            corazonEnModal.className = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
-        }
+    // ESTO ARREGLA TU PROBLEMA:
+    // Solo cambiamos el ícono del botón que acabamos de tocar
+    const icono = btn.querySelector('i');
+    if (favoritos.includes(t)) {
+        icono.className = "fa-solid fa-heart fav";
+    } else {
+        icono.className = "fa-regular fa-heart";
     }
 
+    window.aplicarFiltrosGlobales(); 
+
+    // (Opcional) Si querés que se actualice también en Firebase si hay usuario
     if (usuarioActual) {
         try {
             const userRef = doc(db, "usuarios", usuarioActual.uid);
@@ -2156,7 +2157,7 @@ window.toggleFav = async (t, btn) => {
             } else {
                 await updateDoc(userRef, { favoritos: arrayRemove(t) });
             }
-        } catch (e) { }
+        } catch (e) { console.error("Error Firebase:", e); }
     }
 };
 

@@ -174,7 +174,10 @@
               </div>
 
               <div class="col-info">
-                  <h2 id="download-title" style="color: var(--primary); font-size: 3rem; margin-top: 0; margin-bottom: 25px; text-transform: uppercase; word-wrap: break-word;"></h2>
+                  <div style="display: flex; align-items: center; justify-content: flex-start; gap: 20px; margin-bottom: 25px;">
+    <div id="fav-modal-container"></div>
+    <h2 id="download-title" style="color: var(--primary); font-size: 3rem; margin: 0; text-transform: uppercase; word-wrap: break-word;"></h2>
+</div>
 
                   <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-bottom: 25px; color: #ccc; font-size:1.1rem; border: 1px solid #333;"></div>
 
@@ -218,11 +221,13 @@
                   </div>
               </div>
 
-              <div class="col-comments">
-                  <div class="comments-header" style="border-radius: 10px 10px 0 0; background: #202020;"><h3 style="margin:0; color:var(--secondary);">Comentarios</h3></div>
-                  <div id="comments-list" class="comments-list-container"></div>
-                  <button id="btn-load-more-comments" class="btn-load-more-comments" style="display:none; margin: 10px; width: calc(100% - 20px);">Ver mas comentarios</button>
-                  <div class="comments-input-container" id="comments-input-wrapper" style="border-radius: 0 0 10px 10px; background: #202020;">
+              <div class="col-comments" style="position: relative; overflow: hidden;">
+                  <div id="chat-bg-blur" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background-size: cover; background-position: center; filter: blur(10px) brightness(0.4); transform: scale(1.1); pointer-events: none;"></div>
+                  
+                  <div class="comments-header" style="border-radius: 10px 10px 0 0; background: rgba(32, 32, 32, 0.8); z-index: 1; position: relative;"><h3 style="margin:0; color:var(--secondary);">Comentarios</h3></div>
+                  <div id="comments-list" class="comments-list-container" style="z-index: 1; position: relative;"></div>
+                  <button id="btn-load-more-comments" class="btn-load-more-comments" style="display:none; margin: 10px; width: calc(100% - 20px); z-index: 1; position: relative;">Ver mas comentarios</button>
+                  <div class="comments-input-container" id="comments-input-wrapper" style="border-radius: 0 0 10px 10px; background: rgba(32, 32, 32, 0.8); z-index: 1; position: relative;">
                       <div id="replying-to-bar" class="replying-bar">
                           <span id="reply-target-text">Respondiendo a...</span>
                           <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="cancelarRespuesta()"></i>

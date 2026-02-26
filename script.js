@@ -45,7 +45,7 @@ let listaGeneros = [];
 window.carouselInterval = null;
 window.isDraggingCarousel = false;
 
-const malasPalabras = ["estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo", "pelotudo","tarado","berga",];
+const malasPalabras = ["estupido", "mierda", "puto", "idiota", "imbecil", "carajo", "verga", "pendejo", "concha", "bobo", "pelotudo","tarado","berga"];
 
 const gameList = document.getElementById('gameList');
 const loginScreen = document.getElementById('login-screen');
@@ -69,7 +69,7 @@ window.showToast = (msg, type = 'info') => {
     setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(), 300); }, 3000);
 };
 
-// MANEJO DEL HISTORIAL DEL NAVEGADOR (BOTÓN ATRÁS Y ADELANTE)
+// MANEJO DEL HISTORIAL DEL NAVEGADOR (BOTON ATRAS Y ADELANTE)
 window.onpopstate = (event) => {
     if (event.state && event.state.view === 'game' && event.state.gameId) {
         const targetGame = juegos.find(j => j.id === event.state.gameId);
@@ -285,7 +285,6 @@ onAuthStateChanged(auth, async (user) => {
             esAdmin = false;
             esDios = false;
         } else {
-            // Entrar como invitado si viene desde otra pestaña (con sessionStorage)
             document.getElementById('btn-guest-login').click();
         }
     }, 1500); 
@@ -335,7 +334,6 @@ window.onclick = (e) => {
     if (!e.target.closest('#contextMenu')) contextMenu.style.display = 'none';
     if (!e.target.closest('.search-input-wrapper')) autocompleteList.style.display = 'none';
     
-    // Cierra los menus desplegables si haces click afuera
     if (!e.target.closest('.custom-multi-select')) {
         document.querySelectorAll('.select-options').forEach(opt => opt.style.display = 'none');
     }
@@ -425,7 +423,6 @@ searchInput.addEventListener('input', function() {
         autocompleteList.style.display = 'none';
     }
 });
-
 
 window.toggleMultiSelect = (id) => {
     const el = document.getElementById(id);
@@ -562,7 +559,6 @@ window.borrarGenero = async (g) => {
     } catch(e) { showToast("Error", "error"); }
 };
 
-
 async function cargarJuegos() {
     const snap = await getDocs(collection(db, "juegos"));
     juegos = [];
@@ -580,7 +576,6 @@ async function cargarJuegos() {
     juegosFiltrados = [...juegos];
     renderizarJuegos();
 
-    // Revisa si la URL mandó a abrir un juego directo
     const gameId = urlParams.get('game');
     if(gameId) {
         const targetGame = juegos.find(j => j.id === gameId);
@@ -621,6 +616,9 @@ function renderizarJuegos() {
         const rating = getAvgRating(juego);
         const fechaFormateada = formatearFecha(juego.fechaSalida || juego.fecha);
         const views = juego.views || 0;
+        
+        // CORRECCION DE COMILLAS PARA LA LISTA PRINCIPAL
+        const safeTitle = juego.titulo.replace(/'/g, "\\'");
 
         card.onclick = (e) => { if(!e.target.closest('.heart')) window.abrirDescargas(juego); };
         
@@ -651,7 +649,7 @@ function renderizarJuegos() {
             <img src="${juego.imagen}" alt="${juego.titulo}" loading="lazy" onerror="this.src='https://via.placeholder.com/220x320?text=Sin+Imagen'">
             ${ratingHtml}
             <div class="top-icons">
-                <div class="heart" onclick="window.toggleFav('${juego.titulo}', this); event.stopPropagation();">
+                <div class="heart" onclick="window.toggleFav('${safeTitle}', this); event.stopPropagation();">
                     <i class="${heartClass}"></i>
                 </div>
             </div>
@@ -815,8 +813,6 @@ function getYoutubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
-// Buscá y reemplazá estas dos funciones en tu script.js
-
 window.preVote = (val) => {
     if(esInvitado) return showToast("Los invitados no pueden votar.", "error");
     if(usuarioBaneado) return showToast("Estas baneado, no puedes votar.", "error");
@@ -824,7 +820,6 @@ window.preVote = (val) => {
     pendingVote = val;
     renderStars(val);
     
-    // Ahora en vez de mostrar un botón, llamamos directamente a submitVote
     window.submitVote(val); 
 };
 
@@ -839,7 +834,7 @@ window.submitVote = async (valorVoto) => {
     const key = `puntuaciones.${usuarioActual.uid}`;
     
     try {
-        // Bloqueamos las estrellas momentáneamente para que no clickeen mil veces
+        // Bloqueo visual mientras se sube el voto
         document.getElementById('star-rating-display').style.pointerEvents = 'none';
         
         await updateDoc(gameRef, { [key]: votoAFijar });
@@ -847,7 +842,6 @@ window.submitVote = async (valorVoto) => {
         const updatedSnap = await getDoc(gameRef);
         const updatedGame = {id: updatedSnap.id, ...updatedSnap.data()};
         
-        // Actualizamos la lista local
         const idx = juegos.findIndex(j => j.id === currentGameOpen.id);
         if(idx !== -1) juegos[idx] = updatedGame;
         
@@ -855,12 +849,11 @@ window.submitVote = async (valorVoto) => {
         updateRatingDisplay(updatedGame);
         
         renderizarJuegos();
-        showToast(`¡Votaste ${votoAFijar} estrellas!`, "success");
+        showToast(`Votaste ${votoAFijar} estrellas!`, "success");
     } catch(e) { 
         console.error(e);
         showToast("Error al guardar el voto", "error");
     } finally {
-        // Volvemos a habilitar el click
         document.getElementById('star-rating-display').style.pointerEvents = 'auto';
     }
 };
@@ -909,10 +902,9 @@ window.enviarComentario = async () => {
     
     if(!text.trim()) return;
 
-    // BLOQUEO: Deshabilitamos el input y el boton para evitar duplicados
     textArea.disabled = true;
     btnSend.disabled = true;
-    btnSend.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; // Icono de carga opcional
+    btnSend.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
 
     const textoFinal = censurarTexto(text);
 
@@ -937,7 +929,6 @@ window.enviarComentario = async () => {
         console.error(e);
         showToast("Error al enviar", "error");
     } finally {
-        // DESBLOQUEO: Volvemos a habilitar todo
         textArea.disabled = false;
         btnSend.disabled = false;
         btnSend.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
@@ -1667,7 +1658,6 @@ window.borrarJuegoPermanentemente = async (gameId, title) => {
     }
 };
 
-// ACA HACEMOS LA MAGIA DEL CARRUSEL ARRASTRABLE CON EL MOUSE
 function mostrarSimilares(juego) {
     const container = document.getElementById('similar-games-section');
     const list = document.getElementById('similar-games-list');
@@ -1699,9 +1689,10 @@ function mostrarSimilares(juego) {
         const heartClass = esFav ? "fa-solid fa-heart fav" : "fa-regular fa-heart";
         const rating = getAvgRating(j);
         const views = j.views || 0;
+        
+        const safeTitle = j.titulo.replace(/'/g, "\\'");
 
         div.onclick = (e) => { 
-            // Si el usuario estaba arrastrando la fila, no abrimos el juego
             if(window.isDraggingCarousel) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -1719,7 +1710,7 @@ function mostrarSimilares(juego) {
         div.innerHTML = `
             <img src="${j.imagen}" loading="lazy" onerror="this.src='https://via.placeholder.com/220x320?text=Sin+Imagen'">
             ${ratingHtml}
-            <div class="top-icons"><div class="heart" onclick="window.toggleFav('${j.titulo}', this); event.stopPropagation();"><i class="${heartClass}"></i></div></div>
+            <div class="top-icons"><div class="heart" onclick="window.toggleFav('${safeTitle}', this); event.stopPropagation();"><i class="${heartClass}"></i></div></div>
             <div class="title-overlay">
                 <div>${j.titulo}</div>
                 <div style="font-size:0.9rem; color:#aaa; margin-top:3px; font-weight:normal;">${formatearFecha(j.fechaSalida || j.fecha)}</div>
@@ -1728,7 +1719,6 @@ function mostrarSimilares(juego) {
         list.appendChild(div);
     });
 
-    // --- EVENTOS DEL MOUSE PARA ARRASTRAR EL CARRUSEL ---
     let isDown = false;
     let startX;
     let scrollLeft;
@@ -1737,17 +1727,16 @@ function mostrarSimilares(juego) {
     list.addEventListener('mousedown', (e) => {
         isDown = true;
         window.isDraggingCarousel = false; 
-        dragDesactivoCarrusel = false; // reinicia el estado
+        dragDesactivoCarrusel = false; 
         list.classList.add('active');
         startX = e.pageX - list.offsetLeft;
         scrollLeft = list.scrollLeft;
-        clearInterval(window.carouselInterval); // pausa auto-scroll al hacer click
+        clearInterval(window.carouselInterval); 
     });
 
     list.addEventListener('mouseleave', () => {
         isDown = false;
         list.classList.remove('active');
-        // Solo reanuda si el usuario NUNCA arrastró
         if (!dragDesactivoCarrusel) {
             iniciarCarruselAutomatico(list);
         }
@@ -1756,9 +1745,7 @@ function mostrarSimilares(juego) {
     list.addEventListener('mouseup', () => {
         isDown = false;
         list.classList.remove('active');
-        // Pequeño delay para no gatillar el onclick de la tarjeta
         setTimeout(() => { window.isDraggingCarousel = false; }, 50);
-        // Solo reanuda si el usuario NUNCA arrastró
         if (!dragDesactivoCarrusel) {
             iniciarCarruselAutomatico(list);
         }
@@ -1766,13 +1753,13 @@ function mostrarSimilares(juego) {
 
     list.addEventListener('mousemove', (e) => {
         if (!isDown) return;
-        e.preventDefault(); // Previene comportamientos raros del navegador
+        e.preventDefault(); 
         const x = e.pageX - list.offsetLeft;
-        const walk = (x - startX) * 1.5; // Velocidad del arrastre
+        const walk = (x - startX) * 1.5; 
         if (Math.abs(walk) > 10) {
             window.isDraggingCarousel = true; 
-            dragDesactivoCarrusel = true; // El usuario arrastró, matamos el auto-scroll para siempre
-            clearInterval(window.carouselInterval); // Aseguramos que quede apagado
+            dragDesactivoCarrusel = true; 
+            clearInterval(window.carouselInterval); 
         }
         list.scrollLeft = scrollLeft - walk;
     });
@@ -1792,7 +1779,6 @@ function iniciarCarruselAutomatico(list) {
     }, 3000);
 }
 
-// LOGICA DE PÁGINA FULL SCREEN AL ABRIR UN JUEGO CON HISTORIAL
 window.abrirDescargas = function(juego, pushState = true) {
     if (pushState) {
         history.pushState({view: 'game', gameId: juego.id}, "", "?game=" + juego.id);
@@ -1800,15 +1786,16 @@ window.abrirDescargas = function(juego, pushState = true) {
 
     document.getElementById('game-details-bg-blur').style.backgroundImage = `url('${juego.imagen}')`;
     
+    const chatBg = document.getElementById('chat-bg-blur');
+    if (chatBg) chatBg.style.backgroundImage = `url('${juego.imagen}')`;
+    
     currentGameOpen = juego;
     currentCommentLimit = 30; 
     
-    // Mostramos la página y bloqueamos el scroll del fondo
     document.body.classList.add('no-scroll');
     const page = document.getElementById('game-details-page');
     page.style.display = 'block';
     
-    // Hacer scroll de la página nueva hacia arriba de todo
     setTimeout(() => { page.scrollTop = 0; }, 10);
     
     const containerLinks = document.getElementById('download-buttons-container');
@@ -1839,7 +1826,17 @@ window.abrirDescargas = function(juego, pushState = true) {
     document.getElementById('download-title').innerText = juego.titulo;
     document.getElementById('game-detail-cover').src = juego.imagen;
     
-    // Trailer Directo (sin botón)
+    const favModalCont = document.getElementById('fav-modal-container');
+    if(favModalCont) {
+        const esFavModal = favoritos.includes(juego.titulo);
+        const safeTitle = juego.titulo.replace(/'/g, "\\'");
+        favModalCont.innerHTML = `
+            <button class="btn-fav-modal" onclick="window.toggleFav('${safeTitle}', this); event.stopPropagation();" title="Favoritos">
+                <i class="${esFavModal ? 'fa-solid' : 'fa-regular'} fa-heart ${esFavModal ? 'fav' : ''}"></i>
+            </button>
+        `;
+    }
+
     const ytId = juego.trailerUrl ? getYoutubeId(juego.trailerUrl) : null;
     if (ytId) {
         trailerContent.style.display = 'block'; 
@@ -1910,9 +1907,7 @@ window.abrirDescargas = function(juego, pushState = true) {
 
             btn.onclick = () => {
                 const isOpen = panel.style.display === "flex";
-                // Cerramos todos
                 document.querySelectorAll('.accordion-panel').forEach(p => p.style.display='none');
-                // Abrimos el clickeado si no estaba abierto
                 panel.style.display = isOpen ? "none" : "flex";
             };
 
@@ -1923,7 +1918,6 @@ window.abrirDescargas = function(juego, pushState = true) {
     }
 }
 
-// LOGICA PARA VOLVER A INICIO (CON HISTORIAL O BOTÓN)
 window.cerrarGameDetails = (pushState = true) => {
     clearInterval(window.carouselInterval); 
     document.getElementById('game-details-page').style.display = 'none';
@@ -2137,18 +2131,30 @@ window.toggleFav = async (t, btn) => {
     }
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
 
-    // ESTO ARREGLA TU PROBLEMA:
-    // Solo cambiamos el ícono del botón que acabamos de tocar
-    const icono = btn.querySelector('i');
-    if (favoritos.includes(t)) {
-        icono.className = "fa-solid fa-heart fav";
-    } else {
-        icono.className = "fa-regular fa-heart";
+    const safeTitle = t.replace(/'/g, "\\'");
+    const todosLosCorazones = document.querySelectorAll(`[onclick*="toggleFav('${safeTitle}'"] i`);
+    
+    if (btn) {
+        const icono = btn.querySelector('i');
+        if (icono) {
+            if (favoritos.includes(t)) {
+                icono.className = "fa-solid fa-heart fav";
+            } else {
+                icono.className = "fa-regular fa-heart";
+            }
+        }
     }
+
+    todosLosCorazones.forEach(icono => {
+        if (favoritos.includes(t)) {
+            icono.className = "fa-solid fa-heart fav";
+        } else {
+            icono.className = "fa-regular fa-heart";
+        }
+    });
 
     window.aplicarFiltrosGlobales(); 
 
-    // (Opcional) Si querés que se actualice también en Firebase si hay usuario
     if (usuarioActual) {
         try {
             const userRef = doc(db, "usuarios", usuarioActual.uid);

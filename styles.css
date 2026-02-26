@@ -377,13 +377,41 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 /* ========================================================
    PÁGINA FULL-SCREEN DE JUEGO (REEMPLAZA AL MODAL)
    ======================================================== */
+
+
+   #game-details-bg-blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Para que quede atrás de todo */
+    background-size: cover;
+    background-position: center;
+    filter: blur(40px) brightness(0.4); /* El desenfoque y lo oscurecemos un poco */
+    transform: scale(1.1); /* Para evitar bordes blancos por el blur */
+    transition: background-image 0.5s ease-in-out;
+    pointer-events: none;
+}
+
+/* Esto afecta a la imagen principal dentro del detalle del juego */
+#game-detail-cover {
+    width: 100%;
+    height: 450px; /* Altura fija para que todas sean iguales */
+    object-fit: cover; /* Recorta la imagen para que llene el espacio sin estirarse */
+    object-position: center;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+    display: block;
+}
+
 #game-details-page {
     position: fixed; 
     top: 0;
     left: 0;
     width: 143vw !important; /* CORRECCIÓN DEL ZOOM 0.7 */
     height: 143vh !important; /* CORRECCIÓN DEL ZOOM 0.7 PARA TAPAR EL FONDO */
-    background: var(--bg-dark);
+    background: rgba(0, 0, 0, 1) !important; /* Un negro traslúcido */
     z-index: 5000; 
     overflow-y: auto; 
     overflow-x: hidden;

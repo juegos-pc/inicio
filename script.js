@@ -1753,6 +1753,8 @@ window.abrirDescargas = function(juego, pushState = true) {
     if (pushState) {
         history.pushState({view: 'game', gameId: juego.id}, "", "?game=" + juego.id);
     }
+
+    document.getElementById('game-details-bg-blur').style.backgroundImage = `url('${juego.imagen}')`;
     
     currentGameOpen = juego;
     currentCommentLimit = 30; 

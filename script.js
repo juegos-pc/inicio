@@ -69,7 +69,7 @@ window.showToast = (msg, type = 'info') => {
     setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(), 300); }, 3000);
 };
 
-// MANEJO DEL HISTORIAL DEL NAVEGADOR (BOTON ATRAS Y ADELANTE)
+// MANEJO DEL HISTORIAL DEL NAVEGADOR
 window.onpopstate = (event) => {
     if (event.state && event.state.view === 'game' && event.state.gameId) {
         const targetGame = juegos.find(j => j.id === event.state.gameId);
@@ -167,6 +167,44 @@ document.getElementById('new-comment-text').addEventListener('keydown', (e) => {
     }
 });
 
+// FUNCIONES DEL ANUNCIO EMERGENTE
+window.cerrarAnuncio = () => {
+    document.getElementById('announcement-overlay').style.display = 'none';
+};
+
+window.verificarYMostrarAnuncio = async () => {
+    console.log("1. Buscando anuncio en Firebase...");
+    
+    if(sessionStorage.getItem('anuncioVisto')) {
+        console.log("2. Cancelado: El navegador dice que ya viste el anuncio en esta sesion.");
+        return; 
+    }
+    
+    try {
+        const snap = await getDoc(doc(db, "config", "anuncio"));
+        if(snap.exists()) {
+            const data = snap.data();
+            console.log("3. Datos del anuncio encontrados en Firebase:", data);
+            
+            if(data.activo && data.imagen) {
+                console.log("4. Todo en orden. Esperando 3 segundos para mostrarlo...");
+                setTimeout(() => {
+                    document.getElementById('announcement-image').src = data.imagen;
+                    document.getElementById('announcement-link').href = data.link || "#";
+                    document.getElementById('announcement-overlay').style.display = 'flex';
+                    sessionStorage.setItem('anuncioVisto', 'true');
+                    console.log("5. ¡Cartel mostrado en pantalla!");
+                }, 3000);
+            } else {
+                console.log("4. Cancelado: El anuncio esta DESACTIVADO o no tiene puesto un link de imagen.");
+            }
+        } else {
+            console.log("3. Cancelado: Todavia no se guardo ningun anuncio en la base de datos.");
+        }
+    } catch(e) { 
+        console.error("Error grave al intentar leer el anuncio:", e); 
+    }
+};
 document.getElementById('btn-guest-login').onclick = () => {
     sessionStorage.setItem('modoInvitado', 'true');
     esInvitado = true;
@@ -181,6 +219,7 @@ document.getElementById('btn-guest-login').onclick = () => {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'none';
         appContent.style.display = 'block';
+        window.verificarYMostrarAnuncio(); // Llama al anuncio
     }, 500);
 
     document.getElementById('user-email-display').innerText = "Invitado (Local)";
@@ -205,6 +244,7 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none'; 
                 appContent.style.display = 'block';
+                window.verificarYMostrarAnuncio(); // Llama al anuncio
                 setTimeout(() => {
                     const push = document.getElementById('push-donation');
                     push.classList.add('show');
@@ -617,7 +657,6 @@ function renderizarJuegos() {
         const fechaFormateada = formatearFecha(juego.fechaSalida || juego.fecha);
         const views = juego.views || 0;
         
-        // CORRECCION DE COMILLAS PARA LA LISTA PRINCIPAL
         const safeTitle = juego.titulo.replace(/'/g, "\\'");
 
         card.onclick = (e) => { if(!e.target.closest('.heart')) window.abrirDescargas(juego); };
@@ -834,7 +873,6 @@ window.submitVote = async (valorVoto) => {
     const key = `puntuaciones.${usuarioActual.uid}`;
     
     try {
-        // Bloqueo visual mientras se sube el voto
         document.getElementById('star-rating-display').style.pointerEvents = 'none';
         
         await updateDoc(gameRef, { [key]: votoAFijar });
@@ -1325,12 +1363,36 @@ window.abrirPanelAdmin = async () => {
     }
 };
 
+window.cargarConfigAnuncio = async () => {
+    try {
+        const snap = await getDoc(doc(db, "config", "anuncio"));
+        if(snap.exists()) {
+            const data = snap.data();
+            document.getElementById('admin-announcement-active').checked = data.activo || false;
+            document.getElementById('admin-announcement-image').value = data.imagen || "";
+            document.getElementById('admin-announcement-link').value = data.link || "";
+        }
+    } catch(e) { console.error("Error al cargar anuncio", e); }
+};
+
+window.guardarConfigAnuncio = async () => {
+    const activo = document.getElementById('admin-announcement-active').checked;
+    const imagen = document.getElementById('admin-announcement-image').value;
+    const link = document.getElementById('admin-announcement-link').value;
+    
+    try {
+        await setDoc(doc(db, "config", "anuncio"), { activo, imagen, link });
+        showToast("Configuracion de anuncio guardada", "success");
+    } catch(e) { showToast("Error al guardar anuncio", "error"); }
+};
+
 window.cambiarTabPanel = async (tab) => {
     document.getElementById('view-banned').style.display = 'none';
     document.getElementById('view-reports').style.display = 'none';
     document.getElementById('view-admins').style.display = 'none';
     document.getElementById('view-trash').style.display = 'none';
     document.getElementById('view-genres').style.display = 'none';
+    document.getElementById('view-announcement').style.display = 'none';
     document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
 
     if(tab === 'banned') {
@@ -1353,6 +1415,10 @@ window.cambiarTabPanel = async (tab) => {
         document.getElementById('view-genres').style.display = 'block';
         document.getElementById('tab-btn-genres').classList.add('active');
         renderizarListaGenerosAdmin();
+    } else if (tab === 'announcement') {
+        document.getElementById('view-announcement').style.display = 'block';
+        document.getElementById('tab-btn-announcement').classList.add('active');
+        window.cargarConfigAnuncio();
     }
 };
 

@@ -26,6 +26,15 @@
     haciendo click aqui
   </div>
 
+  <div id="announcement-overlay">
+      <div class="announcement-box">
+          <button class="btn-close-announcement" onclick="cerrarAnuncio()">&times;</button>
+          <a id="announcement-link" href="#" target="_blank" onclick="cerrarAnuncio()">
+              <img id="announcement-image" src="" alt="Anuncio">
+          </a>
+      </div>
+  </div>
+
   <div id="login-screen">
     <div class="login-side-text left-side">
         <h2>Bienvenido</h2>
@@ -175,9 +184,9 @@
 
               <div class="col-info">
                   <div style="display: flex; align-items: center; justify-content: flex-start; gap: 20px; margin-bottom: 25px;">
-    <div id="fav-modal-container"></div>
-    <h2 id="download-title" style="color: var(--primary); font-size: 3rem; margin: 0; text-transform: uppercase; word-wrap: break-word;"></h2>
-</div>
+                      <div id="fav-modal-container"></div>
+                      <h2 id="download-title" style="color: var(--primary); font-size: 3rem; margin: 0; text-transform: uppercase; word-wrap: break-word;"></h2>
+                  </div>
 
                   <div id="game-meta-info" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-bottom: 25px; color: #ccc; font-size:1.1rem; border: 1px solid #333;"></div>
 
@@ -222,7 +231,7 @@
               </div>
 
               <div class="col-comments" style="position: relative; overflow: hidden;">
-                  <div id="chat-bg-blur" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background-size: cover; background-position: center; filter: blur(10px) brightness(0.4); transform: scale(1.1); pointer-events: none;"></div>
+                  <div id="chat-bg-blur" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background-size: cover; background-position: center; filter: blur(5px) brightness(0.3); transform: scale(1.05); pointer-events: none;"></div>
                   
                   <div class="comments-header" style="border-radius: 10px 10px 0 0; background: rgba(32, 32, 32, 0.8); z-index: 1; position: relative;"><h3 style="margin:0; color:var(--secondary);">Comentarios</h3></div>
                   <div id="comments-list" class="comments-list-container" style="z-index: 1; position: relative;"></div>
@@ -416,6 +425,7 @@
     <div class="modal-content-wide" style="padding:0; overflow:hidden; max-width:900px; display:flex;">
         <div class="panel-sidebar">
             <h3 style="color:white; margin:10px 10px 20px 10px; text-transform:uppercase; font-size:1.1rem; border-bottom:1px solid #444; padding-bottom:10px;">Panel de Control</h3>
+            
             <button class="sidebar-btn active" id="tab-btn-banned" onclick="cambiarTabPanel('banned')">
                 <i class="fa-solid fa-ban" style="margin-right:8px;"></i> Baneados
             </button>
@@ -429,8 +439,12 @@
                 <i class="fa-solid fa-tags" style="margin-right:8px;"></i> Generos
             </button>
             <button class="sidebar-btn" id="tab-btn-trash" onclick="cambiarTabPanel('trash')">
-                <i class="fa-solid fa-trash-can" style="margin-right:8px;"></i> Papelera Juegos
+                <i class="fa-solid fa-trash-can" style="margin-right:8px;"></i> Papelera
             </button>
+            <button class="sidebar-btn" id="tab-btn-announcement" onclick="cambiarTabPanel('announcement')">
+                <i class="fa-solid fa-bullhorn" style="margin-right:8px;"></i> Anuncio
+            </button>
+
             <button class="sidebar-btn" onclick="document.getElementById('modalPanelUnificado').style.display='none'" style="margin-top:auto; color:#ff4444;">
                 <i class="fa-solid fa-xmark" style="margin-right:8px;"></i> Cerrar Panel
             </button>
@@ -491,6 +505,29 @@
                     <p style="color:#aaa;">Cargando...</p>
                 </div>
             </div>
+
+            <div id="view-announcement" style="display:none;">
+                <h2 style="color:var(--primary); margin-bottom:20px;">Configurar Anuncio Emergente</h2>
+                <p style="color:#ccc; font-size:0.9rem; margin-bottom:20px;">Este cartel le aparecera a todos los usuarios 3 segundos despues de entrar a la pagina. Ideal para torneos o avisos importantes.</p>
+                
+                <div class="input-group" style="display:flex; align-items:center; gap:10px; background:#333; padding:15px; border-radius:8px;">
+                    <label style="font-weight:bold; font-size:1.1rem; color:white;">Activar Anuncio</label>
+                    <input type="checkbox" id="admin-announcement-active" style="width:25px; height:25px; cursor:pointer;">
+                </div>
+                
+                <div class="input-group" style="margin-top:15px;">
+                    <label style="color:var(--primary); margin-bottom:5px; display:block;">URL de la Imagen</label>
+                    <input type="url" id="admin-announcement-image" placeholder="Ej: https://i.imgur.com/foto.png">
+                </div>
+                
+                <div class="input-group">
+                    <label style="color:var(--primary); margin-bottom:5px; display:block;">Enlace de Destino (Opcional)</label>
+                    <input type="url" id="admin-announcement-link" placeholder="Ej: https://discord.gg/tu-sv">
+                </div>
+                
+                <button onclick="guardarConfigAnuncio()" style="background:var(--secondary); color:white; font-weight:bold; border:none; padding:15px 20px; border-radius:8px; cursor:pointer; width:100%; font-size:1.1rem; margin-top:10px;">Guardar Anuncio</button>
+            </div>
+
         </div>
     </div>
   </div>

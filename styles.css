@@ -723,9 +723,6 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 .modal-content-wide { min-height: 150vh !important; margin-top: 2vh !important; }
 .link-row.dragging { opacity: 0.5; background: #444; border: 2px dashed #fff; }
 
-
-
-
 /* Estilo para el input cuando estás editando un comentario */
 .edit-comment-container {
     display: flex;
@@ -779,12 +776,10 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     cursor: pointer;
 }
 
-
-
 .btn-fav-modal {
     background: none;
     border: none;
-    color: var(--secondary); /* Usamos el rosa/fucsia de tu variable */
+    color: var(--secondary);
     font-size: 1.8rem;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -814,4 +809,22 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 /* Animación rápida al hacer click */
 .fa-heart {
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ESTILOS DEL ANUNCIO EMERGENTE */
+#announcement-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+}
+.announcement-box {
+    position: relative; max-width: 600px; width: 90%; animation: zoomIn 0.3s ease;
+}
+.btn-close-announcement {
+    position: absolute; top: -15px; right: -15px; background: #ff4444; color: white;
+    border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.2rem;
+    cursor: pointer; font-weight: bold; z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+#announcement-image {
+    width: 100%; border-radius: 15px; display: block;
+    box-shadow: 0 10px 30px rgba(0,229,255,0.3); border: 2px solid var(--primary);
 }

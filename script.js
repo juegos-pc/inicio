@@ -695,6 +695,7 @@ function renderizarJuegos() {
             <div class="title-overlay">
                 <div>${juego.titulo}</div>
                 <div style="font-size:0.9rem; color:#aaa; margin-top:3px; font-weight:normal;">${fechaFormateada}</div>
+                <div style="font-size:0.85rem; color:var(--primary); margin-top:2px;">Requisitos: ${juego.requisito || 'N/A'}</div>
             </div>
         `;
         gameList.appendChild(card);
@@ -1741,7 +1742,7 @@ function mostrarSimilares(juego) {
 
     matches.sort((a, b) => b.matchCount - a.matchCount);
     const topCandidates = matches.slice(0, 20);
-    const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 10);
+    const selected = topCandidates.sort(() => 0.5 - Math.random()).slice(0, 16);
     if(selected.length === 0) { container.style.display = 'none'; return; }
     
     container.style.display = 'block';
@@ -2368,7 +2369,7 @@ async function cargarNotasAdmin() {
         const fechaFmt = new Date(data.fecha).toLocaleString();
         cont.innerHTML += `<div style="background:#222; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #444;">
             <div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">${data.autor} - ${fechaFmt}</div>
-            <div style="font-size:0.95rem; color:white; white-space:pre-wrap;">${data.texto}</div>
+            <div style="font-size:1.6rem; color:white; white-space:pre-wrap;">${data.texto}</div>
             <button onclick="borrarNotaAdmin('${d.id}')" style="background:#ff4444; color:white; border:none; padding:3px 8px; border-radius:3px; font-size:0.8rem; margin-top:5px; cursor:pointer;">Borrar</button>
         </div>`;
     });

@@ -43,20 +43,16 @@ let listaGeneros = [];
 
 function actualizarPaginacionDinamica() {
     const contenedor = document.getElementById('gameList');
-    if (!contenedor) return;
+    // Si no existe o esta oculto (ancho 0), no hacemos nada
+    if (!contenedor || contenedor.offsetWidth === 0) return;
 
-    // En tu CSS, las tarjetas (juegos) tienen un min-width de 220px y un gap de 30px.
-    // Esto significa que cada juego ocupa un espacio real aproximado de 250px.
     const anchoTarjetaReal = 250; 
     const anchoContenedor = contenedor.offsetWidth;
 
-    // Calculamos cuántas columnas caben enteras
     let columnas = Math.floor(anchoContenedor / anchoTarjetaReal);
-    
-    // Nos aseguramos de que siempre haya al menos 1 columna en pantallas muy pequeñas
     if (columnas < 1) columnas = 1;
 
-    // Multiplicamos las columnas obtenidas por las 8 filas que deseas fijar
+    // Multiplicamos por las 8 filas que necesitas
     juegosPorPagina = columnas * 8;
 }
 
@@ -420,19 +416,20 @@ window.onclick = (e) => {
         }
     }
 };
-window.addEventListener('resize', () => {
-    // Si la lista de juegos no está visible, no hacemos nada
-    if (document.getElementById('app-content').style.display === 'none') return;
-
-    // Recalculamos cuántos juegos entran ahora
-    actualizarPaginacionDinamica();
-    
-    // Regresamos a la página 1 para evitar que queden espacios vacíos por el cambio matemático
-    paginaActual = 1; 
-    
-    // Volvemos a dibujar los juegos en pantalla
-    renderizarJuegos();
+const observador = new ResizeObserver(() => {
+    const contenido = document.getElementById('app-content');
+    // Solo recalculamos si la pantalla principal esta visible
+    if (contenido && contenido.style.display !== 'none') {
+        actualizarPaginacionDinamica();
+        renderizarJuegos();
+    }
 });
+
+// Le decimos al observador que vigile constantemente el contenedor de juegos
+const listaDeJuegos = document.getElementById('gameList');
+if (listaDeJuegos) {
+    observador.observe(listaDeJuegos);
+}
 
 document.addEventListener('contextmenu', (e) => {
     if(e.target.classList.contains('user-name-span')) return;

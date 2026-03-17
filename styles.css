@@ -30,7 +30,6 @@ body.light {
     background: #f0f2f5; color: #333; --bg-panel: #ffffff;
 }
 
-/* SCROLLBARS */
 ::-webkit-scrollbar { width: 12px; }
 ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #333; }
 ::-webkit-scrollbar-thumb { 
@@ -217,7 +216,6 @@ body.light {
 }
 @keyframes swing { 0% { transform: rotate(0deg); } 20% { transform: rotate(15deg); } 40% { transform: rotate(-10deg); } 60% { transform: rotate(5deg); } 100% { transform: rotate(0deg); } }
 
-/* ---------- BARRA SUPERIOR INTEGRADA (Buscador + Filtros) ---------- */
 .top-integrated-bar {
     display: flex; 
     align-items: center; 
@@ -374,10 +372,6 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 #contextMenu button:hover { background: var(--primary); color: black; }
 
 
-/* ========================================================
-   PÁGINA FULL-SCREEN DE JUEGO (REEMPLAZA AL MODAL)
-   ======================================================== */
-
 
    #game-details-bg-blur {
     position: fixed;
@@ -385,20 +379,19 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; /* Para que quede atrás de todo */
+    z-index: -1; 
     background-size: cover;
     background-position: center;
-    filter: blur(40px) brightness(0.4); /* El desenfoque y lo oscurecemos un poco */
-    transform: scale(1.1); /* Para evitar bordes blancos por el blur */
+    filter: blur(40px) brightness(0.4); 
+    transform: scale(1.1);
     transition: background-image 0.5s ease-in-out;
     pointer-events: none;
 }
 
-/* Esto afecta a la imagen principal dentro del detalle del juego */
 #game-detail-cover {
     width: 100%;
-    height: 450px; /* Altura fija para que todas sean iguales */
-    object-fit: cover; /* Recorta la imagen para que llene el espacio sin estirarse */
+    height: 450px;
+    object-fit: cover;
     object-position: center;
     border-radius: 15px;
     box-shadow: 0 5px 25px rgba(0,0,0,0.6);
@@ -409,9 +402,9 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     position: fixed; 
     top: 0;
     left: 0;
-    width: 143vw !important; /* CORRECCIÓN DEL ZOOM 0.7 */
-    height: 143vh !important; /* CORRECCIÓN DEL ZOOM 0.7 PARA TAPAR EL FONDO */
-    background: rgba(0, 0, 0, 1) !important; /* Un negro traslúcido */
+    width: 143vw !important; 
+    height: 143vh !important; 
+    background: rgba(0, 0, 0, 1) !important; 
     z-index: 5000; 
     overflow-y: auto; 
     overflow-x: hidden;
@@ -464,11 +457,10 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 .col-cover { display: flex; flex-direction: column; }
 .col-info { display: flex; flex-direction: column; }
 
-/* CHAT MÁS LARGO */
 .col-comments { 
     display: flex; 
     flex-direction: column; 
-    height: 850px; /* MUCHÍSIMO MÁS ALTO */
+    height: 850px; 
     max-height: none;
     border: 1px solid #333; 
     border-radius: 10px; 
@@ -478,12 +470,11 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; margin-top: 25px; background: black; }
 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-/* CONTENEDOR DE LOS SERVIDORES MEGA, MEDIAFIRE, ETC EN HORIZONTAL */
 .accordion-container { 
     display: flex; 
     flex-direction: row; 
     flex-wrap: wrap; 
-    align-items: flex-start; /* Evita que se estiren si otro se abre */
+    align-items: flex-start; 
     gap: 15px; 
 } 
 .accordion-item { 
@@ -515,15 +506,13 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 }
 .accordion-btn:hover { background: #333; color: var(--primary); padding-left: 30px; }
 
-/* CAJA DE LINKS: VERTICAL, NO ESTIRA LA PAGINA, BARRA SCROLL EN > 7 LINKS */
 .accordion-panel { 
     padding: 0; 
-    display: none; /* JS lo cambia a flex para abrir */
-    flex-direction: column; /* Apila los links verticalmente */
+    display: none; 
     background: #1a1a1a; 
     border-top: 1px solid #333; 
-    max-height: 380px; /* 7 ENLACES APROX ANTES DEL SCROLL */
-    overflow-y: auto; /* BARRA DE SCROLL VERTICAL */
+    max-height: 380px; 
+    overflow-y: auto;
 }
 .accordion-panel a { 
     display: flex; 
@@ -573,31 +562,28 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 .btn-load-more-comments { width: 100%; padding: 12px; background: #333; color: white; border: 1px dashed #555; cursor: pointer; margin-top: 15px; border-radius: 5px; flex-shrink: 0; font-size: 1rem; }
 
 
-/* CARRUSEL DE RECOMENDADOS (Abajo de todo) */
 .similar-grid { 
     display: flex; 
     flex-wrap: nowrap; 
     overflow-x: auto; 
     gap: 20px; 
     padding-bottom: 20px; 
-    scroll-behavior: smooth; /* Para que el avance sea suave */
-    cursor: grab; /* Muestra manito de agarrar */
+    scroll-behavior: smooth;
+    cursor: grab; 
 }
 .similar-grid.active {
-    cursor: grabbing; /* Manito cerrada al arrastrar */
-    scroll-behavior: auto; /* Corta la suavidad para que el arrastre sea instantáneo */
+    cursor: grabbing; 
+    scroll-behavior: auto;
 }
 .similar-grid::-webkit-scrollbar { height: 10px; }
 .similar-grid::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
 
-/* Hacemos que cada juego en el carrusel no se achique y no se pueda seleccionar texto */
 .similar-grid .game {
     flex: 0 0 250px; 
     user-select: none;
-    -webkit-user-drag: none; /* Previene el arrastre nativo del bloque */
+    -webkit-user-drag: none; 
 }
 
-/* NUEVO: Evita que al arrastrar se seleccione la imagen y se trabe */
 .similar-grid .game img {
     pointer-events: none;
     user-select: none;
@@ -613,9 +599,6 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 .btn-send-vote { background: var(--gold); color: black; border: none; font-weight: bold; font-size: 0.85rem; padding: 8px 18px; border-radius: 10px; cursor: pointer; display: none; }
 
 
-/* ========================================================
-   MODALES DE ADMINISTRACIÓN Y GLOBALES
-   ======================================================== */
 .modal { display: none; position: fixed; z-index: 6000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; }
 .modal-content-wide { background-color: rgba(30, 30, 30, 0.95); margin: 2vh auto; padding: 50px; border-radius: 25px; width: 96%; max-width: 1400px; min-height: 85vh; max-height: 100vh; overflow-y: auto; color: #fff; position: relative; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 60px rgba(0, 229, 255, 0.2); animation: zoomIn 0.3s ease; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; backdrop-filter: blur(15px); align-content: start; }
 .modal-header, .modal-footer, .full-width { grid-column: 1 / -1; }
@@ -703,7 +686,6 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
 #btn-copy-password { background: var(--secondary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.2s; font-size: 0.9rem; }
 #btn-copy-password:hover { background: #ff5e9c; }
 
-/* MEDIA QUERIES PARA CELULARES - Adapta el diseño a 1 columna */
 @media (max-width: 1200px) {
     .game-details-3col { grid-template-columns: 350px 1fr; }
     .col-comments { grid-column: 1 / -1; margin-top: 30px; height: 600px;}
@@ -716,14 +698,12 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     .panel-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
 }
 
-/* --- CORRECCIONES FINALES (ZOOM 0.7) --- */
 #loading-screen, #login-screen, .modal { height: 143vh !important; width: 143vw !important; }
 #menuClosed { height: 143vh !important; }
 .modal-content-wide, .modal-content-small, .login-box { zoom: 0.9; }
 .modal-content-wide { min-height: 150vh !important; margin-top: 2vh !important; }
 .link-row.dragging { opacity: 0.5; background: #444; border: 2px dashed #fff; }
 
-/* Estilo para el input cuando estás editando un comentario */
 .edit-comment-container {
     display: flex;
     flex-direction: column;
@@ -799,19 +779,17 @@ main { margin-left: 80px; padding: 30px; flex: 1; display: flex; flex-direction:
     transform: scale(1.3);
     filter: drop-shadow(0 0 5px var(--gold));
 }
-/* El corazón lleno (favorito) */
+
 .fa-solid.fa-heart {
     color: var(--secondary) !important;
     filter: drop-shadow(0 0 5px var(--secondary));
     transform: scale(1.1);
 }
 
-/* Animación rápida al hacer click */
 .fa-heart {
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* ESTILOS DEL ANUNCIO EMERGENTE */
 #announcement-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.8); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(5px);

@@ -43,7 +43,6 @@ let listaGeneros = [];
 
 function actualizarPaginacionDinamica() {
     const contenedor = document.getElementById('gameList');
-    // Si no existe o esta oculto (ancho 0), no hacemos nada
     if (!contenedor || contenedor.offsetWidth === 0) return;
 
     const anchoTarjetaReal = 250; 
@@ -52,11 +51,9 @@ function actualizarPaginacionDinamica() {
     let columnas = Math.floor(anchoContenedor / anchoTarjetaReal);
     if (columnas < 1) columnas = 1;
 
-    // Multiplicamos por las 8 filas que necesitas
     juegosPorPagina = columnas * 8;
 }
 
-// Para el carrusel y su evento de arrastre
 window.carouselInterval = null;
 window.isDraggingCarousel = false;
 
@@ -84,7 +81,6 @@ window.showToast = (msg, type = 'info') => {
     setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(), 300); }, 3000);
 };
 
-// MANEJO DEL HISTORIAL DEL NAVEGADOR
 window.onpopstate = (event) => {
     if (event.state && event.state.view === 'game' && event.state.gameId) {
         const targetGame = juegos.find(j => j.id === event.state.gameId);
@@ -182,7 +178,6 @@ document.getElementById('new-comment-text').addEventListener('keydown', (e) => {
     }
 });
 
-// FUNCIONES DEL ANUNCIO EMERGENTE
 window.cerrarAnuncio = () => {
     document.getElementById('announcement-overlay').style.display = 'none';
 };
@@ -234,7 +229,7 @@ document.getElementById('btn-guest-login').onclick = () => {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'none';
         appContent.style.display = 'block';
-        window.verificarYMostrarAnuncio(); // Llama al anuncio
+        window.verificarYMostrarAnuncio(); 
     }, 500);
 
     document.getElementById('user-email-display').innerText = "Invitado (Local)";
@@ -244,10 +239,8 @@ document.getElementById('btn-guest-login').onclick = () => {
     document.getElementById('btnAdminTools').style.display = 'none';
     document.getElementById('btnAdminNotes').style.display = 'none';
     
-    // Dentro de tu función cargarJuegos(), busca esta parte:
 juegosFiltrados = [...juegos];
 
-// Agrega la llamada aquí:
 actualizarPaginacionDinamica();
 
 renderizarJuegos();
@@ -267,7 +260,7 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none'; 
                 appContent.style.display = 'block';
-                window.verificarYMostrarAnuncio(); // Llama al anuncio
+                window.verificarYMostrarAnuncio();
                 setTimeout(() => {
                     const push = document.getElementById('push-donation');
                     push.classList.add('show');
@@ -418,14 +411,12 @@ window.onclick = (e) => {
 };
 const observador = new ResizeObserver(() => {
     const contenido = document.getElementById('app-content');
-    // Solo recalculamos si la pantalla principal esta visible
     if (contenido && contenido.style.display !== 'none') {
         actualizarPaginacionDinamica();
         renderizarJuegos();
     }
 });
 
-// Le decimos al observador que vigile constantemente el contenedor de juegos
 const listaDeJuegos = document.getElementById('gameList');
 if (listaDeJuegos) {
     observador.observe(listaDeJuegos);
@@ -467,9 +458,9 @@ window.cerrarModalConConfirmacion = (id) => {
 searchInput.addEventListener('input', function() {
     searchInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-        e.preventDefault(); // Evita comportamientos por defecto del navegador
-        autocompleteList.style.display = 'none'; // Oculta las recomendaciones
-        this.blur(); // Quita el cursor del buscador (esto cierra el teclado en los celulares)
+        e.preventDefault(); 
+        autocompleteList.style.display = 'none';
+        this.blur(); 
     }
 });
     const val = normalizarTexto(this.value);

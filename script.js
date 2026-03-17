@@ -19,7 +19,7 @@ const googleProvider = new GoogleAuthProvider();
 let juegos = [];
 let juegosFiltrados = [];
 let paginaActual = 1;
-const juegosPorPagina = 42; 
+let juegosPorPagina = 42; 
 
 let usuarioActual = null;
 let userData = null; 
@@ -40,6 +40,25 @@ let paginaGuardadaAntesDeBusqueda = 1;
 let paginaGuardadaAntesDeFavs = 1;
 let isViewingFavs = false;
 let listaGeneros = []; 
+
+function actualizarPaginacionDinamica() {
+    const contenedor = document.getElementById('gameList');
+    if (!contenedor) return;
+
+    // En tu CSS, las tarjetas (juegos) tienen un min-width de 220px y un gap de 30px.
+    // Esto significa que cada juego ocupa un espacio real aproximado de 250px.
+    const anchoTarjetaReal = 250; 
+    const anchoContenedor = contenedor.offsetWidth;
+
+    // Calculamos cuántas columnas caben enteras
+    let columnas = Math.floor(anchoContenedor / anchoTarjetaReal);
+    
+    // Nos aseguramos de que siempre haya al menos 1 columna en pantallas muy pequeñas
+    if (columnas < 1) columnas = 1;
+
+    // Multiplicamos las columnas obtenidas por las 8 filas que deseas fijar
+    juegosPorPagina = columnas * 8;
+}
 
 // Para el carrusel y su evento de arrastre
 window.carouselInterval = null;
@@ -229,6 +248,14 @@ document.getElementById('btn-guest-login').onclick = () => {
     document.getElementById('btnAdminTools').style.display = 'none';
     document.getElementById('btnAdminNotes').style.display = 'none';
     
+    // Dentro de tu función cargarJuegos(), busca esta parte:
+juegosFiltrados = [...juegos];
+
+// Agrega la llamada aquí:
+actualizarPaginacionDinamica();
+
+renderizarJuegos();
+
     cargarJuegos();
 };
 
@@ -393,6 +420,19 @@ window.onclick = (e) => {
         }
     }
 };
+window.addEventListener('resize', () => {
+    // Si la lista de juegos no está visible, no hacemos nada
+    if (document.getElementById('app-content').style.display === 'none') return;
+
+    // Recalculamos cuántos juegos entran ahora
+    actualizarPaginacionDinamica();
+    
+    // Regresamos a la página 1 para evitar que queden espacios vacíos por el cambio matemático
+    paginaActual = 1; 
+    
+    // Volvemos a dibujar los juegos en pantalla
+    renderizarJuegos();
+});
 
 document.addEventListener('contextmenu', (e) => {
     if(e.target.classList.contains('user-name-span')) return;

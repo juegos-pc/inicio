@@ -465,6 +465,13 @@ window.cerrarModalConConfirmacion = (id) => {
 };
 
 searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Evita comportamientos por defecto del navegador
+        autocompleteList.style.display = 'none'; // Oculta las recomendaciones
+        this.blur(); // Quita el cursor del buscador (esto cierra el teclado en los celulares)
+    }
+});
     const val = normalizarTexto(this.value);
     
     if(val.length > 0 && paginaActual !== 1 && paginaGuardadaAntesDeBusqueda === 1) {
@@ -1878,7 +1885,7 @@ function iniciarCarruselAutomatico(list) {
         if(list.scrollLeft + list.clientWidth >= list.scrollWidth - 10) {
             list.scrollTo({left: 0, behavior: 'smooth'});
         } else {
-            list.scrollBy({left: 270, behavior: 'smooth'});
+            list.scrollBy({left: 600, behavior: 'smooth'});
         }
     }, 3000);
 }
